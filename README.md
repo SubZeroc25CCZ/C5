@@ -11,7 +11,8 @@ as-is into `src/engine/`.
 
 - **Next.js (App Router)** on Vercel, **Clerk** auth (Google sign-in + incremental
   Gmail read-only consent)
-- **PlanetScale (MySQL)** via **Drizzle ORM**, **tRPC** + Zod API
+- **Cloudflare D1 (SQLite)** via **Drizzle ORM** (HTTP driver — free tier, no
+  card), **tRPC** + Zod API
 - **Ingestion worker**: targeted Gmail searches → Stage 1 merchant-DB matching →
   Stage 2 Claude extraction (ambiguous candidates only) → recurrence engine
 - **Stripe** Pro billing (signed + idempotent webhooks)

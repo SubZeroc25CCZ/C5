@@ -1,55 +1,64 @@
+import { sql } from "drizzle-orm";
 import {
-  mysqlTable,
-  varchar,
-  int,
-  bigint,
-  timestamp,
-  mysqlEnum,
-  json,
+  sqliteTable,
   text,
-  boolean,
+  integer,
   uniqueIndex,
   index,
   primaryKey,
-} from "drizzle-orm/mysql-core";
+} from "drizzle-orm/sqlite-core";
 
-// Carried from SubZero v1 (Clerk IDs replace Manus IDs). The v1 `email_tokens`
-// table is intentionally gone — OAuth refresh tokens live encrypted on
-// `email_accounts` and nowhere else (§6, §7).
+// Carried from SubZero v1 (Clerk IDs replace Manus IDs), hosted on
+// Cloudflare D1 (SQLite). The v1 `email_tokens` table is intentionally
+// gone — OAuth refresh tokens live encrypted on `email_accounts` and
+// nowhere else (§6, §7).
 
-export const users = mysqlTable(
+const now = sql`(unixepoch() * 1000)`;
+
+const createdAt = () =>
+  integer("created_at", { mode: "timestamp_ms" }).default(now).notNull();
+
+const updatedAt = () =>
+  integer("updated_at", { mode: "timestamp_ms" })
+    .default(now)
+    .$onUpdate(() => new Date())
+    .notNull();
+
+export const users = sqliteTable(
   "users",
   {
-    id: varchar("id", { length: 64 }).primaryKey(), // Clerk user ID
-    email: varchar("email", { length: 320 }).notNull(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
+    id: text("id").primaryKey(), // Clerk user ID
+    email: text("email").notNull(),
+    createdAt: createdAt(),
   },
   (t) => [uniqueIndex("users_email_idx").on(t.email)],
 );
 
-export const profiles = mysqlTable("profiles", {
-  userId: varchar("user_id", { length: 64 }).primaryKey(),
-  displayName: varchar("display_name", { length: 255 }),
-  plan: mysqlEnum("plan", ["free", "pro"]).default("free").notNull(),
-  stripeCustomerId: varchar("stripe_customer_id", { length: 64 }),
-  stripeSubscriptionId: varchar("stripe_subscription_id", { length: 64 }),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+export const profiles = sqliteTable("profiles", {
+  userId: text("user_id").primaryKey(),
+  displayName: text("display_name"),
+  plan: text("plan", { enum: ["free", "pro"] }).default("free").notNull(),
+  stripeCustomerId: text("stripe_customer_id"),
+  stripeSubscriptionId: text("stripe_subscription_id"),
+  createdAt: createdAt(),
+  updatedAt: updatedAt(),
 });
 
-export const emailAccounts = mysqlTable(
+export const emailAccounts = sqliteTable(
   "email_accounts",
   {
-    id: bigint("id", { mode: "number" }).autoincrement().primaryKey(),
-    userId: varchar("user_id", { length: 64 }).notNull(),
-    provider: mysqlEnum("provider", ["gmail", "outlook", "agentmail"]).notNull(),
-    address: varchar("address", { length: 320 }).notNull(),
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    userId: text("user_id").notNull(),
+    provider: text("provider", { enum: ["gmail", "outlook", "agentmail"] }).notNull(),
+    address: text("address").notNull(),
     // AES-256-GCM ciphertext (per-user derived key). NEVER a plaintext token.
     encryptedRefreshToken: text("encrypted_refresh_token"),
-    syncCursor: varchar("sync_cursor", { length: 128 }), // Gmail historyId / delta cursor
-    status: mysqlEnum("status", ["active", "revoked", "error"]).default("active").notNull(),
-    lastSyncedAt: timestamp("last_synced_at"),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
+    syncCursor: text("sync_cursor"), // Gmail historyId / delta cursor
+    status: text("status", { enum: ["active", "revoked", "error"] })
+      .default("active")
+      .notNull(),
+    lastSyncedAt: integer("last_synced_at", { mode: "timestamp_ms" }),
+    createdAt: createdAt(),
   },
   (t) => [
     index("email_accounts_user_idx").on(t.userId),
@@ -57,45 +66,45 @@ export const emailAccounts = mysqlTable(
   ],
 );
 
-export const merchants = mysqlTable(
+export const merchants = sqliteTable(
   "merchants",
   {
-    id: bigint("id", { mode: "number" }).autoincrement().primaryKey(),
-    name: varchar("name", { length: 255 }).notNull(), // canonical name
-    slug: varchar("slug", { length: 255 }).notNull(),
-    domains: json("domains").$type<string[]>().notNull(), // known billing/sender domains
-    category: varchar("category", { length: 64 }).notNull(),
-    logoUrl: varchar("logo_url", { length: 512 }),
-    cancelUrl: varchar("cancel_url", { length: 512 }),
-    cancelMethod: mysqlEnum("cancel_method", ["url", "email", "phone", "unknown"])
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    name: text("name").notNull(), // canonical name
+    slug: text("slug").notNull(),
+    domains: text("domains", { mode: "json" }).$type<string[]>().notNull(),
+    category: text("category").notNull(),
+    logoUrl: text("logo_url"),
+    cancelUrl: text("cancel_url"),
+    cancelMethod: text("cancel_method", { enum: ["url", "email", "phone", "unknown"] })
       .default("unknown")
       .notNull(),
-    cancelEmail: varchar("cancel_email", { length: 320 }),
-    difficulty: int("difficulty").default(3).notNull(), // 1 (easy) – 5 (hostile)
-    createdAt: timestamp("created_at").defaultNow().notNull(),
+    cancelEmail: text("cancel_email"),
+    difficulty: integer("difficulty").default(3).notNull(), // 1 (easy) – 5 (hostile)
+    createdAt: createdAt(),
   },
   (t) => [uniqueIndex("merchants_slug_idx").on(t.slug)],
 );
 
-export const charges = mysqlTable(
+export const charges = sqliteTable(
   "charges",
   {
-    id: bigint("id", { mode: "number" }).autoincrement().primaryKey(),
-    userId: varchar("user_id", { length: 64 }).notNull(),
-    merchantId: bigint("merchant_id", { mode: "number" }),
-    merchantName: varchar("merchant_name", { length: 255 }).notNull(), // as observed
-    amountMinor: int("amount_minor").notNull(), // minor units (cents)
-    currency: varchar("currency", { length: 3 }).notNull(),
-    chargedAt: timestamp("charged_at").notNull(),
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    userId: text("user_id").notNull(),
+    merchantId: integer("merchant_id"),
+    merchantName: text("merchant_name").notNull(), // as observed
+    amountMinor: integer("amount_minor").notNull(), // minor units (cents)
+    currency: text("currency").notNull(),
+    chargedAt: integer("charged_at", { mode: "timestamp_ms" }).notNull(),
     // Reference only — message id + date + subject. Never the body (§6).
-    sourceMessageRef: varchar("source_message_ref", { length: 255 }),
-    sourceSubject: varchar("source_subject", { length: 512 }),
-    extractionConfidence: int("extraction_confidence"), // 0–100; null = Stage 1 deterministic match
-    reviewedAt: timestamp("reviewed_at"), // user approved a below-threshold extraction
-    detectedFrom: mysqlEnum("detected_from", ["email", "manual", "screenshot"])
+    sourceMessageRef: text("source_message_ref"),
+    sourceSubject: text("source_subject"),
+    extractionConfidence: integer("extraction_confidence"), // 0–100; null = Stage 1 deterministic match
+    reviewedAt: integer("reviewed_at", { mode: "timestamp_ms" }), // user approved a below-threshold extraction
+    detectedFrom: text("detected_from", { enum: ["email", "manual", "screenshot"] })
       .default("email")
       .notNull(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
+    createdAt: createdAt(),
   },
   (t) => [
     index("charges_user_idx").on(t.userId),
@@ -104,102 +113,104 @@ export const charges = mysqlTable(
   ],
 );
 
-export const subscriptions = mysqlTable(
+export const subscriptions = sqliteTable(
   "subscriptions",
   {
-    id: bigint("id", { mode: "number" }).autoincrement().primaryKey(),
-    userId: varchar("user_id", { length: 64 }).notNull(),
-    merchantId: bigint("merchant_id", { mode: "number" }),
-    name: varchar("name", { length: 255 }).notNull(),
-    amountMinor: int("amount_minor").notNull(),
-    currency: varchar("currency", { length: 3 }).notNull(),
-    cycle: mysqlEnum("cycle", ["weekly", "monthly", "quarterly", "yearly"]).notNull(),
-    status: mysqlEnum("status", [
-      "active",
-      "possible", // one observed charge — not yet confirmed (§5.3)
-      "needs_review", // below-confidence extraction — never silently saved (§5.2)
-      "cancellation_requested", // user sent a request; NOT "done" (§10.2)
-      "cancelled", // provider confirmed
-      "ignored",
-    ]).notNull(),
-    detectedFrom: mysqlEnum("detected_from", ["email", "manual", "screenshot"])
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    userId: text("user_id").notNull(),
+    merchantId: integer("merchant_id"),
+    name: text("name").notNull(),
+    amountMinor: integer("amount_minor").notNull(),
+    currency: text("currency").notNull(),
+    cycle: text("cycle", { enum: ["weekly", "monthly", "quarterly", "yearly"] }).notNull(),
+    status: text("status", {
+      enum: [
+        "active",
+        "possible", // one observed charge — not yet confirmed (§5.3)
+        "needs_review", // below-confidence extraction — never silently saved (§5.2)
+        "cancellation_requested", // user sent a request; NOT "done" (§10.2)
+        "cancelled", // provider confirmed
+        "ignored",
+      ],
+    }).notNull(),
+    detectedFrom: text("detected_from", { enum: ["email", "manual", "screenshot"] })
       .default("email")
       .notNull(),
-    confidence: int("confidence"), // 0–100
-    firstChargeAt: timestamp("first_charge_at"),
-    lastChargeAt: timestamp("last_charge_at"),
-    nextRenewalAt: timestamp("next_renewal_at"),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+    confidence: integer("confidence"), // 0–100
+    firstChargeAt: integer("first_charge_at", { mode: "timestamp_ms" }),
+    lastChargeAt: integer("last_charge_at", { mode: "timestamp_ms" }),
+    nextRenewalAt: integer("next_renewal_at", { mode: "timestamp_ms" }),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
   },
   (t) => [index("subscriptions_user_idx").on(t.userId)],
 );
 
 // Join table backing the "what we saw" log (§6): which emails produced a
 // subscription, by message ref + date + subject. Never bodies.
-export const subscriptionEvidence = mysqlTable(
+export const subscriptionEvidence = sqliteTable(
   "subscription_evidence",
   {
-    subscriptionId: bigint("subscription_id", { mode: "number" }).notNull(),
-    chargeId: bigint("charge_id", { mode: "number" }).notNull(),
+    subscriptionId: integer("subscription_id").notNull(),
+    chargeId: integer("charge_id").notNull(),
   },
   (t) => [primaryKey({ columns: [t.subscriptionId, t.chargeId] })],
 );
 
-export const priceChanges = mysqlTable(
+export const priceChanges = sqliteTable(
   "price_changes",
   {
-    id: bigint("id", { mode: "number" }).autoincrement().primaryKey(),
-    subscriptionId: bigint("subscription_id", { mode: "number" }).notNull(),
-    oldAmountMinor: int("old_amount_minor").notNull(),
-    newAmountMinor: int("new_amount_minor").notNull(),
-    currency: varchar("currency", { length: 3 }).notNull(),
-    observedAt: timestamp("observed_at").notNull(),
-    userNotifiedAt: timestamp("user_notified_at"),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    subscriptionId: integer("subscription_id").notNull(),
+    oldAmountMinor: integer("old_amount_minor").notNull(),
+    newAmountMinor: integer("new_amount_minor").notNull(),
+    currency: text("currency").notNull(),
+    observedAt: integer("observed_at", { mode: "timestamp_ms" }).notNull(),
+    userNotifiedAt: integer("user_notified_at", { mode: "timestamp_ms" }),
+    createdAt: createdAt(),
   },
   (t) => [index("price_changes_subscription_idx").on(t.subscriptionId)],
 );
 
-export const cancellationRequests = mysqlTable(
+export const cancellationRequests = sqliteTable(
   "cancellation_requests",
   {
-    id: bigint("id", { mode: "number" }).autoincrement().primaryKey(),
-    userId: varchar("user_id", { length: 64 }).notNull(),
-    subscriptionId: bigint("subscription_id", { mode: "number" }).notNull(),
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    userId: text("user_id").notNull(),
+    subscriptionId: integer("subscription_id").notNull(),
     // v1 status enum split (§7): draft → request_sent → provider_confirmed
-    status: mysqlEnum("status", ["draft", "request_sent", "provider_confirmed"])
+    status: text("status", { enum: ["draft", "request_sent", "provider_confirmed"] })
       .default("draft")
       .notNull(),
-    method: mysqlEnum("method", ["url", "email", "phone", "unknown"]).notNull(),
-    draftSubject: varchar("draft_subject", { length: 512 }),
+    method: text("method", { enum: ["url", "email", "phone", "unknown"] }).notNull(),
+    draftSubject: text("draft_subject"),
     draftBody: text("draft_body"),
-    sentAt: timestamp("sent_at"),
-    confirmedAt: timestamp("confirmed_at"),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+    sentAt: integer("sent_at", { mode: "timestamp_ms" }),
+    confirmedAt: integer("confirmed_at", { mode: "timestamp_ms" }),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
   },
   (t) => [index("cancellation_requests_user_idx").on(t.userId)],
 );
 
-export const spendSnapshots = mysqlTable(
+export const spendSnapshots = sqliteTable(
   "spend_snapshots",
   {
-    id: bigint("id", { mode: "number" }).autoincrement().primaryKey(),
-    userId: varchar("user_id", { length: 64 }).notNull(),
-    month: varchar("month", { length: 7 }).notNull(), // YYYY-MM
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    userId: text("user_id").notNull(),
+    month: text("month").notNull(), // YYYY-MM
     // normalized monthly totals in minor units, keyed by currency then category
-    totalsByCurrency: json("totals_by_currency")
+    totalsByCurrency: text("totals_by_currency", { mode: "json" })
       .$type<Record<string, { total: number; byCategory: Record<string, number> }>>()
       .notNull(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
+    createdAt: createdAt(),
   },
   (t) => [uniqueIndex("spend_snapshots_user_month_idx").on(t.userId, t.month)],
 );
 
 // Stripe webhook idempotency ledger: an event id lands here exactly once.
-export const webhookEvents = mysqlTable("webhook_events", {
-  id: varchar("id", { length: 255 }).primaryKey(), // Stripe event id
-  type: varchar("type", { length: 128 }).notNull(),
-  processedAt: timestamp("processed_at").defaultNow().notNull(),
+export const webhookEvents = sqliteTable("webhook_events", {
+  id: text("id").primaryKey(), // Stripe event id
+  type: text("type").notNull(),
+  processedAt: integer("processed_at", { mode: "timestamp_ms" }).default(now).notNull(),
 });

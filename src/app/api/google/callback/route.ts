@@ -54,7 +54,8 @@ export async function GET(req: Request) {
       encryptedRefreshToken: encryptToken(userId, tokens.refresh_token),
       status: "active",
     })
-    .onDuplicateKeyUpdate({
+    .onConflictDoUpdate({
+      target: [emailAccounts.userId, emailAccounts.address],
       set: {
         encryptedRefreshToken: encryptToken(userId, tokens.refresh_token),
         status: "active",

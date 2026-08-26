@@ -14,10 +14,9 @@ jobs:
       NEXT_PUBLIC_APP_URL: http://localhost:3000
       NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_fixture
       CLERK_SECRET_KEY: sk_test_fixture
-      DATABASE_HOST: localhost
-      DATABASE_USERNAME: ci
-      DATABASE_PASSWORD: ci
-      DATABASE_NAME: subzero
+      CLOUDFLARE_ACCOUNT_ID: fixture
+      CLOUDFLARE_D1_DATABASE_ID: fixture
+      CLOUDFLARE_API_TOKEN: fixture
       GOOGLE_CLIENT_ID: fixture.apps.googleusercontent.com
       GOOGLE_CLIENT_SECRET: fixture
       TOKEN_ENCRYPTION_KEY: BwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwc=
