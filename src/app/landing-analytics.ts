@@ -7,6 +7,7 @@ import { trpc } from "@/lib/trpc";
 // primary CTA, which is the one thing this page exists to get right.
 
 export type LandingEvent =
+  | "landing_view"
   | "hero_cta_clicked"
   | "oauth_started"
   | "oauth_completed"

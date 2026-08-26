@@ -32,6 +32,10 @@ export type AnalyticsEvent =
   // landing page (conversion brief §11). These are the only events that can
   // fire before sign-in, so they are the only ones recorded against the
   // shared ANON_ACTOR rather than a person — see research.landingEvent.
+  // The denominator for every landing ratio. Without it "40 hero clicks"
+  // is a number with nothing to divide by, and §11's headline metric —
+  // landing view → OAuth start — cannot be computed at all.
+  | "landing_view"
   | "hero_cta_clicked"
   | "oauth_started"
   | "oauth_completed"

@@ -69,6 +69,13 @@ function PrimaryCta({
 
 /** §B — hero. Copy left, live dashboard right. */
 export function Hero() {
+  const { trackOnce } = useLandingEvents();
+
+  // One per page load, from the section that is always on screen at load.
+  useEffect(() => {
+    trackOnce("landing_view");
+  }, [trackOnce]);
+
   return (
     <section className="mx-auto grid max-w-[1200px] items-center gap-12 px-4 py-20 lg:grid-cols-[5fr_7fr] lg:py-[120px]">
       <div>

@@ -30,6 +30,7 @@ const EVENT_NAMES = [
 
 /** The subset a signed-out visitor may report (conversion brief §11). */
 const LANDING_EVENT_NAMES = [
+  "landing_view",
   "hero_cta_clicked",
   "oauth_started",
   "oauth_completed",
