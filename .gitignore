@@ -19,3 +19,5 @@ drizzle/meta/
 # seeded design-canvas bundles (generated from design/*.dc.html + canvas.json)
 design/*.html
 !design/*.dc.html
+__pycache__/
+*.pyc
