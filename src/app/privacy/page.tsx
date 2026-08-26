@@ -115,7 +115,7 @@ export default function PrivacyPage() {
         <p>We use a small set of infrastructure providers, each only for what it says:</p>
         <ul className="list-disc space-y-1 pl-5">
           <li>Vercel — application hosting</li>
-          <li>Cloudflare — database hosting (extracted facts, never email bodies)</li>
+          <li>Cloudflare — database hosting (Cloudflare D1) for the extracted facts only, never email bodies; encrypted at rest</li>
           <li>Clerk — sign-in and account identity</li>
           <li>Google — OAuth and Gmail API access you grant</li>
           <li>Stripe — payments (we never see your card details)</li>

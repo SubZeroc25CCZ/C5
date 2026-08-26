@@ -5,6 +5,7 @@ import Link from "next/link";
 import { trpc } from "@/lib/trpc";
 import { formatMinor, majorToMinor, minorToMajor } from "@/lib/money";
 import { gmailComposeHref, mailtoHref } from "@/lib/mail-links";
+import { AGGREGATOR_EXPLAINER, isAggregatorMerchant } from "@/lib/aggregators";
 import {
   Badge,
   Button,
@@ -42,7 +43,7 @@ export function SubscriptionDetailClient({ id }: { id: number }) {
         </h1>
         <p className="mx-auto mt-2 max-w-md text-sm text-muted">
           The free scan shows your most expensive subscription in full. Basic unlocks every
-          subscription with evidence, price history, and cancellation tools — from $2.99/month.
+          subscription with evidence, price history, and cancellation tools — from $4.99/month.
         </p>
         <div className="mt-6">
           <LinkButton href="/pricing" className="px-6 py-3">
@@ -66,6 +67,13 @@ export function SubscriptionDetailClient({ id }: { id: number }) {
   const { subscription: sub, merchant, evidence, priceChanges, cancellationRequests } = detail.data;
   const domain = merchant?.domains?.[0] ?? null;
   const latestRequest = cancellationRequests[0];
+  // Judged by the subscription's own name only — split per-service subs keep
+  // the storefront's merchant link for logo/playbook and are not storefronts.
+  const aggregator = isAggregatorMerchant(sub.name);
+  const observedTotalMinor =
+    evidence.length > 0
+      ? evidence.reduce((sum, charge) => sum + charge.amountMinor, 0)
+      : sub.amountMinor;
 
   // Merge charges and price changes into one chronological story.
   const timeline = [
@@ -93,7 +101,15 @@ export function SubscriptionDetailClient({ id }: { id: number }) {
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-2xl font-bold">{sub.name}</h1>
-            <StatusBadge status={sub.status} />
+            {/* D6: the badge equals the evidence count. */}
+            {sub.status === "possible" ? (
+              <Badge variant="warn">
+                {evidence.length <= 1 ? "seen once" : `seen ${evidence.length}×`}
+              </Badge>
+            ) : (
+              <StatusBadge status={sub.status} />
+            )}
+            {aggregator && <Badge variant="muted">storefront</Badge>}
             {sub.confidence !== null && sub.status === "active" && (
               <Badge variant="frost">{sub.confidence}% match</Badge>
             )}
@@ -104,10 +120,39 @@ export function SubscriptionDetailClient({ id }: { id: number }) {
           </div>
         </div>
         <div className="tnum text-right">
-          <div className="text-2xl font-bold">{formatMinor(sub.amountMinor, sub.currency)}</div>
-          <div className="text-sm text-muted">per {sub.cycle.replace("ly", "")}</div>
+          {/* D6: never a cycle claim for unconfirmed recurrence or storefronts. */}
+          {aggregator || sub.status === "possible" ? (
+            <>
+              <div className="text-2xl font-bold">
+                {formatMinor(observedTotalMinor, sub.currency)}
+              </div>
+              <div className="text-sm text-muted">
+                observed over {evidence.length || 1} charge{evidence.length === 1 ? "" : "s"}
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="text-2xl font-bold">{formatMinor(sub.amountMinor, sub.currency)}</div>
+              <div className="text-sm text-muted">per {sub.cycle.replace("ly", "")}</div>
+            </>
+          )}
         </div>
       </div>
+
+      {aggregator && (
+        <Card className="mt-4 border-dashed">
+          <p className="text-sm text-muted">🏬 {AGGREGATOR_EXPLAINER}</p>
+        </Card>
+      )}
+      {!aggregator && sub.status === "possible" && evidence.length > 1 && (
+        <Card className="mt-4 border-warn bg-warn-bg/30">
+          <p className="text-sm">
+            We&rsquo;ve seen {evidence.length} charges from {sub.name}, but not at a regular
+            interval or price — so this isn&rsquo;t counted as a subscription or in your monthly
+            total. The receipts are below.
+          </p>
+        </Card>
+      )}
 
       {/* Actions */}
       <div className="mt-4 flex flex-wrap gap-2">

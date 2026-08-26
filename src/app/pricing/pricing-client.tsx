@@ -10,8 +10,8 @@ type PaidPlan = "basic" | "pro";
 type Interval = "monthly" | "annual";
 
 const PRICING: Record<PaidPlan, Record<Interval, string>> = {
-  basic: { monthly: "$2.99", annual: "$29.90" },
-  pro: { monthly: "$4.99", annual: "$49.90" },
+  basic: { monthly: "$4.99", annual: "$49" },
+  pro: { monthly: "$9.99", annual: "$99" },
 };
 
 function Check() {

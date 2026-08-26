@@ -221,7 +221,7 @@ export default function LandingPage() {
             <div className="rounded-2xl border-2 border-frost bg-bg p-6">
               <h3 className="font-semibold text-frost">Basic</h3>
               <p className="tnum mt-1 text-3xl font-extrabold">
-                $2.99<span className="text-base font-medium text-muted">/mo</span>
+                $4.99<span className="text-base font-medium text-muted">/mo</span>
               </p>
               <p className="mt-2 text-sm text-muted">
                 Every subscription unlocked · evidence and price history · cancellation drafts and
@@ -231,7 +231,7 @@ export default function LandingPage() {
             <div className="rounded-2xl border border-line bg-bg p-6">
               <h3 className="font-semibold">Pro</h3>
               <p className="tnum mt-1 text-3xl font-extrabold">
-                $4.99<span className="text-base font-medium text-muted">/mo</span>
+                $9.99<span className="text-base font-medium text-muted">/mo</span>
               </p>
               <p className="mt-2 text-sm text-muted">
                 Unlimited inboxes · daily sync · renewal and price-increase alerts.
@@ -265,7 +265,7 @@ export default function LandingPage() {
             ],
             [
               "What exactly is free?",
-              "The scan itself, completely: we search 24 months of receipts and show you your per-currency monthly and yearly totals, how many subscriptions we found, and your single most expensive subscription in full detail with its evidence. The rest of the list, re-scans, and the cancellation tools unlock with Basic ($2.99/month).",
+              "The scan itself, completely: we search 24 months of receipts and show you your per-currency monthly and yearly totals, how many subscriptions we found, and your single most expensive subscription in full detail with its evidence. The rest of the list, re-scans, and the cancellation tools unlock with Basic ($4.99/month).",
             ],
             [
               "Can SubZero cancel subscriptions for me?",

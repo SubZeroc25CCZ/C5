@@ -4,7 +4,7 @@ import { PricingPlans } from "./pricing-client";
 export const metadata: Metadata = {
   title: "Pricing — SubZero",
   description:
-    "The scan is free and shows your totals plus your most expensive subscription. Basic unlocks everything from $2.99/month; Pro adds unlimited inboxes, daily sync, and alerts.",
+    "The scan is free and shows your totals plus your most expensive subscription. Basic unlocks everything from $4.99/month; Pro adds unlimited inboxes, daily sync, and alerts.",
 };
 
 export default function PricingPage() {

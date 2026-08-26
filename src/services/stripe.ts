@@ -24,15 +24,12 @@ export type BillingInterval = "monthly" | "annual";
 export function priceId(plan: PaidPlan, interval: BillingInterval): string {
   const prices: Record<PaidPlan, Record<BillingInterval, string>> = {
     basic: {
-      monthly: process.env.STRIPE_PRICE_BASIC_MONTHLY ?? "price_1U8a8vG8giGg4s7RLMhJz1mn",
-      annual: process.env.STRIPE_PRICE_BASIC_ANNUAL ?? "price_1U8a8wG8giGg4s7RAtCEpclk",
+      monthly: process.env.STRIPE_PRICE_BASIC_MONTHLY ?? "price_1U8aR2G8giGg4s7R5Dgx1OdI",
+      annual: process.env.STRIPE_PRICE_BASIC_ANNUAL ?? "price_1U8aR4G8giGg4s7RIN4oDe7l",
     },
     pro: {
-      monthly:
-        process.env.STRIPE_PRICE_PRO_MONTHLY ??
-        process.env.STRIPE_PRO_PRICE_ID ??
-        "price_1U8XEcG8giGg4s7RBGZc0cqD",
-      annual: process.env.STRIPE_PRICE_PRO_ANNUAL ?? "price_1U8a8xG8giGg4s7RZcVsZhOG",
+      monthly: process.env.STRIPE_PRICE_PRO_MONTHLY ?? "price_1U8aR6G8giGg4s7RXiAnWbXJ",
+      annual: process.env.STRIPE_PRICE_PRO_ANNUAL ?? "price_1U8aR7G8giGg4s7RWeeNlkh3",
     },
   };
   const id = prices[plan][interval];

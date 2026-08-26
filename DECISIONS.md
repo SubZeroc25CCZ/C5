@@ -50,3 +50,30 @@ gates on every cancellation/review procedure); tests prove locked data never
 survives serialization. Legacy `plan = "free"` rows normalize to `teaser`.
 Stripe carries the purchased plan in checkout + subscription metadata so
 webhooks map to the right tier; subscription deletion downgrades to teaser.
+
+
+## D6 — Aggregator merchants (from the first production scan)
+
+Storefronts that bill many services on one receipt (Apple, Google, PayPal,
+Amazon, Microsoft) are not single subscriptions: amounts vary because the
+basket varies. Found live as "Apple Services · seen once" with 8 receipts
+and a per-month label (§10 violation). Rules:
+
+1. Badges always equal the evidence count.
+2. Unconfirmed recurrence never renders a cycle — "per charge" / observed
+   total instead, and never joins the monthly total.
+3. Aggregators render as a "storefront charges" group: observed spend over
+   the period plus an explainer ("bills many services together — amounts
+   vary"). They are excluded from monthly totals even when the engine finds
+   a cadence in the aggregate.
+4. Durable fix: Stage 2 extraction captures `items[]` at scan time (bodies
+   are discarded afterwards — unrecoverable later). Aggregator senders skip
+   the Stage 1 single-total shortcut; receipts with ≥2 line items split into
+   one charge per service (`messageRef#n`), so each service builds real
+   recurrence.
+
+## D7 — Final pricing (supersedes D5 test prices)
+
+Basic **$4.99/mo · $49/yr** — Pro **$9.99/mo · $99/yr**. Stripe test-mode
+prices replaced; code defaults, pricing page, landing cards, and paywall
+copy updated.
