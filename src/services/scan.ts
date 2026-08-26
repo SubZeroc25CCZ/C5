@@ -4,7 +4,7 @@
 
 import { eq } from "drizzle-orm";
 import type { Database } from "@/db/client";
-import { charges, emailAccounts } from "@/db/schema";
+import { charges, emailAccounts, scannedMessages } from "@/db/schema";
 import { decryptToken } from "@/lib/encryption";
 import { buildBackfillQueries, buildDeltaQueries } from "@/ingestion/gmail-queries";
 import { fetchCandidate, listCandidateIds, refreshAccessToken } from "@/ingestion/gmail-client";
@@ -17,6 +17,8 @@ import { syncSubscriptionsForUser, type SyncResult } from "./subscription-sync";
 export interface ScanOutcome {
   pipeline: PipelineStats;
   sync: SyncResult;
+  /** Batch progress: how much of the candidate set this call covered. */
+  candidates: { total: number; processed: number; remaining: number };
 }
 
 const structuredLogger: PipelineLogger = {
@@ -30,6 +32,9 @@ export async function runScan(
     userId: string;
     emailAccountId: number;
     mode: "backfill" | "delta";
+    /** Serverless-friendly batching: process at most this many new messages
+     *  per call; the client keeps calling until `remaining` hits 0. */
+    maxMessages?: number;
     model?: ExtractionModel;
     logger?: PipelineLogger;
   },
@@ -63,19 +68,29 @@ export async function runScan(
 
   const ids = await listCandidateIds(accessToken, queries);
 
-  // Skip messages already ingested (idempotent re-scans).
-  const seen = new Set(
-    (
+  // Skip messages already processed — whatever their outcome. The
+  // scanned_messages ledger covers discarded candidates too, so batches
+  // always make progress; the charges refs are kept for rows ingested
+  // before the ledger existed.
+  const seen = new Set<string | null>([
+    ...(
+      await db
+        .select({ ref: scannedMessages.messageRef })
+        .from(scannedMessages)
+        .where(eq(scannedMessages.userId, options.userId))
+    ).map((row) => row.ref),
+    ...(
       await db
         .select({ ref: charges.sourceMessageRef })
         .from(charges)
         .where(eq(charges.userId, options.userId))
     ).map((row) => row.ref),
-  );
+  ]);
   const newIds = ids.filter((id) => !seen.has(id));
+  const batchIds = options.maxMessages ? newIds.slice(0, options.maxMessages) : newIds;
 
   const candidates = [];
-  for (const id of newIds) {
+  for (const id of batchIds) {
     candidates.push(await fetchCandidate(accessToken, id));
   }
 
@@ -105,6 +120,15 @@ export async function runScan(
     },
   });
 
+  // Record every processed message id, persisted or not, so the next
+  // batch never re-touches them.
+  if (batchIds.length > 0) {
+    await db
+      .insert(scannedMessages)
+      .values(batchIds.map((messageRef) => ({ userId: options.userId, messageRef })))
+      .onConflictDoNothing();
+  }
+
   const sync = await syncSubscriptionsForUser(db, options.userId);
 
   await db
@@ -112,5 +136,13 @@ export async function runScan(
     .set({ lastSyncedAt: new Date() })
     .where(eq(emailAccounts.id, account.id));
 
-  return { pipeline, sync };
+  return {
+    pipeline,
+    sync,
+    candidates: {
+      total: newIds.length,
+      processed: batchIds.length,
+      remaining: newIds.length - batchIds.length,
+    },
+  };
 }

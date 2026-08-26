@@ -11,10 +11,12 @@ import {
   Card,
   EmptyState,
   MerchantLogo,
+  ProgressBar,
   Stat,
   StatusBadge,
   cx,
 } from "@/components/ui";
+import { TriageWizard } from "./triage-wizard";
 
 import type { inferRouterOutputs } from "@trpc/server";
 import type { AppRouter } from "@/server/routers/_app";
@@ -40,7 +42,7 @@ export function DashboardClient() {
   const accountsQuery = trpc.emailAccounts.list.useQuery();
   const planQuery = trpc.billing.plan.useQuery();
 
-  const scan = trpc.emailAccounts.scan.useMutation({ onSettled: () => utils.invalidate() });
+  const scan = trpc.emailAccounts.scan.useMutation();
   const checkout = trpc.billing.checkout.useMutation({
     onSuccess: (data) => {
       window.location.href = data.url;
@@ -48,6 +50,47 @@ export function DashboardClient() {
   });
 
   const [filter, setFilter] = useState<FilterKey>("all");
+  const [scanState, setScanState] = useState<{
+    running: boolean;
+    processed: number;
+    total: number | null;
+    error?: string;
+  }>({ running: false, processed: 0, total: null });
+  const [triageOpen, setTriageOpen] = useState(false);
+
+  // Batched scan loop: each call handles up to 25 new messages so serverless
+  // timeouts can't kill a big backfill, and the user watches real progress.
+  async function runFullScan(accountId: number) {
+    setScanState({ running: true, processed: 0, total: null });
+    let processed = 0;
+    let first = true;
+    try {
+      for (;;) {
+        const result = await scan.mutateAsync({
+          accountId,
+          mode: "backfill",
+          continuation: !first,
+        });
+        first = false;
+        processed += result.candidates.processed;
+        const total = processed + result.candidates.remaining;
+        setScanState({ running: true, processed, total });
+        await utils.subscriptions.list.invalidate();
+        if (result.candidates.remaining === 0) break;
+      }
+      setScanState({ running: false, processed, total: processed });
+      await utils.invalidate();
+      setTriageOpen(true);
+    } catch (error) {
+      setScanState({
+        running: false,
+        processed,
+        total: null,
+        error: error instanceof Error ? error.message : "Scan failed",
+      });
+      await utils.invalidate();
+    }
+  }
 
   const rows = listQuery.data?.subscriptions ?? [];
   const totals = listQuery.data?.totals ?? [];
@@ -72,6 +115,13 @@ export function DashboardClient() {
     <main className="mx-auto max-w-6xl px-4 py-8">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold">Your subscriptions</h1>
+        {rows.some(
+          (row) => row.subscription.status === "active" || row.subscription.status === "possible",
+        ) && (
+          <Button variant="secondary" onClick={() => setTriageOpen(true)}>
+            🃏 Review one by one
+          </Button>
+        )}
         {plan === "free" && (
           <Button variant="secondary" onClick={() => checkout.mutate()} disabled={checkout.isPending}>
             ⭐ Upgrade to Pro
@@ -122,12 +172,21 @@ export function DashboardClient() {
       <InboxPanel
         accounts={accounts}
         plan={plan}
-        scanning={scan.isPending}
-        scanError={scan.error?.message}
-        onScan={(accountId) => scan.mutate({ accountId, mode: "backfill" })}
+        scanState={scanState}
+        onScan={runFullScan}
       />
 
       <ReviewQueue items={reviewQuery.data ?? []} />
+
+      {triageOpen && (
+        <TriageWizard
+          rows={rows.filter(
+            (row) =>
+              row.subscription.status === "active" || row.subscription.status === "possible",
+          )}
+          onClose={() => setTriageOpen(false)}
+        />
+      )}
 
       {/* Subscription list */}
       {listQuery.isSuccess && rows.length === 0 ? (
@@ -235,16 +294,15 @@ function SubscriptionCard({ row }: { row: Row }) {
 function InboxPanel({
   accounts,
   plan,
-  scanning,
-  scanError,
+  scanState,
   onScan,
 }: {
   accounts: Array<{ id: number; address: string; status: string; lastSyncedAt: Date | null }>;
   plan: string;
-  scanning: boolean;
-  scanError?: string;
+  scanState: { running: boolean; processed: number; total: number | null; error?: string };
   onScan: (accountId: number) => void;
 }) {
+  const scanning = scanState.running;
   return (
     <Card className="mb-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -288,11 +346,22 @@ function InboxPanel({
         </div>
       ))}
       {scanning && (
-        <p className="mt-2 text-sm text-muted">
-          Searching your receipts — this can take a couple of minutes for a full backfill…
-        </p>
+        <div className="mt-3">
+          <ProgressBar
+            value={
+              scanState.total
+                ? (scanState.processed / Math.max(1, scanState.total)) * 100
+                : 8 // indeterminate start
+            }
+          />
+          <p className="mt-1.5 text-sm text-muted">
+            {scanState.total === null
+              ? "Searching your receipts…"
+              : `Processed ${scanState.processed} of ${scanState.total} receipt emails — subscriptions appear below as they're found.`}
+          </p>
+        </div>
       )}
-      {scanError && <p className="mt-2 text-sm text-danger">{scanError}</p>}
+      {scanState.error && <p className="mt-2 text-sm text-danger">{scanState.error}</p>}
       {plan === "free" && accounts.length > 0 && (
         <p className="mt-3 text-xs text-muted">
           Free plan: 1 inbox, monthly re-scan. Pro: unlimited inboxes, daily sync.
