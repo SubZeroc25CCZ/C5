@@ -1,0 +1,4287 @@
+{
+  "_comment": "Stage 1 merchant seed. domains = billing sender domains for instant matching. cancel_url is null until verified during build — never ship an unverified URL. difficulty: 1 easy self-serve .. 5 hostile retention flow (editorial seed, refine with user reports).",
+  "merchants": [
+    {
+      "name": "Netflix",
+      "domains": [
+        "netflix.com"
+      ],
+      "category": "streaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Spotify",
+      "domains": [
+        "spotify.com"
+      ],
+      "category": "music",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "YouTube Premium",
+      "domains": [
+        "youtube.com",
+        "google.com"
+      ],
+      "category": "streaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Disney+",
+      "domains": [
+        "disneyplus.com",
+        "disney.com"
+      ],
+      "category": "streaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Amazon Prime",
+      "domains": [
+        "amazon.com",
+        "amazon.co.uk",
+        "amazon.de",
+        "amazon.es"
+      ],
+      "category": "shopping",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Apple",
+      "domains": [
+        "apple.com",
+        "itunes.com",
+        "email.apple.com"
+      ],
+      "category": "platform",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Google One",
+      "domains": [
+        "google.com"
+      ],
+      "category": "cloud",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "iCloud+",
+      "domains": [
+        "apple.com"
+      ],
+      "category": "cloud",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Dropbox",
+      "domains": [
+        "dropbox.com",
+        "dropboxmail.com"
+      ],
+      "category": "cloud",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Adobe Creative Cloud",
+      "domains": [
+        "adobe.com",
+        "mail.adobe.com"
+      ],
+      "category": "software",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 4
+    },
+    {
+      "name": "Microsoft 365",
+      "domains": [
+        "microsoft.com",
+        "email.microsoft.com"
+      ],
+      "category": "software",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Canva",
+      "domains": [
+        "canva.com"
+      ],
+      "category": "software",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Notion",
+      "domains": [
+        "notion.so",
+        "mail.notion.so"
+      ],
+      "category": "software",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Figma",
+      "domains": [
+        "figma.com"
+      ],
+      "category": "software",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Slack",
+      "domains": [
+        "slack.com"
+      ],
+      "category": "software",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Zoom",
+      "domains": [
+        "zoom.us",
+        "zoom.com"
+      ],
+      "category": "software",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "ChatGPT / OpenAI",
+      "domains": [
+        "openai.com"
+      ],
+      "category": "ai",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Claude / Anthropic",
+      "domains": [
+        "anthropic.com",
+        "claude.ai"
+      ],
+      "category": "ai",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Midjourney",
+      "domains": [
+        "midjourney.com"
+      ],
+      "category": "ai",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "GitHub",
+      "domains": [
+        "github.com"
+      ],
+      "category": "developer",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Vercel",
+      "domains": [
+        "vercel.com"
+      ],
+      "category": "developer",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "HBO Max",
+      "domains": [
+        "hbomax.com",
+        "max.com"
+      ],
+      "category": "streaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Paramount+",
+      "domains": [
+        "paramountplus.com",
+        "paramount.com"
+      ],
+      "category": "streaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Apple TV+",
+      "domains": [
+        "apple.com",
+        "tv.apple.com"
+      ],
+      "category": "streaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Audible",
+      "domains": [
+        "audible.com",
+        "audible.co.uk"
+      ],
+      "category": "audio",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Kindle Unlimited",
+      "domains": [
+        "amazon.com"
+      ],
+      "category": "reading",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Duolingo",
+      "domains": [
+        "duolingo.com"
+      ],
+      "category": "education",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Coursera",
+      "domains": [
+        "coursera.org"
+      ],
+      "category": "education",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "LinkedIn Premium",
+      "domains": [
+        "linkedin.com"
+      ],
+      "category": "professional",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "X Premium",
+      "domains": [
+        "x.com",
+        "twitter.com"
+      ],
+      "category": "social",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "NordVPN",
+      "domains": [
+        "nordvpn.com",
+        "nordaccount.com"
+      ],
+      "category": "vpn",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "ExpressVPN",
+      "domains": [
+        "expressvpn.com"
+      ],
+      "category": "vpn",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Surfshark",
+      "domains": [
+        "surfshark.com"
+      ],
+      "category": "vpn",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Tinder",
+      "domains": [
+        "gotinder.com",
+        "tinder.com"
+      ],
+      "category": "dating",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Bumble",
+      "domains": [
+        "bumble.com"
+      ],
+      "category": "dating",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Strava",
+      "domains": [
+        "strava.com"
+      ],
+      "category": "fitness",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "MyFitnessPal",
+      "domains": [
+        "myfitnesspal.com"
+      ],
+      "category": "fitness",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Headspace",
+      "domains": [
+        "headspace.com"
+      ],
+      "category": "wellness",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Calm",
+      "domains": [
+        "calm.com"
+      ],
+      "category": "wellness",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "The New York Times",
+      "domains": [
+        "nytimes.com"
+      ],
+      "category": "news",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 4
+    },
+    {
+      "name": "The Economist",
+      "domains": [
+        "economist.com"
+      ],
+      "category": "news",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Medium",
+      "domains": [
+        "medium.com"
+      ],
+      "category": "news",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Substack",
+      "domains": [
+        "substack.com"
+      ],
+      "category": "news",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Patreon",
+      "domains": [
+        "patreon.com"
+      ],
+      "category": "creator",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "OnlyFans",
+      "domains": [
+        "onlyfans.com"
+      ],
+      "category": "creator",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "PlayStation Plus",
+      "domains": [
+        "playstation.com",
+        "sony.com"
+      ],
+      "category": "gaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Xbox Game Pass",
+      "domains": [
+        "xbox.com",
+        "microsoft.com"
+      ],
+      "category": "gaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Nintendo Switch Online",
+      "domains": [
+        "nintendo.com",
+        "accounts.nintendo.com"
+      ],
+      "category": "gaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Uber One",
+      "domains": [
+        "uber.com"
+      ],
+      "category": "transport",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Grab Unlimited",
+      "domains": [
+        "grab.com"
+      ],
+      "category": "transport",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Hulu",
+      "domains": [
+        "hulu.com"
+      ],
+      "category": "streaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Peacock",
+      "domains": [
+        "peacocktv.com"
+      ],
+      "category": "streaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Crunchyroll",
+      "domains": [
+        "crunchyroll.com"
+      ],
+      "category": "streaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Curiosity Stream",
+      "domains": [
+        "curiositystream.com"
+      ],
+      "category": "streaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "MUBI",
+      "domains": [
+        "mubi.com"
+      ],
+      "category": "streaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Shudder",
+      "domains": [
+        "shudder.com"
+      ],
+      "category": "streaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "BritBox",
+      "domains": [
+        "britbox.com"
+      ],
+      "category": "streaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Hayu",
+      "domains": [
+        "hayu.com"
+      ],
+      "category": "streaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "NOW",
+      "domains": [
+        "nowtv.com"
+      ],
+      "category": "streaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Sky",
+      "domains": [
+        "sky.com",
+        "sky.de"
+      ],
+      "category": "streaming",
+      "cancel_method": "phone",
+      "cancel_url": null,
+      "difficulty": 4
+    },
+    {
+      "name": "DAZN",
+      "domains": [
+        "dazn.com"
+      ],
+      "category": "streaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "ESPN+",
+      "domains": [
+        "espn.com",
+        "plus.espn.com"
+      ],
+      "category": "streaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "fuboTV",
+      "domains": [
+        "fubo.tv"
+      ],
+      "category": "streaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Sling TV",
+      "domains": [
+        "sling.com"
+      ],
+      "category": "streaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Philo",
+      "domains": [
+        "philo.com"
+      ],
+      "category": "streaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Plex",
+      "domains": [
+        "plex.tv"
+      ],
+      "category": "streaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Vimeo",
+      "domains": [
+        "vimeo.com"
+      ],
+      "category": "video",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Nebula",
+      "domains": [
+        "nebula.tv"
+      ],
+      "category": "streaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Dropout",
+      "domains": [
+        "dropout.tv"
+      ],
+      "category": "streaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Rakuten Viki",
+      "domains": [
+        "viki.com"
+      ],
+      "category": "streaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "iQIYI",
+      "domains": [
+        "iq.com",
+        "iqiyi.com"
+      ],
+      "category": "streaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "WeTV",
+      "domains": [
+        "wetv.vip"
+      ],
+      "category": "streaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Viu",
+      "domains": [
+        "viu.com"
+      ],
+      "category": "streaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "TrueID",
+      "domains": [
+        "trueid.net"
+      ],
+      "category": "streaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "AIS Play",
+      "domains": [
+        "ais.th",
+        "aisplay.ais.th"
+      ],
+      "category": "streaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "MONOMAX",
+      "domains": [
+        "monomax.me"
+      ],
+      "category": "streaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "iWantTFC",
+      "domains": [
+        "iwanttfc.com"
+      ],
+      "category": "streaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Vivamax",
+      "domains": [
+        "vivamax.net"
+      ],
+      "category": "streaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Cignal Play",
+      "domains": [
+        "cignalplay.com"
+      ],
+      "category": "streaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Discovery+",
+      "domains": [
+        "discoveryplus.com"
+      ],
+      "category": "streaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "AMC+",
+      "domains": [
+        "amcplus.com"
+      ],
+      "category": "streaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Starz",
+      "domains": [
+        "starz.com"
+      ],
+      "category": "streaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "The Criterion Channel",
+      "domains": [
+        "criterionchannel.com"
+      ],
+      "category": "streaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Canal+",
+      "domains": [
+        "canalplus.com"
+      ],
+      "category": "streaming",
+      "cancel_method": "phone",
+      "cancel_url": null,
+      "difficulty": 4
+    },
+    {
+      "name": "Joyn",
+      "domains": [
+        "joyn.de"
+      ],
+      "category": "streaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "RTL+",
+      "domains": [
+        "rtlplus.de",
+        "rtl.de"
+      ],
+      "category": "streaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "WOW",
+      "domains": [
+        "wowtv.de"
+      ],
+      "category": "streaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Zattoo",
+      "domains": [
+        "zattoo.com"
+      ],
+      "category": "streaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Videoland",
+      "domains": [
+        "videoland.com"
+      ],
+      "category": "streaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Viaplay",
+      "domains": [
+        "viaplay.com"
+      ],
+      "category": "streaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "SkyShowtime",
+      "domains": [
+        "skyshowtime.com"
+      ],
+      "category": "streaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "yes",
+      "domains": [
+        "yes.co.il"
+      ],
+      "category": "streaming",
+      "cancel_method": "phone",
+      "cancel_url": null,
+      "difficulty": 5
+    },
+    {
+      "name": "HOT",
+      "domains": [
+        "hot.net.il"
+      ],
+      "category": "streaming",
+      "cancel_method": "phone",
+      "cancel_url": null,
+      "difficulty": 5
+    },
+    {
+      "name": "Cellcom TV",
+      "domains": [
+        "cellcom.co.il"
+      ],
+      "category": "streaming",
+      "cancel_method": "phone",
+      "cancel_url": null,
+      "difficulty": 4
+    },
+    {
+      "name": "Sport 5",
+      "domains": [
+        "sport5.co.il"
+      ],
+      "category": "streaming",
+      "cancel_method": "phone",
+      "cancel_url": null,
+      "difficulty": 4
+    },
+    {
+      "name": "Tidal",
+      "domains": [
+        "tidal.com"
+      ],
+      "category": "music",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Deezer",
+      "domains": [
+        "deezer.com"
+      ],
+      "category": "music",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "SoundCloud",
+      "domains": [
+        "soundcloud.com"
+      ],
+      "category": "music",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Pandora",
+      "domains": [
+        "pandora.com"
+      ],
+      "category": "music",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Qobuz",
+      "domains": [
+        "qobuz.com"
+      ],
+      "category": "music",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "JOOX",
+      "domains": [
+        "joox.com"
+      ],
+      "category": "music",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Anghami",
+      "domains": [
+        "anghami.com"
+      ],
+      "category": "music",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "SiriusXM",
+      "domains": [
+        "siriusxm.com"
+      ],
+      "category": "audio",
+      "cancel_method": "phone",
+      "cancel_url": null,
+      "difficulty": 5
+    },
+    {
+      "name": "Everand (Scribd)",
+      "domains": [
+        "everand.com",
+        "scribd.com"
+      ],
+      "category": "reading",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Blinkist",
+      "domains": [
+        "blinkist.com"
+      ],
+      "category": "reading",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Storytel",
+      "domains": [
+        "storytel.com"
+      ],
+      "category": "audio",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Libro.fm",
+      "domains": [
+        "libro.fm"
+      ],
+      "category": "audio",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Podimo",
+      "domains": [
+        "podimo.com"
+      ],
+      "category": "audio",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Epidemic Sound",
+      "domains": [
+        "epidemicsound.com"
+      ],
+      "category": "creator",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Artlist",
+      "domains": [
+        "artlist.io"
+      ],
+      "category": "creator",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Splice",
+      "domains": [
+        "splice.com"
+      ],
+      "category": "creator",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "LANDR",
+      "domains": [
+        "landr.com"
+      ],
+      "category": "creator",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "The Wall Street Journal",
+      "domains": [
+        "wsj.com",
+        "dowjones.com"
+      ],
+      "category": "news",
+      "cancel_method": "phone",
+      "cancel_url": null,
+      "difficulty": 5
+    },
+    {
+      "name": "The Washington Post",
+      "domains": [
+        "washingtonpost.com"
+      ],
+      "category": "news",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Financial Times",
+      "domains": [
+        "ft.com"
+      ],
+      "category": "news",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 4
+    },
+    {
+      "name": "The Guardian",
+      "domains": [
+        "theguardian.com"
+      ],
+      "category": "news",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Bloomberg",
+      "domains": [
+        "bloomberg.com"
+      ],
+      "category": "news",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "The Athletic",
+      "domains": [
+        "theathletic.com"
+      ],
+      "category": "news",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Wired",
+      "domains": [
+        "wired.com",
+        "condenast.com"
+      ],
+      "category": "news",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "The Atlantic",
+      "domains": [
+        "theatlantic.com"
+      ],
+      "category": "news",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "The New Yorker",
+      "domains": [
+        "newyorker.com"
+      ],
+      "category": "news",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Le Monde",
+      "domains": [
+        "lemonde.fr"
+      ],
+      "category": "news",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Der Spiegel",
+      "domains": [
+        "spiegel.de"
+      ],
+      "category": "news",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Die Zeit",
+      "domains": [
+        "zeit.de"
+      ],
+      "category": "news",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "The Times",
+      "domains": [
+        "thetimes.co.uk",
+        "thetimes.com"
+      ],
+      "category": "news",
+      "cancel_method": "phone",
+      "cancel_url": null,
+      "difficulty": 4
+    },
+    {
+      "name": "The Telegraph",
+      "domains": [
+        "telegraph.co.uk"
+      ],
+      "category": "news",
+      "cancel_method": "phone",
+      "cancel_url": null,
+      "difficulty": 4
+    },
+    {
+      "name": "El País",
+      "domains": [
+        "elpais.com"
+      ],
+      "category": "news",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "NZZ",
+      "domains": [
+        "nzz.ch"
+      ],
+      "category": "news",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Haaretz",
+      "domains": [
+        "haaretz.co.il",
+        "haaretz.com"
+      ],
+      "category": "news",
+      "cancel_method": "phone",
+      "cancel_url": null,
+      "difficulty": 4
+    },
+    {
+      "name": "Globes",
+      "domains": [
+        "globes.co.il"
+      ],
+      "category": "news",
+      "cancel_method": "phone",
+      "cancel_url": null,
+      "difficulty": 4
+    },
+    {
+      "name": "Ynet+",
+      "domains": [
+        "ynet.co.il"
+      ],
+      "category": "news",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Bangkok Post",
+      "domains": [
+        "bangkokpost.com"
+      ],
+      "category": "news",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Nikkei",
+      "domains": [
+        "nikkei.com"
+      ],
+      "category": "news",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "The Information",
+      "domains": [
+        "theinformation.com"
+      ],
+      "category": "news",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Stratechery",
+      "domains": [
+        "stratechery.com"
+      ],
+      "category": "news",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Todoist",
+      "domains": [
+        "todoist.com",
+        "doist.com"
+      ],
+      "category": "software",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Evernote",
+      "domains": [
+        "evernote.com"
+      ],
+      "category": "software",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Obsidian",
+      "domains": [
+        "obsidian.md"
+      ],
+      "category": "software",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "1Password",
+      "domains": [
+        "1password.com"
+      ],
+      "category": "security",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "LastPass",
+      "domains": [
+        "lastpass.com"
+      ],
+      "category": "security",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Dashlane",
+      "domains": [
+        "dashlane.com"
+      ],
+      "category": "security",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Bitwarden",
+      "domains": [
+        "bitwarden.com"
+      ],
+      "category": "security",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Grammarly",
+      "domains": [
+        "grammarly.com"
+      ],
+      "category": "software",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "QuillBot",
+      "domains": [
+        "quillbot.com"
+      ],
+      "category": "software",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Setapp",
+      "domains": [
+        "setapp.com",
+        "macpaw.com"
+      ],
+      "category": "software",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Parallels",
+      "domains": [
+        "parallels.com"
+      ],
+      "category": "software",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Raycast",
+      "domains": [
+        "raycast.com"
+      ],
+      "category": "software",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Superhuman",
+      "domains": [
+        "superhuman.com"
+      ],
+      "category": "email",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Fastmail",
+      "domains": [
+        "fastmail.com"
+      ],
+      "category": "email",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Proton",
+      "domains": [
+        "proton.me",
+        "protonmail.com"
+      ],
+      "category": "email",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "HEY",
+      "domains": [
+        "hey.com",
+        "37signals.com"
+      ],
+      "category": "email",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Zoho",
+      "domains": [
+        "zoho.com"
+      ],
+      "category": "software",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Airtable",
+      "domains": [
+        "airtable.com"
+      ],
+      "category": "software",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Asana",
+      "domains": [
+        "asana.com"
+      ],
+      "category": "software",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "monday.com",
+      "domains": [
+        "monday.com"
+      ],
+      "category": "software",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "ClickUp",
+      "domains": [
+        "clickup.com"
+      ],
+      "category": "software",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Atlassian",
+      "domains": [
+        "atlassian.com",
+        "atlassian.net"
+      ],
+      "category": "developer",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Basecamp",
+      "domains": [
+        "basecamp.com"
+      ],
+      "category": "software",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Linear",
+      "domains": [
+        "linear.app"
+      ],
+      "category": "developer",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Miro",
+      "domains": [
+        "miro.com"
+      ],
+      "category": "software",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Lucid",
+      "domains": [
+        "lucidchart.com",
+        "lucid.co"
+      ],
+      "category": "software",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Smartsheet",
+      "domains": [
+        "smartsheet.com"
+      ],
+      "category": "software",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Calendly",
+      "domains": [
+        "calendly.com"
+      ],
+      "category": "software",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Loom",
+      "domains": [
+        "loom.com"
+      ],
+      "category": "software",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Otter.ai",
+      "domains": [
+        "otter.ai"
+      ],
+      "category": "ai",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Fireflies.ai",
+      "domains": [
+        "fireflies.ai"
+      ],
+      "category": "ai",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Krisp",
+      "domains": [
+        "krisp.ai"
+      ],
+      "category": "software",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Descript",
+      "domains": [
+        "descript.com"
+      ],
+      "category": "creator",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Frame.io",
+      "domains": [
+        "frame.io"
+      ],
+      "category": "creator",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "CapCut",
+      "domains": [
+        "capcut.com"
+      ],
+      "category": "creator",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Typeform",
+      "domains": [
+        "typeform.com"
+      ],
+      "category": "software",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "SurveyMonkey",
+      "domains": [
+        "surveymonkey.com"
+      ],
+      "category": "software",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Jotform",
+      "domains": [
+        "jotform.com"
+      ],
+      "category": "software",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "DocuSign",
+      "domains": [
+        "docusign.com"
+      ],
+      "category": "software",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "PandaDoc",
+      "domains": [
+        "pandadoc.com"
+      ],
+      "category": "software",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Coda",
+      "domains": [
+        "coda.io"
+      ],
+      "category": "software",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Craft",
+      "domains": [
+        "craft.do"
+      ],
+      "category": "software",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Ulysses",
+      "domains": [
+        "ulysses.app"
+      ],
+      "category": "software",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Day One",
+      "domains": [
+        "dayoneapp.com"
+      ],
+      "category": "software",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Readwise",
+      "domains": [
+        "readwise.io"
+      ],
+      "category": "reading",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Instapaper",
+      "domains": [
+        "instapaper.com"
+      ],
+      "category": "reading",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Feedly",
+      "domains": [
+        "feedly.com"
+      ],
+      "category": "reading",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Inoreader",
+      "domains": [
+        "inoreader.com"
+      ],
+      "category": "reading",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Raindrop.io",
+      "domains": [
+        "raindrop.io"
+      ],
+      "category": "software",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Box",
+      "domains": [
+        "box.com"
+      ],
+      "category": "cloud",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "pCloud",
+      "domains": [
+        "pcloud.com"
+      ],
+      "category": "cloud",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "MEGA",
+      "domains": [
+        "mega.nz",
+        "mega.io"
+      ],
+      "category": "cloud",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Backblaze",
+      "domains": [
+        "backblaze.com"
+      ],
+      "category": "cloud",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "IDrive",
+      "domains": [
+        "idrive.com"
+      ],
+      "category": "cloud",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Carbonite",
+      "domains": [
+        "carbonite.com"
+      ],
+      "category": "cloud",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Tresorit",
+      "domains": [
+        "tresorit.com"
+      ],
+      "category": "cloud",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Sync.com",
+      "domains": [
+        "sync.com"
+      ],
+      "category": "cloud",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "GitLab",
+      "domains": [
+        "gitlab.com"
+      ],
+      "category": "developer",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Bitbucket",
+      "domains": [
+        "bitbucket.org"
+      ],
+      "category": "developer",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "DigitalOcean",
+      "domains": [
+        "digitalocean.com"
+      ],
+      "category": "developer",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Linode (Akamai)",
+      "domains": [
+        "linode.com"
+      ],
+      "category": "developer",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Amazon Web Services",
+      "domains": [
+        "aws.amazon.com"
+      ],
+      "category": "developer",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Heroku",
+      "domains": [
+        "heroku.com"
+      ],
+      "category": "developer",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Netlify",
+      "domains": [
+        "netlify.com"
+      ],
+      "category": "developer",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Render",
+      "domains": [
+        "render.com"
+      ],
+      "category": "developer",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Railway",
+      "domains": [
+        "railway.app",
+        "railway.com"
+      ],
+      "category": "developer",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Fly.io",
+      "domains": [
+        "fly.io"
+      ],
+      "category": "developer",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Cloudflare",
+      "domains": [
+        "cloudflare.com"
+      ],
+      "category": "developer",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Vultr",
+      "domains": [
+        "vultr.com"
+      ],
+      "category": "developer",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Hetzner",
+      "domains": [
+        "hetzner.com"
+      ],
+      "category": "developer",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "OVHcloud",
+      "domains": [
+        "ovhcloud.com",
+        "ovh.com"
+      ],
+      "category": "developer",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Scaleway",
+      "domains": [
+        "scaleway.com"
+      ],
+      "category": "developer",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Namecheap",
+      "domains": [
+        "namecheap.com"
+      ],
+      "category": "developer",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "GoDaddy",
+      "domains": [
+        "godaddy.com"
+      ],
+      "category": "developer",
+      "cancel_method": "phone",
+      "cancel_url": null,
+      "difficulty": 4
+    },
+    {
+      "name": "JetBrains",
+      "domains": [
+        "jetbrains.com"
+      ],
+      "category": "developer",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Unity",
+      "domains": [
+        "unity.com",
+        "unity3d.com"
+      ],
+      "category": "developer",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Docker",
+      "domains": [
+        "docker.com"
+      ],
+      "category": "developer",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Postman",
+      "domains": [
+        "postman.com"
+      ],
+      "category": "developer",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Sentry",
+      "domains": [
+        "sentry.io"
+      ],
+      "category": "developer",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Datadog",
+      "domains": [
+        "datadoghq.com"
+      ],
+      "category": "developer",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "New Relic",
+      "domains": [
+        "newrelic.com"
+      ],
+      "category": "developer",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "PagerDuty",
+      "domains": [
+        "pagerduty.com"
+      ],
+      "category": "developer",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Twilio",
+      "domains": [
+        "twilio.com"
+      ],
+      "category": "developer",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Replit",
+      "domains": [
+        "replit.com"
+      ],
+      "category": "developer",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "CodePen",
+      "domains": [
+        "codepen.io"
+      ],
+      "category": "developer",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "LeetCode",
+      "domains": [
+        "leetcode.com"
+      ],
+      "category": "education",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Squarespace",
+      "domains": [
+        "squarespace.com"
+      ],
+      "category": "software",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Wix",
+      "domains": [
+        "wix.com"
+      ],
+      "category": "software",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Webflow",
+      "domains": [
+        "webflow.com"
+      ],
+      "category": "software",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "WordPress.com",
+      "domains": [
+        "wordpress.com",
+        "automattic.com"
+      ],
+      "category": "software",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Ghost",
+      "domains": [
+        "ghost.org"
+      ],
+      "category": "software",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Shopify",
+      "domains": [
+        "shopify.com"
+      ],
+      "category": "software",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "BigCommerce",
+      "domains": [
+        "bigcommerce.com"
+      ],
+      "category": "software",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Kajabi",
+      "domains": [
+        "kajabi.com"
+      ],
+      "category": "creator",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Teachable",
+      "domains": [
+        "teachable.com"
+      ],
+      "category": "creator",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Thinkific",
+      "domains": [
+        "thinkific.com"
+      ],
+      "category": "creator",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Podia",
+      "domains": [
+        "podia.com"
+      ],
+      "category": "creator",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Mailchimp",
+      "domains": [
+        "mailchimp.com"
+      ],
+      "category": "marketing",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Kit (ConvertKit)",
+      "domains": [
+        "kit.com",
+        "convertkit.com"
+      ],
+      "category": "marketing",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Constant Contact",
+      "domains": [
+        "constantcontact.com"
+      ],
+      "category": "marketing",
+      "cancel_method": "phone",
+      "cancel_url": null,
+      "difficulty": 4
+    },
+    {
+      "name": "Klaviyo",
+      "domains": [
+        "klaviyo.com"
+      ],
+      "category": "marketing",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "MailerLite",
+      "domains": [
+        "mailerlite.com"
+      ],
+      "category": "marketing",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Buffer",
+      "domains": [
+        "buffer.com"
+      ],
+      "category": "marketing",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Hootsuite",
+      "domains": [
+        "hootsuite.com"
+      ],
+      "category": "marketing",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Later",
+      "domains": [
+        "later.com"
+      ],
+      "category": "marketing",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Sprout Social",
+      "domains": [
+        "sproutsocial.com"
+      ],
+      "category": "marketing",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Ahrefs",
+      "domains": [
+        "ahrefs.com"
+      ],
+      "category": "marketing",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Semrush",
+      "domains": [
+        "semrush.com"
+      ],
+      "category": "marketing",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Moz",
+      "domains": [
+        "moz.com"
+      ],
+      "category": "marketing",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Hotjar",
+      "domains": [
+        "hotjar.com"
+      ],
+      "category": "marketing",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Mixpanel",
+      "domains": [
+        "mixpanel.com"
+      ],
+      "category": "developer",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Amplitude",
+      "domains": [
+        "amplitude.com"
+      ],
+      "category": "developer",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Framer",
+      "domains": [
+        "framer.com"
+      ],
+      "category": "design",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Sketch",
+      "domains": [
+        "sketch.com"
+      ],
+      "category": "design",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Zeplin",
+      "domains": [
+        "zeplin.io"
+      ],
+      "category": "design",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Envato Elements",
+      "domains": [
+        "envato.com",
+        "elements.envato.com"
+      ],
+      "category": "design",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Shutterstock",
+      "domains": [
+        "shutterstock.com"
+      ],
+      "category": "design",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "iStock",
+      "domains": [
+        "istockphoto.com",
+        "gettyimages.com"
+      ],
+      "category": "design",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Unsplash+",
+      "domains": [
+        "unsplash.com"
+      ],
+      "category": "design",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Freepik",
+      "domains": [
+        "freepik.com"
+      ],
+      "category": "design",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Salesforce",
+      "domains": [
+        "salesforce.com"
+      ],
+      "category": "software",
+      "cancel_method": "phone",
+      "cancel_url": null,
+      "difficulty": 4
+    },
+    {
+      "name": "HubSpot",
+      "domains": [
+        "hubspot.com"
+      ],
+      "category": "software",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Pipedrive",
+      "domains": [
+        "pipedrive.com"
+      ],
+      "category": "software",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Zendesk",
+      "domains": [
+        "zendesk.com"
+      ],
+      "category": "software",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Intercom",
+      "domains": [
+        "intercom.com"
+      ],
+      "category": "software",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Freshworks",
+      "domains": [
+        "freshworks.com"
+      ],
+      "category": "software",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Perplexity",
+      "domains": [
+        "perplexity.ai"
+      ],
+      "category": "ai",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "ElevenLabs",
+      "domains": [
+        "elevenlabs.io"
+      ],
+      "category": "ai",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Runway",
+      "domains": [
+        "runwayml.com"
+      ],
+      "category": "ai",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Suno",
+      "domains": [
+        "suno.com",
+        "suno.ai"
+      ],
+      "category": "ai",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Jasper",
+      "domains": [
+        "jasper.ai"
+      ],
+      "category": "ai",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Copy.ai",
+      "domains": [
+        "copy.ai"
+      ],
+      "category": "ai",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Writesonic",
+      "domains": [
+        "writesonic.com"
+      ],
+      "category": "ai",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Synthesia",
+      "domains": [
+        "synthesia.io"
+      ],
+      "category": "ai",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "HeyGen",
+      "domains": [
+        "heygen.com"
+      ],
+      "category": "ai",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Cursor",
+      "domains": [
+        "cursor.com",
+        "cursor.sh"
+      ],
+      "category": "ai",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Lovable",
+      "domains": [
+        "lovable.dev"
+      ],
+      "category": "ai",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Replicate",
+      "domains": [
+        "replicate.com"
+      ],
+      "category": "ai",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Hugging Face",
+      "domains": [
+        "huggingface.co"
+      ],
+      "category": "ai",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Poe",
+      "domains": [
+        "poe.com",
+        "quora.com"
+      ],
+      "category": "ai",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Character.ai",
+      "domains": [
+        "character.ai"
+      ],
+      "category": "ai",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Leonardo.Ai",
+      "domains": [
+        "leonardo.ai"
+      ],
+      "category": "ai",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Ideogram",
+      "domains": [
+        "ideogram.ai"
+      ],
+      "category": "ai",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Krea",
+      "domains": [
+        "krea.ai"
+      ],
+      "category": "ai",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Gamma",
+      "domains": [
+        "gamma.app"
+      ],
+      "category": "ai",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "CyberGhost",
+      "domains": [
+        "cyberghostvpn.com"
+      ],
+      "category": "vpn",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Private Internet Access",
+      "domains": [
+        "privateinternetaccess.com"
+      ],
+      "category": "vpn",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "IPVanish",
+      "domains": [
+        "ipvanish.com"
+      ],
+      "category": "vpn",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "TunnelBear",
+      "domains": [
+        "tunnelbear.com"
+      ],
+      "category": "vpn",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Mullvad",
+      "domains": [
+        "mullvad.net"
+      ],
+      "category": "vpn",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Windscribe",
+      "domains": [
+        "windscribe.com"
+      ],
+      "category": "vpn",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Norton",
+      "domains": [
+        "norton.com",
+        "nortonlifelock.com"
+      ],
+      "category": "security",
+      "cancel_method": "phone",
+      "cancel_url": null,
+      "difficulty": 4
+    },
+    {
+      "name": "McAfee",
+      "domains": [
+        "mcafee.com"
+      ],
+      "category": "security",
+      "cancel_method": "phone",
+      "cancel_url": null,
+      "difficulty": 4
+    },
+    {
+      "name": "Bitdefender",
+      "domains": [
+        "bitdefender.com"
+      ],
+      "category": "security",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Kaspersky",
+      "domains": [
+        "kaspersky.com"
+      ],
+      "category": "security",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Avast",
+      "domains": [
+        "avast.com"
+      ],
+      "category": "security",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 4
+    },
+    {
+      "name": "AVG",
+      "domains": [
+        "avg.com"
+      ],
+      "category": "security",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 4
+    },
+    {
+      "name": "Malwarebytes",
+      "domains": [
+        "malwarebytes.com"
+      ],
+      "category": "security",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "ESET",
+      "domains": [
+        "eset.com"
+      ],
+      "category": "security",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Trend Micro",
+      "domains": [
+        "trendmicro.com"
+      ],
+      "category": "security",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "LifeLock",
+      "domains": [
+        "lifelock.com"
+      ],
+      "category": "security",
+      "cancel_method": "phone",
+      "cancel_url": null,
+      "difficulty": 4
+    },
+    {
+      "name": "Incogni",
+      "domains": [
+        "incogni.com"
+      ],
+      "category": "privacy",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "DeleteMe",
+      "domains": [
+        "joindeleteme.com"
+      ],
+      "category": "privacy",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Experian",
+      "domains": [
+        "experian.com"
+      ],
+      "category": "finance",
+      "cancel_method": "phone",
+      "cancel_url": null,
+      "difficulty": 5
+    },
+    {
+      "name": "myFICO",
+      "domains": [
+        "myfico.com"
+      ],
+      "category": "finance",
+      "cancel_method": "phone",
+      "cancel_url": null,
+      "difficulty": 4
+    },
+    {
+      "name": "YNAB",
+      "domains": [
+        "ynab.com",
+        "youneedabudget.com"
+      ],
+      "category": "finance",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Quicken",
+      "domains": [
+        "quicken.com"
+      ],
+      "category": "finance",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "QuickBooks (Intuit)",
+      "domains": [
+        "intuit.com",
+        "quickbooks.com"
+      ],
+      "category": "finance",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Xero",
+      "domains": [
+        "xero.com"
+      ],
+      "category": "finance",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "FreshBooks",
+      "domains": [
+        "freshbooks.com"
+      ],
+      "category": "finance",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Copilot Money",
+      "domains": [
+        "copilot.money"
+      ],
+      "category": "finance",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Monarch Money",
+      "domains": [
+        "monarchmoney.com"
+      ],
+      "category": "finance",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Revolut",
+      "domains": [
+        "revolut.com"
+      ],
+      "category": "finance",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "N26",
+      "domains": [
+        "n26.com"
+      ],
+      "category": "finance",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Monzo",
+      "domains": [
+        "monzo.com"
+      ],
+      "category": "finance",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "bunq",
+      "domains": [
+        "bunq.com"
+      ],
+      "category": "finance",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Robinhood Gold",
+      "domains": [
+        "robinhood.com"
+      ],
+      "category": "finance",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Coinbase One",
+      "domains": [
+        "coinbase.com"
+      ],
+      "category": "finance",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "TradingView",
+      "domains": [
+        "tradingview.com"
+      ],
+      "category": "finance",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Seeking Alpha",
+      "domains": [
+        "seekingalpha.com"
+      ],
+      "category": "finance",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "The Motley Fool",
+      "domains": [
+        "fool.com"
+      ],
+      "category": "finance",
+      "cancel_method": "phone",
+      "cancel_url": null,
+      "difficulty": 4
+    },
+    {
+      "name": "Morningstar",
+      "domains": [
+        "morningstar.com"
+      ],
+      "category": "finance",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "EA Play",
+      "domains": [
+        "ea.com"
+      ],
+      "category": "gaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Ubisoft+",
+      "domains": [
+        "ubisoft.com"
+      ],
+      "category": "gaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Humble Choice",
+      "domains": [
+        "humblebundle.com"
+      ],
+      "category": "gaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Twitch",
+      "domains": [
+        "twitch.tv"
+      ],
+      "category": "gaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Discord Nitro",
+      "domains": [
+        "discord.com",
+        "discordapp.com"
+      ],
+      "category": "gaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Roblox Premium",
+      "domains": [
+        "roblox.com"
+      ],
+      "category": "gaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Minecraft Realms",
+      "domains": [
+        "minecraft.net"
+      ],
+      "category": "gaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Blizzard (WoW)",
+      "domains": [
+        "blizzard.com",
+        "battle.net"
+      ],
+      "category": "gaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Final Fantasy XIV",
+      "domains": [
+        "square-enix.com",
+        "square-enix-games.com"
+      ],
+      "category": "gaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "RuneScape",
+      "domains": [
+        "jagex.com",
+        "runescape.com"
+      ],
+      "category": "gaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "EVE Online",
+      "domains": [
+        "eveonline.com",
+        "ccpgames.com"
+      ],
+      "category": "gaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "GeForce NOW",
+      "domains": [
+        "nvidia.com"
+      ],
+      "category": "gaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Shadow",
+      "domains": [
+        "shadow.tech"
+      ],
+      "category": "gaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Fortnite Crew",
+      "domains": [
+        "epicgames.com"
+      ],
+      "category": "gaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Chess.com",
+      "domains": [
+        "chess.com"
+      ],
+      "category": "gaming",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Peloton",
+      "domains": [
+        "onepeloton.com"
+      ],
+      "category": "fitness",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Fitbit Premium",
+      "domains": [
+        "fitbit.com"
+      ],
+      "category": "fitness",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "WHOOP",
+      "domains": [
+        "whoop.com"
+      ],
+      "category": "fitness",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Oura",
+      "domains": [
+        "ouraring.com"
+      ],
+      "category": "fitness",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Zwift",
+      "domains": [
+        "zwift.com"
+      ],
+      "category": "fitness",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "TrainerRoad",
+      "domains": [
+        "trainerroad.com"
+      ],
+      "category": "fitness",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Centr",
+      "domains": [
+        "centr.com"
+      ],
+      "category": "fitness",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Freeletics",
+      "domains": [
+        "freeletics.com"
+      ],
+      "category": "fitness",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "ClassPass",
+      "domains": [
+        "classpass.com"
+      ],
+      "category": "fitness",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Planet Fitness",
+      "domains": [
+        "planetfitness.com"
+      ],
+      "category": "fitness",
+      "cancel_method": "unknown",
+      "cancel_url": null,
+      "difficulty": 5
+    },
+    {
+      "name": "PureGym",
+      "domains": [
+        "puregym.com"
+      ],
+      "category": "fitness",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 4
+    },
+    {
+      "name": "Virgin Active",
+      "domains": [
+        "virginactive.com",
+        "virginactive.co.th"
+      ],
+      "category": "fitness",
+      "cancel_method": "phone",
+      "cancel_url": null,
+      "difficulty": 4
+    },
+    {
+      "name": "Fitness First",
+      "domains": [
+        "fitnessfirst.com",
+        "fitnessfirst.co.th"
+      ],
+      "category": "fitness",
+      "cancel_method": "phone",
+      "cancel_url": null,
+      "difficulty": 4
+    },
+    {
+      "name": "Holmes Place",
+      "domains": [
+        "holmesplace.com",
+        "holmesplace.co.il"
+      ],
+      "category": "fitness",
+      "cancel_method": "phone",
+      "cancel_url": null,
+      "difficulty": 4
+    },
+    {
+      "name": "Noom",
+      "domains": [
+        "noom.com"
+      ],
+      "category": "wellness",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "WeightWatchers",
+      "domains": [
+        "weightwatchers.com",
+        "ww.com"
+      ],
+      "category": "wellness",
+      "cancel_method": "phone",
+      "cancel_url": null,
+      "difficulty": 4
+    },
+    {
+      "name": "Lifesum",
+      "domains": [
+        "lifesum.com"
+      ],
+      "category": "wellness",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Flo",
+      "domains": [
+        "flo.health"
+      ],
+      "category": "wellness",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Clue",
+      "domains": [
+        "helloclue.com"
+      ],
+      "category": "wellness",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Sleep Cycle",
+      "domains": [
+        "sleepcycle.com"
+      ],
+      "category": "wellness",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Elevate",
+      "domains": [
+        "elevateapp.com"
+      ],
+      "category": "education",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Lumosity",
+      "domains": [
+        "lumosity.com"
+      ],
+      "category": "education",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "BetterHelp",
+      "domains": [
+        "betterhelp.com"
+      ],
+      "category": "health",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Talkspace",
+      "domains": [
+        "talkspace.com"
+      ],
+      "category": "health",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Hims & Hers",
+      "domains": [
+        "hims.com",
+        "forhims.com",
+        "forhers.com"
+      ],
+      "category": "health",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Waking Up",
+      "domains": [
+        "wakingup.com"
+      ],
+      "category": "wellness",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Insight Timer",
+      "domains": [
+        "insighttimer.com"
+      ],
+      "category": "wellness",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "Hinge",
+      "domains": [
+        "hinge.co"
+      ],
+      "category": "dating",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "OkCupid",
+      "domains": [
+        "okcupid.com"
+      ],
+      "category": "dating",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Match",
+      "domains": [
+        "match.com"
+      ],
+      "category": "dating",
+      "cancel_method": "phone",
+      "cancel_url": null,
+      "difficulty": 4
+    },
+    {
+      "name": "eharmony",
+      "domains": [
+        "eharmony.com"
+      ],
+      "category": "dating",
+      "cancel_method": "phone",
+      "cancel_url": null,
+      "difficulty": 4
+    },
+    {
+      "name": "Grindr",
+      "domains": [
+        "grindr.com"
+      ],
+      "category": "dating",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Coffee Meets Bagel",
+      "domains": [
+        "coffeemeetsbagel.com"
+      ],
+      "category": "dating",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Badoo",
+      "domains": [
+        "badoo.com"
+      ],
+      "category": "dating",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "DoorDash (DashPass)",
+      "domains": [
+        "doordash.com"
+      ],
+      "category": "delivery",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Grubhub+",
+      "domains": [
+        "grubhub.com"
+      ],
+      "category": "delivery",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Deliveroo Plus",
+      "domains": [
+        "deliveroo.com",
+        "deliveroo.co.uk"
+      ],
+      "category": "delivery",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Wolt+",
+      "domains": [
+        "wolt.com"
+      ],
+      "category": "delivery",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 1
+    },
+    {
+      "name": "foodpanda pro",
+      "domains": [
+        "foodpanda.com",
+        "foodpanda.co.th",
+        "foodpanda.ph"
+      ],
+      "category": "delivery",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Instacart+",
+      "domains": [
+        "instacart.com"
+      ],
+      "category": "delivery",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "HelloFresh",
+      "domains": [
+        "hellofresh.com",
+        "hellofresh.co.uk",
+        "hellofresh.de"
+      ],
+      "category": "food",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Blue Apron",
+      "domains": [
+        "blueapron.com"
+      ],
+      "category": "food",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Marley Spoon",
+      "domains": [
+        "marleyspoon.com"
+      ],
+      "category": "food",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Gousto",
+      "domains": [
+        "gousto.co.uk"
+      ],
+      "category": "food",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Factor",
+      "domains": [
+        "factor75.com"
+      ],
+      "category": "food",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Daily Harvest",
+      "domains": [
+        "daily-harvest.com"
+      ],
+      "category": "food",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Home Chef",
+      "domains": [
+        "homechef.com"
+      ],
+      "category": "food",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "EveryPlate",
+      "domains": [
+        "everyplate.com"
+      ],
+      "category": "food",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Panera Sip Club",
+      "domains": [
+        "panerabread.com"
+      ],
+      "category": "food",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Lyft Pink",
+      "domains": [
+        "lyft.com"
+      ],
+      "category": "transport",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Bolt Plus",
+      "domains": [
+        "bolt.eu"
+      ],
+      "category": "transport",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Zipcar",
+      "domains": [
+        "zipcar.com"
+      ],
+      "category": "transport",
+      "cancel_method": "phone",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Walmart+",
+      "domains": [
+        "walmart.com"
+      ],
+      "category": "shopping",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Costco",
+      "domains": [
+        "costco.com"
+      ],
+      "category": "shopping",
+      "cancel_method": "phone",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Sam's Club",
+      "domains": [
+        "samsclub.com"
+      ],
+      "category": "shopping",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Target Circle 360",
+      "domains": [
+        "target.com"
+      ],
+      "category": "shopping",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "eBay Plus",
+      "domains": [
+        "ebay.com",
+        "ebay.de",
+        "ebay.com.au"
+      ],
+      "category": "shopping",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "FabFitFun",
+      "domains": [
+        "fabfitfun.com"
+      ],
+      "category": "shopping",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "IPSY",
+      "domains": [
+        "ipsy.com"
+      ],
+      "category": "shopping",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "BarkBox",
+      "domains": [
+        "barkbox.com",
+        "bark.co"
+      ],
+      "category": "pets",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Dollar Shave Club",
+      "domains": [
+        "dollarshaveclub.com"
+      ],
+      "category": "shopping",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Harry's",
+      "domains": [
+        "harrys.com"
+      ],
+      "category": "shopping",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Scentbird",
+      "domains": [
+        "scentbird.com"
+      ],
+      "category": "shopping",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Stitch Fix",
+      "domains": [
+        "stitchfix.com"
+      ],
+      "category": "shopping",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Rent the Runway",
+      "domains": [
+        "renttherunway.com"
+      ],
+      "category": "shopping",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Udemy",
+      "domains": [
+        "udemy.com"
+      ],
+      "category": "education",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Skillshare",
+      "domains": [
+        "skillshare.com"
+      ],
+      "category": "education",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "MasterClass",
+      "domains": [
+        "masterclass.com"
+      ],
+      "category": "education",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Codecademy",
+      "domains": [
+        "codecademy.com"
+      ],
+      "category": "education",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "DataCamp",
+      "domains": [
+        "datacamp.com"
+      ],
+      "category": "education",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Brilliant",
+      "domains": [
+        "brilliant.org"
+      ],
+      "category": "education",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Chegg",
+      "domains": [
+        "chegg.com"
+      ],
+      "category": "education",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Quizlet",
+      "domains": [
+        "quizlet.com"
+      ],
+      "category": "education",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Babbel",
+      "domains": [
+        "babbel.com"
+      ],
+      "category": "education",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Rosetta Stone",
+      "domains": [
+        "rosettastone.com"
+      ],
+      "category": "education",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "Busuu",
+      "domains": [
+        "busuu.com"
+      ],
+      "category": "education",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Memrise",
+      "domains": [
+        "memrise.com"
+      ],
+      "category": "education",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Pluralsight",
+      "domains": [
+        "pluralsight.com"
+      ],
+      "category": "education",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "ABCmouse",
+      "domains": [
+        "abcmouse.com"
+      ],
+      "category": "kids",
+      "cancel_method": "phone",
+      "cancel_url": null,
+      "difficulty": 4
+    },
+    {
+      "name": "Epic!",
+      "domains": [
+        "getepic.com"
+      ],
+      "category": "kids",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Lingokids",
+      "domains": [
+        "lingokids.com"
+      ],
+      "category": "kids",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Toca Boca",
+      "domains": [
+        "tocaboca.com"
+      ],
+      "category": "kids",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Flickr Pro",
+      "domains": [
+        "flickr.com"
+      ],
+      "category": "photo",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "SmugMug",
+      "domains": [
+        "smugmug.com"
+      ],
+      "category": "photo",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "500px",
+      "domains": [
+        "500px.com"
+      ],
+      "category": "photo",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "VSCO",
+      "domains": [
+        "vsco.co"
+      ],
+      "category": "photo",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Picsart",
+      "domains": [
+        "picsart.com"
+      ],
+      "category": "photo",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    },
+    {
+      "name": "Lightricks",
+      "domains": [
+        "lightricks.com"
+      ],
+      "category": "photo",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 3
+    },
+    {
+      "name": "PhotoRoom",
+      "domains": [
+        "photoroom.com"
+      ],
+      "category": "photo",
+      "cancel_method": "url",
+      "cancel_url": null,
+      "difficulty": 2
+    }
+  ]
+}
