@@ -20,7 +20,7 @@ const TABS = [
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const { userId } = await auth();
-  if (!isAdmin(userId)) notFound();
+  if (!(await isAdmin(userId))) notFound();
 
   // Security rule 3: an admin sign-in is itself an audited event. A failure
   // to record it is a failure to enter — the log is not best-effort.
