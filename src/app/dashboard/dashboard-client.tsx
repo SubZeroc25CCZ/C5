@@ -10,6 +10,7 @@ import {
   Button,
   Card,
   EmptyState,
+  LinkButton,
   MerchantLogo,
   ProgressBar,
   Stat,
@@ -22,7 +23,9 @@ import type { inferRouterOutputs } from "@trpc/server";
 import type { AppRouter } from "@/server/routers/_app";
 
 type ListPayload = inferRouterOutputs<AppRouter>["subscriptions"]["list"];
-type Row = ListPayload["subscriptions"][number];
+export type FullListPayload = Extract<ListPayload, { teaser: false }>;
+type TeaserPayload = Extract<ListPayload, { teaser: true }>;
+type Row = FullListPayload["subscriptions"][number];
 
 const FILTERS = [
   { key: "all", label: "All" },
@@ -35,6 +38,13 @@ const FILTERS = [
 
 type FilterKey = (typeof FILTERS)[number]["key"];
 
+interface ScanState {
+  running: boolean;
+  processed: number;
+  total: number | null;
+  error?: string;
+}
+
 export function DashboardClient() {
   const utils = trpc.useUtils();
   const listQuery = trpc.subscriptions.list.useQuery();
@@ -43,19 +53,12 @@ export function DashboardClient() {
   const planQuery = trpc.billing.plan.useQuery();
 
   const scan = trpc.emailAccounts.scan.useMutation();
-  const checkout = trpc.billing.checkout.useMutation({
-    onSuccess: (data) => {
-      window.location.href = data.url;
-    },
-  });
 
-  const [filter, setFilter] = useState<FilterKey>("all");
-  const [scanState, setScanState] = useState<{
-    running: boolean;
-    processed: number;
-    total: number | null;
-    error?: string;
-  }>({ running: false, processed: 0, total: null });
+  const [scanState, setScanState] = useState<ScanState>({
+    running: false,
+    processed: 0,
+    total: null,
+  });
   const [triageOpen, setTriageOpen] = useState(false);
 
   // Batched scan loop: each call handles up to 25 new messages so serverless
@@ -92,11 +95,170 @@ export function DashboardClient() {
     }
   }
 
-  const rows = listQuery.data?.subscriptions ?? [];
-  const totals = listQuery.data?.totals ?? [];
-  const alerts = listQuery.data?.recentPriceChanges ?? [];
+  const data = listQuery.data;
   const accounts = accountsQuery.data ?? [];
-  const plan = planQuery.data?.plan ?? "free";
+  const plan = planQuery.data?.plan ?? "teaser";
+
+  if (data?.teaser) {
+    return (
+      <TeaserDashboard
+        data={data}
+        accounts={accounts}
+        scanState={scanState}
+        onScan={runFullScan}
+      />
+    );
+  }
+
+  return (
+    <FullDashboard
+      data={data}
+      accounts={accounts}
+      plan={plan}
+      scanState={scanState}
+      onScan={runFullScan}
+      reviewItems={reviewQuery.data ?? []}
+      triageOpen={triageOpen}
+      setTriageOpen={setTriageOpen}
+      listLoaded={listQuery.isSuccess}
+    />
+  );
+}
+
+/* ===== Teaser (D5): redacted results + paywall. The server already stripped
+   everything but totals, counts, and the one unlocked subscription — this
+   component just renders what little it was given. ===== */
+function TeaserDashboard({
+  data,
+  accounts,
+  scanState,
+  onScan,
+}: {
+  data: TeaserPayload;
+  accounts: Account[];
+  scanState: ScanState;
+  onScan: (accountId: number) => void;
+}) {
+  const hasResults = data.counts.total > 0;
+  return (
+    <main className="mx-auto max-w-6xl px-4 py-8">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-2xl font-bold">Your scan results</h1>
+        <LinkButton href="/pricing">⭐ Unlock everything</LinkButton>
+      </div>
+
+      {data.totals.length > 0 && (
+        <div className="mb-6 flex flex-wrap gap-4">
+          {data.totals.map((total) => (
+            <Stat
+              key={total.currency}
+              label={`Monthly · ${total.currency}`}
+              value={money(total.monthly, total.currency)}
+              hint={`${money(total.yearly, total.currency)} / year`}
+            />
+          ))}
+          <Stat
+            label="Subscriptions found"
+            value={data.counts.total}
+            hint={`${data.counts.confirmed} confirmed · ${data.counts.possible} seen once`}
+          />
+        </div>
+      )}
+
+      <InboxPanel accounts={accounts} plan="teaser" scanState={scanState} onScan={onScan} />
+
+      {hasResults ? (
+        <section>
+          <h2 className="mb-1 text-lg font-semibold">Your most expensive subscription</h2>
+          <p className="mb-3 text-sm text-muted">
+            The free scan shows this one in full — evidence included. Everything else is waiting
+            behind the unlock.
+          </p>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {data.unlocked && <SubscriptionCard row={data.unlocked as Row} />}
+            {data.lockedRows.map((locked, index) => (
+              <LockedCard key={index} status={locked.status} />
+            ))}
+          </div>
+          {data.lockedRows.length > 0 && (
+            <Card className="mt-6 border-frost bg-frost-soft/60 text-center">
+              <h3 className="text-lg font-bold">
+                Unlock {data.lockedRows.length} more subscription
+                {data.lockedRows.length === 1 ? "" : "s"}
+              </h3>
+              <p className="mx-auto mt-1 max-w-md text-sm text-muted">
+                Basic shows every subscription with evidence and price history, and prepares
+                cancellations for the ones you don&rsquo;t want — from $2.99/month.
+              </p>
+              <div className="mt-4">
+                <LinkButton href="/pricing" className="px-6 py-2.5">
+                  See plans
+                </LinkButton>
+              </div>
+            </Card>
+          )}
+        </section>
+      ) : accounts.length > 0 && !scanState.running ? (
+        <EmptyState icon="❄️" title="Run your free scan">
+          Start the scan above — results show up here, free: your per-currency totals, how many
+          subscriptions we found, and your most expensive one in full detail.
+        </EmptyState>
+      ) : null}
+    </main>
+  );
+}
+
+/** A locked row: deliberately empty — the server sent nothing to reveal. */
+function LockedCard({ status }: { status: string }) {
+  return (
+    <Card className="relative h-full overflow-hidden">
+      <div className="pointer-events-none select-none blur-[6px]" aria-hidden>
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex items-center gap-3">
+            <div className="h-9 w-9 rounded-lg bg-surface-2" />
+            <div>
+              <div className="h-4 w-28 rounded bg-surface-2" />
+              <div className="mt-1 h-3 w-16 rounded bg-surface-2" />
+            </div>
+          </div>
+        </div>
+        <div className="mt-4 h-6 w-24 rounded bg-surface-2" />
+      </div>
+      <div className="absolute inset-0 flex flex-col items-center justify-center gap-1">
+        <span className="text-xl">🔒</span>
+        <StatusBadge status={status} />
+      </div>
+    </Card>
+  );
+}
+
+/* ===== Full dashboard (Basic / Pro) ===== */
+function FullDashboard({
+  data,
+  accounts,
+  plan,
+  scanState,
+  onScan,
+  reviewItems,
+  triageOpen,
+  setTriageOpen,
+  listLoaded,
+}: {
+  data: FullListPayload | undefined;
+  accounts: Account[];
+  plan: string;
+  scanState: ScanState;
+  onScan: (accountId: number) => void;
+  reviewItems: ReviewItem[];
+  triageOpen: boolean;
+  setTriageOpen: (open: boolean) => void;
+  listLoaded: boolean;
+}) {
+  const [filter, setFilter] = useState<FilterKey>("all");
+
+  const rows = useMemo(() => data?.subscriptions ?? [], [data]);
+  const totals = data?.totals ?? [];
+  const alerts = data?.recentPriceChanges ?? [];
 
   const activeRows = rows.filter((row) => row.subscription.status === "active");
   const nextRenewal = activeRows
@@ -122,14 +284,14 @@ export function DashboardClient() {
             🃏 Review one by one
           </Button>
         )}
-        {plan === "free" && (
-          <Button variant="secondary" onClick={() => checkout.mutate()} disabled={checkout.isPending}>
+        {plan !== "pro" && (
+          <LinkButton variant="secondary" href="/pricing">
             ⭐ Upgrade to Pro
-          </Button>
+          </LinkButton>
         )}
       </div>
 
-      {/* Price-increase alerts (§ P1) — only observed changes, never predictions */}
+      {/* Price-increase alerts — only observed changes, never predictions */}
       {alerts.length > 0 && (
         <Card className="mb-6 border-warn bg-warn-bg/40">
           <h3 className="font-semibold">💸 Price increases spotted</h3>
@@ -169,14 +331,9 @@ export function DashboardClient() {
         </div>
       )}
 
-      <InboxPanel
-        accounts={accounts}
-        plan={plan}
-        scanState={scanState}
-        onScan={runFullScan}
-      />
+      <InboxPanel accounts={accounts} plan={plan} scanState={scanState} onScan={onScan} />
 
-      <ReviewQueue items={reviewQuery.data ?? []} />
+      <ReviewQueue items={reviewItems} />
 
       {triageOpen && (
         <TriageWizard
@@ -189,7 +346,7 @@ export function DashboardClient() {
       )}
 
       {/* Subscription list */}
-      {listQuery.isSuccess && rows.length === 0 ? (
+      {listLoaded && rows.length === 0 ? (
         <EmptyState icon="❄️" title="No subscriptions found">
           We scanned your receipts and didn&rsquo;t find recurring charges — an empty result is a
           real result. Connect another inbox or re-scan after new receipts arrive.
@@ -291,15 +448,17 @@ function SubscriptionCard({ row }: { row: Row }) {
   );
 }
 
+type Account = { id: number; address: string; status: string; lastSyncedAt: Date | null };
+
 function InboxPanel({
   accounts,
   plan,
   scanState,
   onScan,
 }: {
-  accounts: Array<{ id: number; address: string; status: string; lastSyncedAt: Date | null }>;
+  accounts: Account[];
   plan: string;
-  scanState: { running: boolean; processed: number; total: number | null; error?: string };
+  scanState: ScanState;
   onScan: (accountId: number) => void;
 }) {
   const scanning = scanState.running;
@@ -333,14 +492,14 @@ function InboxPanel({
               ? `last synced ${new Date(account.lastSyncedAt).toLocaleString()}`
               : "never scanned"}
           </span>
-          {account.status === "active" && (
+          {account.status === "active" && (plan !== "teaser" || !account.lastSyncedAt) && (
             <Button
               variant="secondary"
               className="ml-auto"
               disabled={scanning}
               onClick={() => onScan(account.id)}
             >
-              {scanning ? "Scanning…" : "Scan 24 months"}
+              {scanning ? "Scanning…" : account.lastSyncedAt ? "Re-scan" : "Scan 24 months"}
             </Button>
           )}
         </div>
@@ -357,33 +516,37 @@ function InboxPanel({
           <p className="mt-1.5 text-sm text-muted">
             {scanState.total === null
               ? "Searching your receipts…"
-              : `Processed ${scanState.processed} of ${scanState.total} receipt emails — subscriptions appear below as they're found.`}
+              : `Processed ${scanState.processed} of ${scanState.total} receipt emails — results update as they're found.`}
           </p>
         </div>
       )}
       {scanState.error && <p className="mt-2 text-sm text-danger">{scanState.error}</p>}
-      {plan === "free" && accounts.length > 0 && (
+      {plan === "teaser" && accounts.length > 0 && (
         <p className="mt-3 text-xs text-muted">
-          Free plan: 1 inbox, monthly re-scan. Pro: unlimited inboxes, daily sync.
+          Free scan: one inbox, one scan. Basic re-scans monthly; Pro syncs daily across unlimited
+          inboxes.
+        </p>
+      )}
+      {plan === "basic" && accounts.length > 0 && (
+        <p className="mt-3 text-xs text-muted">
+          Basic: 1 inbox, monthly re-scan. Pro: unlimited inboxes, daily sync + alerts.
         </p>
       )}
     </Card>
   );
 }
 
-function ReviewQueue({
-  items,
-}: {
-  items: Array<{
-    id: number;
-    merchantName: string;
-    amountMinor: number;
-    currency: string;
-    chargedAt: Date;
-    sourceSubject: string | null;
-    extractionConfidence: number | null;
-  }>;
-}) {
+type ReviewItem = {
+  id: number;
+  merchantName: string;
+  amountMinor: number;
+  currency: string;
+  chargedAt: Date;
+  sourceSubject: string | null;
+  extractionConfidence: number | null;
+};
+
+function ReviewQueue({ items }: { items: ReviewItem[] }) {
   const utils = trpc.useUtils();
   const approve = trpc.review.approve.useMutation({ onSettled: () => utils.invalidate() });
   const reject = trpc.review.reject.useMutation({ onSettled: () => utils.invalidate() });

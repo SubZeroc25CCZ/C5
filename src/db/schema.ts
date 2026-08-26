@@ -37,7 +37,7 @@ export const users = sqliteTable(
 export const profiles = sqliteTable("profiles", {
   userId: text("user_id").primaryKey(),
   displayName: text("display_name"),
-  plan: text("plan", { enum: ["free", "pro"] }).default("free").notNull(),
+  plan: text("plan", { enum: ["free", "teaser", "basic", "pro"] }).default("free").notNull(), // "free" = legacy teaser
   stripeCustomerId: text("stripe_customer_id"),
   stripeSubscriptionId: text("stripe_subscription_id"),
   createdAt: createdAt(),

@@ -1,11 +1,163 @@
 "use client";
 
+import { useState } from "react";
+import Link from "next/link";
 import { SignInButton, useAuth } from "@clerk/nextjs";
 import { trpc } from "@/lib/trpc";
-import { Button } from "@/components/ui";
+import { Button, cx } from "@/components/ui";
 
-/** The Pro card's action button: sign in → upgrade → manage, by state. */
-export function ProAction() {
+type PaidPlan = "basic" | "pro";
+type Interval = "monthly" | "annual";
+
+const PRICING: Record<PaidPlan, Record<Interval, string>> = {
+  basic: { monthly: "$2.99", annual: "$29.90" },
+  pro: { monthly: "$4.99", annual: "$49.90" },
+};
+
+function Check() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="mt-0.5 shrink-0 text-frost"
+      aria-hidden
+    >
+      <path d="M20 6L9 17l-5-5" />
+    </svg>
+  );
+}
+
+const TEASER_FEATURES = [
+  "Full 24-month inbox scan",
+  "Per-currency monthly + yearly totals",
+  "How many subscriptions we found",
+  "Your most expensive subscription — full detail and evidence",
+];
+
+const BASIC_FEATURES = [
+  "Every subscription, unlocked",
+  "Evidence log + price history for each",
+  "Cancellation drafts, links, and tracking",
+  "Monthly re-scan · 1 inbox",
+];
+
+const PRO_FEATURES = [
+  "Everything in Basic",
+  "Unlimited connected inboxes",
+  "Daily sync — catch new charges fast",
+  "Renewal and price-increase alerts",
+];
+
+export function PricingPlans() {
+  const [interval, setInterval] = useState<Interval>("monthly");
+  return (
+    <div>
+      <div className="mb-8 flex justify-center">
+        <div className="inline-flex rounded-full border border-line bg-surface p-1 text-sm">
+          {(["monthly", "annual"] as const).map((option) => (
+            <button
+              key={option}
+              onClick={() => setInterval(option)}
+              className={cx(
+                "cursor-pointer rounded-full px-4 py-1.5 transition-colors",
+                interval === option ? "bg-frost font-semibold text-frost-ink" : "text-muted",
+              )}
+            >
+              {option === "monthly" ? "Monthly" : "Annual · 2 months free"}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-3">
+        {/* Teaser */}
+        <div className="rounded-2xl border border-line bg-surface p-7">
+          <h2 className="text-lg font-semibold">Free scan</h2>
+          <p className="tnum mt-2 text-4xl font-extrabold">$0</p>
+          <p className="mt-1 text-sm text-muted">see what you&rsquo;re dealing with</p>
+          <ul className="mt-6 space-y-2.5 text-sm">
+            {TEASER_FEATURES.map((feature) => (
+              <li key={feature} className="flex gap-2.5">
+                <Check />
+                <span>{feature}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-4 text-xs text-muted">
+            The rest of your subscriptions stay locked until you upgrade — no re-scans, no
+            cancellation tools.
+          </p>
+          <div className="mt-6">
+            <Link
+              href="/dashboard"
+              className="inline-flex w-full items-center justify-center rounded-lg border border-line px-4 py-3 text-sm font-medium text-muted transition-colors hover:text-ink"
+            >
+              Start the free scan
+            </Link>
+          </div>
+        </div>
+
+        {/* Basic */}
+        <div className="relative rounded-2xl border-2 border-frost bg-surface p-7">
+          <span className="absolute -top-3 left-6 rounded-full bg-frost px-3 py-0.5 text-xs font-bold text-frost-ink">
+            MOST POPULAR
+          </span>
+          <h2 className="text-lg font-semibold text-frost">Basic</h2>
+          <p className="tnum mt-2 text-4xl font-extrabold">
+            {PRICING.basic[interval]}
+            <span className="text-lg font-medium text-muted">
+              /{interval === "monthly" ? "month" : "year"}
+            </span>
+          </p>
+          <p className="mt-1 text-sm text-muted">cancel anytime — of course</p>
+          <ul className="mt-6 space-y-2.5 text-sm">
+            {BASIC_FEATURES.map((feature) => (
+              <li key={feature} className="flex gap-2.5">
+                <Check />
+                <span>{feature}</span>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-7">
+            <PlanAction plan="basic" interval={interval} />
+          </div>
+        </div>
+
+        {/* Pro */}
+        <div className="rounded-2xl border border-line bg-surface p-7">
+          <h2 className="text-lg font-semibold">Pro</h2>
+          <p className="tnum mt-2 text-4xl font-extrabold">
+            {PRICING.pro[interval]}
+            <span className="text-lg font-medium text-muted">
+              /{interval === "monthly" ? "month" : "year"}
+            </span>
+          </p>
+          <p className="mt-1 text-sm text-muted">for people with many inboxes</p>
+          <ul className="mt-6 space-y-2.5 text-sm">
+            {PRO_FEATURES.map((feature) => (
+              <li key={feature} className="flex gap-2.5">
+                <Check />
+                <span>{feature}</span>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-7">
+            <PlanAction plan="pro" interval={interval} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** The plan card's action button: sign in → upgrade → manage, by state. */
+function PlanAction({ plan, interval }: { plan: PaidPlan; interval: Interval }) {
   const { isSignedIn } = useAuth();
   const planQuery = trpc.billing.plan.useQuery(undefined, { enabled: !!isSignedIn });
   const checkout = trpc.billing.checkout.useMutation({
@@ -26,7 +178,8 @@ export function ProAction() {
       </SignInButton>
     );
   }
-  if (planQuery.data?.plan === "pro") {
+  const current = planQuery.data?.plan;
+  if (current === plan) {
     return (
       <Button
         variant="secondary"
@@ -34,7 +187,7 @@ export function ProAction() {
         disabled={portal.isPending}
         onClick={() => portal.mutate()}
       >
-        {portal.isPending ? "Opening billing…" : "Manage billing"}
+        {portal.isPending ? "Opening billing…" : "Current plan — manage billing"}
       </Button>
     );
   }
@@ -43,13 +196,15 @@ export function ProAction() {
       <Button
         className="w-full py-3"
         disabled={checkout.isPending || planQuery.isLoading}
-        onClick={() => checkout.mutate()}
+        onClick={() => checkout.mutate({ plan, interval })}
       >
-        {checkout.isPending ? "Opening checkout…" : "Upgrade to Pro"}
+        {checkout.isPending
+          ? "Opening checkout…"
+          : `Get ${plan === "basic" ? "Basic" : "Pro"}`}
       </Button>
       {checkout.isError ? (
         <p className="mt-2 text-center text-xs text-danger">
-          Checkout didn’t open — please try again.
+          Checkout didn&rsquo;t open — please try again.
         </p>
       ) : null}
     </div>

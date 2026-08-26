@@ -1,8 +1,10 @@
+import { z } from "zod";
 import { eq } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { currentUser } from "@clerk/nextjs/server";
 import { protectedProcedure, router } from "../trpc";
 import { profiles } from "@/db/schema";
+import { asPlan } from "@/lib/quota";
 import { createCheckoutSession, createPortalSession, stripeClient } from "@/services/stripe";
 
 export const billingRouter = router({
@@ -10,10 +12,12 @@ export const billingRouter = router({
     const profile = (
       await ctx.db.select().from(profiles).where(eq(profiles.userId, ctx.userId)).limit(1)
     )[0];
-    return { plan: profile?.plan ?? "free" };
+    return { plan: asPlan(profile?.plan) };
   }),
 
-  checkout: protectedProcedure.mutation(async ({ ctx }) => {
+  checkout: protectedProcedure
+    .input(z.object({ plan: z.enum(["basic", "pro"]), interval: z.enum(["monthly", "annual"]) }))
+    .mutation(async ({ ctx, input }) => {
     const user = await currentUser();
     const email = user?.primaryEmailAddress?.emailAddress;
     if (!email) throw new TRPCError({ code: "PRECONDITION_FAILED", message: "No email on account." });
@@ -24,9 +28,11 @@ export const billingRouter = router({
       userId: ctx.userId,
       email,
       customerId: profile?.stripeCustomerId,
+      plan: input.plan,
+      interval: input.interval,
     });
     return { url };
-  }),
+    }),
 
   portal: protectedProcedure.mutation(async ({ ctx }) => {
     const profile = (

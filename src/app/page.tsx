@@ -209,21 +209,32 @@ export default function LandingPage() {
           <h2 className="text-center text-3xl font-extrabold tracking-tight">
             Simple, honest pricing
           </h2>
-          <div className="mx-auto mt-10 grid max-w-2xl gap-4 sm:grid-cols-2">
+          <div className="mx-auto mt-10 grid max-w-4xl gap-4 sm:grid-cols-3">
             <div className="rounded-2xl border border-line bg-bg p-6">
-              <h3 className="font-semibold">Free</h3>
+              <h3 className="font-semibold">Free scan</h3>
               <p className="tnum mt-1 text-3xl font-extrabold">$0</p>
               <p className="mt-2 text-sm text-muted">
-                1 inbox · monthly re-scan · full detection, evidence, and cancellation drafts.
+                Your totals, how many subscriptions we found, and your most expensive one in full —
+                evidence included.
               </p>
             </div>
             <div className="rounded-2xl border-2 border-frost bg-bg p-6">
-              <h3 className="font-semibold text-frost">Pro</h3>
+              <h3 className="font-semibold text-frost">Basic</h3>
+              <p className="tnum mt-1 text-3xl font-extrabold">
+                $2.99<span className="text-base font-medium text-muted">/mo</span>
+              </p>
+              <p className="mt-2 text-sm text-muted">
+                Every subscription unlocked · evidence and price history · cancellation drafts and
+                tracking · monthly re-scan.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-line bg-bg p-6">
+              <h3 className="font-semibold">Pro</h3>
               <p className="tnum mt-1 text-3xl font-extrabold">
                 $4.99<span className="text-base font-medium text-muted">/mo</span>
               </p>
               <p className="mt-2 text-sm text-muted">
-                Unlimited inboxes · daily re-scans · price-change and renewal alerts first.
+                Unlimited inboxes · daily sync · renewal and price-increase alerts.
               </p>
             </div>
           </div>
@@ -251,6 +262,10 @@ export default function LandingPage() {
             [
               "Do I need to link my bank?",
               "Never. SubZero works entirely from email receipts, which is also why it works in any currency and with any bank.",
+            ],
+            [
+              "What exactly is free?",
+              "The scan itself, completely: we search 24 months of receipts and show you your per-currency monthly and yearly totals, how many subscriptions we found, and your single most expensive subscription in full detail with its evidence. The rest of the list, re-scans, and the cancellation tools unlock with Basic ($2.99/month).",
             ],
             [
               "Can SubZero cancel subscriptions for me?",

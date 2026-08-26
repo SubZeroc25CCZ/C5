@@ -14,10 +14,11 @@ export default function CheckoutSuccessPage() {
       <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-frost-soft text-3xl">
         ❄️
       </div>
-      <h1 className="text-3xl font-extrabold tracking-tight">You’re on Pro</h1>
+      <h1 className="text-3xl font-extrabold tracking-tight">Everything is unlocked</h1>
       <p className="mt-3 text-muted">
-        Thanks for upgrading. Unlimited inboxes and daily re-scans are unlocked — if the dashboard
-        still shows Free, give it a few seconds while the payment confirmation arrives.
+        Thanks for upgrading. Your full subscription list, evidence, and cancellation tools are
+        unlocked — if the dashboard still shows locked rows, give it a few seconds while the
+        payment confirmation arrives.
       </p>
       <div className="mt-8 flex justify-center gap-3">
         <Link href="/dashboard">

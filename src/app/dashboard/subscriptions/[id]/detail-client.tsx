@@ -32,6 +32,26 @@ export function SubscriptionDetailClient({ id }: { id: number }) {
   if (detail.isLoading) {
     return <main className="mx-auto max-w-4xl px-4 py-8 text-muted">Loading…</main>;
   }
+  if (detail.error?.data?.code === "FORBIDDEN") {
+    // Teaser plan (D5): this subscription is locked server-side.
+    return (
+      <main className="mx-auto max-w-xl px-4 py-24 text-center">
+        <div className="text-4xl">🔒</div>
+        <h1 className="mt-3 text-2xl font-extrabold tracking-tight">
+          This subscription is locked
+        </h1>
+        <p className="mx-auto mt-2 max-w-md text-sm text-muted">
+          The free scan shows your most expensive subscription in full. Basic unlocks every
+          subscription with evidence, price history, and cancellation tools — from $2.99/month.
+        </p>
+        <div className="mt-6">
+          <LinkButton href="/pricing" className="px-6 py-3">
+            See plans
+          </LinkButton>
+        </div>
+      </main>
+    );
+  }
   if (!detail.data) {
     return (
       <main className="mx-auto max-w-4xl px-4 py-8">

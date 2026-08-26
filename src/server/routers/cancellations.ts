@@ -10,6 +10,7 @@ import {
   statusLabel,
 } from "@/services/cancellation-email";
 import { formatMinor } from "@/lib/money";
+import { assertCancellationAccess, userPlan } from "../plan";
 
 // "Prepare cancellation email" flow (§8 P0). The ledger is explicit:
 // draft → request_sent → provider_confirmed. Only provider_confirmed is
@@ -17,6 +18,9 @@ import { formatMinor } from "@/lib/money";
 
 export const cancellationsRouter = router({
   list: protectedProcedure.query(async ({ ctx }) => {
+    // Teaser (D5): no cancellation features — the board renders a paywall.
+    const plan = await userPlan(ctx.db, ctx.userId);
+    if (plan === "teaser") return [];
     const rows = await ctx.db
       .select({
         request: cancellationRequests,
@@ -51,6 +55,7 @@ export const cancellationsRouter = router({
   prepare: protectedProcedure
     .input(z.object({ subscriptionId: z.number().int() }))
     .mutation(async ({ ctx, input }) => {
+      assertCancellationAccess(await userPlan(ctx.db, ctx.userId));
       const row = (
         await ctx.db
           .select({ subscription: subscriptions, merchant: merchants })
@@ -140,6 +145,7 @@ export const cancellationsRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
+      assertCancellationAccess(await userPlan(ctx.db, ctx.userId));
       const request = await ownedRequest(ctx, input.requestId);
       if (!canTransition(request.status, "request_sent")) {
         throw new TRPCError({ code: "BAD_REQUEST", message: `Cannot mark ${request.status} as sent.` });
@@ -169,6 +175,7 @@ export const cancellationsRouter = router({
   confirm: protectedProcedure
     .input(z.object({ requestId: z.number().int() }))
     .mutation(async ({ ctx, input }) => {
+      assertCancellationAccess(await userPlan(ctx.db, ctx.userId));
       const request = await ownedRequest(ctx, input.requestId);
       if (!canTransition(request.status, "provider_confirmed")) {
         throw new TRPCError({

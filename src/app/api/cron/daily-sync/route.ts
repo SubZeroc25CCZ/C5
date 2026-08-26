@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { emailAccounts, profiles } from "@/db/schema";
-import { scanDue } from "@/lib/quota";
+import { asPlan, scanDue } from "@/lib/quota";
 import { runScan } from "@/services/scan";
 
 // Daily cron (§5.4): re-scans every account due under its plan's cadence —
@@ -25,7 +25,7 @@ export async function GET(req: Request) {
 
   const results: Array<{ accountId: number; ok: boolean; error?: string }> = [];
   for (const { account, plan } of accounts) {
-    if (!scanDue(plan, account.lastSyncedAt)) continue;
+    if (!scanDue(asPlan(plan), account.lastSyncedAt)) continue;
     try {
       await runScan(db, {
         userId: account.userId,
