@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { MemoryRateLimitStore, createRateLimiter } from "../src/lib/rate-limit";
-import { PLAN_LIMITS, canConnectInbox, hasContinuousSync } from "../src/lib/quota";
+import {
+  PLAN_LIMITS,
+  canConnectInbox,
+  hasContinuousSync,
+  nextScanAt,
+  scanDue,
+} from "../src/lib/quota";
 
 describe("rate limiting (§8 P0 — AI-touching endpoints)", () => {
   it("allows up to the limit, then blocks within the window", async () => {
@@ -28,7 +34,7 @@ describe("rate limiting (§8 P0 — AI-touching endpoints)", () => {
   });
 });
 
-describe("plan quotas (§8 P0 — free: 1 inbox; Pro: unlimited + continuous sync)", () => {
+describe("plan quotas (§8 P0 + decision D2 — free: 1 inbox, monthly re-scan; Pro: unlimited, daily)", () => {
   it("free plan: exactly one connected inbox, no continuous sync", () => {
     expect(PLAN_LIMITS.free.maxConnectedInboxes).toBe(1);
     expect(canConnectInbox("free", 0)).toBe(true);
@@ -39,5 +45,21 @@ describe("plan quotas (§8 P0 — free: 1 inbox; Pro: unlimited + continuous syn
   it("pro plan: unlimited inboxes and continuous sync", () => {
     expect(canConnectInbox("pro", 25)).toBe(true);
     expect(hasContinuousSync("pro")).toBe(true);
+  });
+
+  it("free plan re-scans monthly", () => {
+    const now = new Date("2026-08-26T12:00:00Z");
+    expect(scanDue("free", null, now)).toBe(true); // never scanned → due
+    expect(scanDue("free", new Date("2026-08-01T12:00:00Z"), now)).toBe(false); // 25 days
+    expect(scanDue("free", new Date("2026-07-20T12:00:00Z"), now)).toBe(true); // 37 days
+    expect(nextScanAt("free", new Date("2026-08-01T12:00:00Z"))).toEqual(
+      new Date("2026-08-31T12:00:00Z"),
+    );
+  });
+
+  it("pro plan re-scans daily", () => {
+    const now = new Date("2026-08-26T12:00:00Z");
+    expect(scanDue("pro", new Date("2026-08-26T06:00:00Z"), now)).toBe(false); // 6 hours
+    expect(scanDue("pro", new Date("2026-08-25T06:00:00Z"), now)).toBe(true); // 30 hours
   });
 });

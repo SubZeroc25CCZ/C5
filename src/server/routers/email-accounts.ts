@@ -3,7 +3,7 @@ import { and, eq } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { protectedProcedure, router } from "../trpc";
 import { emailAccounts, profiles } from "@/db/schema";
-import { canConnectInbox, hasContinuousSync, type Plan } from "@/lib/quota";
+import { canConnectInbox, nextScanAt, scanDue, type Plan } from "@/lib/quota";
 import { scanLimiter } from "@/lib/rate-limit";
 import { runScan } from "@/services/scan";
 import { deleteDerivedDataForUser } from "@/services/subscription-sync";
@@ -49,8 +49,23 @@ export const emailAccountsRouter = router({
         throw new TRPCError({ code: "TOO_MANY_REQUESTS", message: "Scan limit reached — try again later." });
       }
       const plan = await userPlan(ctx.db, ctx.userId);
-      if (input.mode === "delta" && !hasContinuousSync(plan)) {
-        throw new TRPCError({ code: "FORBIDDEN", message: "Continuous sync is a Pro feature." });
+      if (input.mode === "delta") {
+        // Manual re-scans obey the plan cadence: free monthly, Pro daily (D2).
+        const account = (
+          await ctx.db
+            .select({ lastSyncedAt: emailAccounts.lastSyncedAt })
+            .from(emailAccounts)
+            .where(and(eq(emailAccounts.id, input.accountId), eq(emailAccounts.userId, ctx.userId)))
+            .limit(1)
+        )[0];
+        if (!account) throw new TRPCError({ code: "NOT_FOUND" });
+        if (!scanDue(plan, account.lastSyncedAt)) {
+          const next = nextScanAt(plan, account.lastSyncedAt);
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: `Next re-scan unlocks ${next?.toLocaleDateString() ?? "soon"} on the free plan — Pro re-scans daily.`,
+          });
+        }
       }
       return runScan(ctx.db, {
         userId: ctx.userId,

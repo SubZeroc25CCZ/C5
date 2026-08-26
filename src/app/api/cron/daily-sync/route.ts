@@ -2,10 +2,11 @@ import { NextResponse } from "next/server";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { emailAccounts, profiles } from "@/db/schema";
-import { hasContinuousSync } from "@/lib/quota";
+import { scanDue } from "@/lib/quota";
 import { runScan } from "@/services/scan";
 
-// Daily delta sync (§5.4), Vercel cron. Continuous sync is Pro-only (§8 P0).
+// Daily cron (§5.4): re-scans every account due under its plan's cadence —
+// Pro daily, free monthly (decision D2).
 
 export async function GET(req: Request) {
   const authHeader = req.headers.get("authorization");
@@ -21,7 +22,7 @@ export async function GET(req: Request) {
 
   const results: Array<{ accountId: number; ok: boolean; error?: string }> = [];
   for (const { account, plan } of accounts) {
-    if (!hasContinuousSync(plan)) continue;
+    if (!scanDue(plan, account.lastSyncedAt)) continue;
     try {
       await runScan(db, {
         userId: account.userId,

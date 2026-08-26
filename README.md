@@ -41,6 +41,11 @@ pnpm dev         # needs .env — see .env.example
 Database: `pnpm db:push` to sync the schema, `pnpm db:seed` to load the
 merchant seed.
 
+## Plans (decision D2 — see DECISIONS.md)
+
+- **Free**: 1 connected inbox, monthly re-scan.
+- **Pro**: unlimited inboxes, daily continuous sync, unmetered screenshot import.
+
 ## Rules this codebase lives by (spec §10)
 
 1. Never display a number the system didn't observe — no synthetic trends, no
