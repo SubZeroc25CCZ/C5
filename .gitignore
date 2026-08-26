@@ -21,8 +21,10 @@ coverage/
 .DS_Store
 drizzle/meta/
 
-# seeded design-canvas bundles (generated from design/*.dc.html + canvas.json)
-design/*.html
-!design/*.dc.html
+# Seeded design-canvas bundles: ~2.5 MB of editor payload regenerated from
+# the .dc.html artboards beside them, so the sources are tracked and the
+# bundle never is. The ** matters — canvases live in subdirectories too.
+design/**/*.html
+!design/**/*.dc.html
 __pycache__/
 *.pyc

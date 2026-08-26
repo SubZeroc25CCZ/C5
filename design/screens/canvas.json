@@ -1,0 +1,25 @@
+{
+  "artboards": [
+    { "file": "Main.dc.html", "x": 0, "y": 0, "w": 1440, "h": 1520, "title": "Landing" },
+    { "file": "Pricing.dc.html", "x": 1560, "y": 0, "w": 1440, "h": 1120, "title": "Pricing" },
+    { "file": "Dashboard.dc.html", "x": 0, "y": 1660, "w": 1440, "h": 860, "title": "Dashboard" },
+    { "file": "AdminHealth.dc.html", "x": 1560, "y": 1660, "w": 1440, "h": 880, "title": "Admin · Health" }
+  ],
+  "annotations": [
+    {
+      "id": "how-to-use",
+      "x": 0,
+      "y": -150,
+      "w": 620,
+      "text": "Real SubZero screens, built from the codebase tokens — frost palette, Sora headings, Plus Jakarta body, exact card/badge/button values.\n\nRetype copy in place, drag things around, restyle in the properties panel. Tell me what changed and I'll port it into the Next.js code."
+    },
+    {
+      "id": "sample-numbers",
+      "x": 1560,
+      "y": 1560,
+      "w": 380,
+      "text": "Funnel numbers here are sample values so the bars have shape. Production is all zeros until the first scan runs."
+    }
+  ],
+  "launch": { "view": "canvas" }
+}

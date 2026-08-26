@@ -1,0 +1,141 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
+  <style>
+    body { margin: 0; font-family: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+    h1, h2 { font-family: Sora, "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif; margin: 0; }
+    p { margin: 0; }
+    a { color: #0e7490; } a:hover { color: #155e75; }
+    .tnum { font-variant-numeric: tabular-nums; }
+  </style>
+</helmet>
+
+<div style="background: #f6f8fb; color: #0e1420; min-height: 100%;">
+  <div style="max-width: 1152px; margin: 0 auto; padding: 32px 16px;">
+
+    <div style="display: flex; align-items: baseline; gap: 12px;">
+      <h1 style="font-size: 24px; font-weight: 700;">Admin</h1>
+      <span style="font-size: 12px; color: #5b6b7f;">Super administrator &middot; every action below is logged</span>
+    </div>
+
+    <div style="margin-top: 16px; display: flex; flex-wrap: wrap; gap: 4px; border-bottom: 1px solid #dfe7ef;">
+      <span style="border-radius: 8px 8px 0 0; padding: 8px 12px; font-size: 14px; font-weight: 500; background: #eef3f8; color: #0e1420;">Health</span>
+      <span style="border-radius: 8px 8px 0 0; padding: 8px 12px; font-size: 14px; font-weight: 500; color: #5b6b7f;">Scans</span>
+      <span style="border-radius: 8px 8px 0 0; padding: 8px 12px; font-size: 14px; font-weight: 500; color: #5b6b7f;">Extractions</span>
+      <span style="border-radius: 8px 8px 0 0; padding: 8px 12px; font-size: 14px; font-weight: 500; color: #5b6b7f;">Merchants</span>
+      <span style="border-radius: 8px 8px 0 0; padding: 8px 12px; font-size: 14px; font-weight: 500; color: #5b6b7f;">Audit log</span>
+    </div>
+
+    <!-- Stats -->
+    <div style="margin-top: 24px; display: flex; flex-wrap: wrap; gap: 12px;">
+      <div style="flex: 1; min-width: 176px; border-radius: 12px; border: 1px solid #dfe7ef; background: #ffffff; padding: 20px; box-shadow: 0 1px 2px rgb(0 0 0/0.04);">
+        <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #5b6b7f;">Users</div>
+        <div class="tnum" style="margin-top: 4px; font-size: 24px; font-weight: 700;">3</div>
+      </div>
+      <div style="flex: 1; min-width: 176px; border-radius: 12px; border: 1px solid #dfe7ef; background: #ffffff; padding: 20px; box-shadow: 0 1px 2px rgb(0 0 0/0.04);">
+        <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #5b6b7f;">Connected inboxes</div>
+        <div class="tnum" style="margin-top: 4px; font-size: 24px; font-weight: 700;">1</div>
+        <div style="margin-top: 2px; font-size: 12px; color: #5b6b7f;">all healthy</div>
+      </div>
+      <div style="flex: 1; min-width: 176px; border-radius: 12px; border: 1px solid #dfe7ef; background: #ffffff; padding: 20px; box-shadow: 0 1px 2px rgb(0 0 0/0.04);">
+        <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #5b6b7f;">Scans (24h)</div>
+        <div class="tnum" style="margin-top: 4px; font-size: 24px; font-weight: 700;">0</div>
+        <div style="margin-top: 2px; font-size: 12px; color: #5b6b7f;">0% failed</div>
+      </div>
+      <div style="flex: 1; min-width: 176px; border-radius: 12px; border: 1px solid #dfe7ef; background: #ffffff; padding: 20px; box-shadow: 0 1px 2px rgb(0 0 0/0.04);">
+        <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #5b6b7f;">Needs review</div>
+        <div class="tnum" style="margin-top: 4px; font-size: 24px; font-weight: 700;">0</div>
+        <div style="margin-top: 2px; font-size: 12px; color: #5b6b7f;">below the 0.8 threshold</div>
+      </div>
+      <div style="flex: 1; min-width: 176px; border-radius: 12px; border: 1px solid #dfe7ef; background: #ffffff; padding: 20px; box-shadow: 0 1px 2px rgb(0 0 0/0.04);">
+        <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #5b6b7f;">Merchants</div>
+        <div class="tnum" style="margin-top: 4px; font-size: 24px; font-weight: 700;">421</div>
+        <div style="margin-top: 2px; font-size: 12px; color: #5b6b7f;">30 with a verified cancel URL</div>
+      </div>
+    </div>
+
+    <!-- Subsystems -->
+    <div style="margin-top: 24px; border-radius: 12px; border: 1px solid #dfe7ef; background: #ffffff; padding: 20px; box-shadow: 0 1px 2px rgb(0 0 0/0.04);">
+      <h2 style="font-size: 16px; font-weight: 600;">Subsystems</h2>
+      <div style="margin-top: 12px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="width: 10px; height: 10px; flex-shrink: 0; border-radius: 9999px; background: #047857;"></span>
+          <span style="font-size: 14px; font-weight: 500;">Scanning</span>
+          <span style="font-size: 12px; color: #5b6b7f;">healthy</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="width: 10px; height: 10px; flex-shrink: 0; border-radius: 9999px; background: #047857;"></span>
+          <span style="font-size: 14px; font-weight: 500;">Inbox connections</span>
+          <span style="font-size: 12px; color: #5b6b7f;">healthy</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="width: 10px; height: 10px; flex-shrink: 0; border-radius: 9999px; background: #047857;"></span>
+          <span style="font-size: 14px; font-weight: 500;">Extraction queue</span>
+          <span style="font-size: 12px; color: #5b6b7f;">healthy</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Funnel -->
+    <div style="margin-top: 24px; border-radius: 12px; border: 1px solid #dfe7ef; background: #ffffff; padding: 20px; box-shadow: 0 1px 2px rgb(0 0 0/0.04);">
+      <h2 style="font-size: 16px; font-weight: 600;">Activation funnel</h2>
+      <p style="margin-top: 2px; font-size: 14px; color: #5b6b7f;">Distinct users per step. The drop between any two steps is the number worth acting on.</p>
+      <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 8px;">
+
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 160px; flex-shrink: 0; font-size: 14px;">signed in</div>
+          <div style="flex-grow: 1; height: 24px; border-radius: 6px; background: #eef3f8; overflow: hidden;"><div style="height: 100%; width: 100%; border-radius: 6px; background: #0e7490;"></div></div>
+          <div class="tnum" style="width: 48px; flex-shrink: 0; text-align: right; font-size: 14px; font-weight: 600;">12</div>
+          <div class="tnum" style="width: 80px; flex-shrink: 0; text-align: right; font-size: 12px; color: #5b6b7f;">&mdash;</div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 160px; flex-shrink: 0; font-size: 14px;">inbox connected</div>
+          <div style="flex-grow: 1; height: 24px; border-radius: 6px; background: #eef3f8; overflow: hidden;"><div style="height: 100%; width: 75%; border-radius: 6px; background: #0e7490;"></div></div>
+          <div class="tnum" style="width: 48px; flex-shrink: 0; text-align: right; font-size: 14px; font-weight: 600;">9</div>
+          <div class="tnum" style="width: 80px; flex-shrink: 0; text-align: right; font-size: 12px; color: #5b6b7f;">75% of prev</div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 160px; flex-shrink: 0; font-size: 14px;">scan started</div>
+          <div style="flex-grow: 1; height: 24px; border-radius: 6px; background: #eef3f8; overflow: hidden;"><div style="height: 100%; width: 67%; border-radius: 6px; background: #0e7490;"></div></div>
+          <div class="tnum" style="width: 48px; flex-shrink: 0; text-align: right; font-size: 14px; font-weight: 600;">8</div>
+          <div class="tnum" style="width: 80px; flex-shrink: 0; text-align: right; font-size: 12px; color: #5b6b7f;">89% of prev</div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 160px; flex-shrink: 0; font-size: 14px;">scan completed</div>
+          <div style="flex-grow: 1; height: 24px; border-radius: 6px; background: #eef3f8; overflow: hidden;"><div style="height: 100%; width: 58%; border-radius: 6px; background: #0e7490;"></div></div>
+          <div class="tnum" style="width: 48px; flex-shrink: 0; text-align: right; font-size: 14px; font-weight: 600;">7</div>
+          <div class="tnum" style="width: 80px; flex-shrink: 0; text-align: right; font-size: 12px; color: #5b6b7f;">88% of prev</div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 160px; flex-shrink: 0; font-size: 14px;">results viewed</div>
+          <div style="flex-grow: 1; height: 24px; border-radius: 6px; background: #eef3f8; overflow: hidden;"><div style="height: 100%; width: 58%; border-radius: 6px; background: #0e7490;"></div></div>
+          <div class="tnum" style="width: 48px; flex-shrink: 0; text-align: right; font-size: 14px; font-weight: 600;">7</div>
+          <div class="tnum" style="width: 80px; flex-shrink: 0; text-align: right; font-size: 12px; color: #5b6b7f;">100% of prev</div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 160px; flex-shrink: 0; font-size: 14px;">upgraded</div>
+          <div style="flex-grow: 1; height: 24px; border-radius: 6px; background: #eef3f8; overflow: hidden;"><div style="height: 100%; width: 8%; border-radius: 6px; background: #0e7490;"></div></div>
+          <div class="tnum" style="width: 48px; flex-shrink: 0; text-align: right; font-size: 14px; font-weight: 600;">1</div>
+          <div class="tnum" style="width: 80px; flex-shrink: 0; text-align: right; font-size: 12px; color: #5b6b7f;">14% of prev</div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

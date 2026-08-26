@@ -1,0 +1,127 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
+  <style>
+    body { margin: 0; font-family: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+    h1, h2, h3 { font-family: Sora, "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif; margin: 0; }
+    p { margin: 0; }
+    a { color: #0e7490; } a:hover { color: #155e75; }
+    .tnum { font-variant-numeric: tabular-nums; }
+  </style>
+</helmet>
+
+<div style="background: #f6f8fb; color: #0e1420; min-height: 100%;">
+
+  <!-- Header -->
+  <div style="border-bottom: 1px solid #dfe7ef; background: rgba(255,255,255,0.9);">
+    <div style="max-width: 1152px; margin: 0 auto; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;">
+      <div style="display: flex; align-items: center; gap: 8px; font-family: Sora, sans-serif; font-size: 18px; font-weight: 800; letter-spacing: -0.025em;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0e7490" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M4 5l16 14M20 5L4 19M12 5l-2.5-2M12 5l2.5-2M12 19l-2.5 2M12 19l2.5 2"></path></svg>
+        SubZero
+      </div>
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <span style="display: inline-flex; align-items: center; gap: 6px; border-radius: 8px; padding: 8px 16px; font-size: 14px; font-weight: 600; background: #0e7490; color: #ffffff; box-shadow: 0 1px 2px rgb(0 0 0/0.05);">Sign in with Google</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hero -->
+  <div style="background: #0a1626; color: #ffffff;">
+    <div style="max-width: 1152px; margin: 0 auto; padding: 64px 16px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 48px; align-items: center;">
+      <div>
+        <p style="margin-bottom: 16px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.14em; color: #22b8d4;">Email-first subscription control</p>
+        <h1 style="max-width: 576px; font-size: 48px; font-weight: 800; line-height: 1.08; letter-spacing: -0.025em;">Know what you&rsquo;re paying for.</h1>
+        <p style="margin-top: 20px; max-width: 448px; font-size: 18px; line-height: 1.625; color: #a8b8ca;">SubZero finds recurring charges in your inbox, explains every subscription, and gives you a clear way out &mdash; without linking your bank.</p>
+        <div style="margin-top: 32px; display: flex; flex-wrap: wrap; gap: 12px;">
+          <span style="display: inline-flex; align-items: center; gap: 6px; border-radius: 8px; padding: 12px 24px; font-size: 16px; font-weight: 600; background: #0e7490; color: #ffffff;">Scan my inbox &mdash; free</span>
+          <span style="display: inline-flex; align-items: center; border-radius: 8px; border: 1px solid #2a3d5c; padding: 12px 24px; font-size: 16px; font-weight: 500; color: #dbe6f2;">How it works</span>
+        </div>
+      </div>
+
+      <!-- Hero mockup card -->
+      <div style="border-radius: 12px; border: 1px solid #23324a; background: #111a2b; padding: 20px; box-shadow: 0 8px 24px rgb(0 0 0/0.28);">
+        <div style="display: flex; align-items: baseline; justify-content: space-between;">
+          <span style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #8ba0b8;">Monthly total</span>
+          <span style="font-size: 12px; color: #8ba0b8;">4 subscriptions</span>
+        </div>
+        <div class="tnum" style="margin-top: 4px; font-size: 36px; font-weight: 800; color: #e8eef6;">$48.96</div>
+        <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 8px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; border-radius: 8px; background: #16233a; padding: 10px 12px;">
+            <span style="font-size: 14px; color: #e8eef6;">Stream Plus</span>
+            <span class="tnum" style="font-size: 14px; font-weight: 600; color: #e8eef6;">$17.99</span>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between; border-radius: 8px; background: #16233a; padding: 10px 12px;">
+            <span style="font-size: 14px; color: #e8eef6;">Cloud Box</span>
+            <span class="tnum" style="font-size: 14px; font-weight: 600; color: #e8eef6;">$11.99</span>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between; border-radius: 8px; background: #16233a; padding: 10px 12px;">
+            <span style="font-size: 14px; color: #e8eef6;">Design Pro</span>
+            <span class="tnum" style="font-size: 14px; font-weight: 600; color: #e8eef6;">$14.99</span>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between; border-radius: 8px; background: #16233a; padding: 10px 12px;">
+            <span style="font-size: 14px; color: #e8eef6;">Daily Read</span>
+            <span class="tnum" style="font-size: 14px; font-weight: 600; color: #e8eef6;">$3.99</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Evidence -->
+  <div style="max-width: 1152px; margin: 0 auto; padding: 80px 16px;">
+    <h2 style="text-align: center; font-size: 30px; font-weight: 800; letter-spacing: -0.025em;">Numbers you can check</h2>
+    <div style="margin-top: 40px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px;">
+
+      <div style="border-radius: 12px; border: 1px solid #dfe7ef; background: #ffffff; padding: 20px; box-shadow: 0 1px 2px rgb(0 0 0/0.04);">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0e7490" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 21l-4.35-4.35M17 10.5a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z"></path></svg>
+        <h3 style="margin-top: 12px; font-size: 16px; font-weight: 600;">Found, not estimated</h3>
+        <p style="margin-top: 8px; font-size: 14px; line-height: 1.625; color: #5b6b7f;">Every number comes from a real charge in a real email. Two matching charges at a regular interval confirm a subscription; a single sighting is shown as &ldquo;possible&rdquo; &mdash; never counted as spend.</p>
+      </div>
+
+      <div style="border-radius: 12px; border: 1px solid #dfe7ef; background: #ffffff; padding: 20px; box-shadow: 0 1px 2px rgb(0 0 0/0.04);">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0e7490" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l7 4v6c0 5-3 7.5-7 10-4-2.5-7-5-7-10V6l7-4z"></path></svg>
+        <h3 style="margin-top: 12px; font-size: 16px; font-weight: 600;">Process and discard</h3>
+        <p style="margin-top: 8px; font-size: 14px; line-height: 1.625; color: #5b6b7f;">Email bodies are parsed in memory and thrown away. We keep only the extracted facts &mdash; merchant, amount, date &mdash; and show you exactly which emails produced each subscription.</p>
+      </div>
+
+      <div style="border-radius: 12px; border: 1px solid #dfe7ef; background: #ffffff; padding: 20px; box-shadow: 0 1px 2px rgb(0 0 0/0.04);">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0e7490" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"></path></svg>
+        <h3 style="margin-top: 12px; font-size: 16px; font-weight: 600;">Every subscription gets an exit</h3>
+        <p style="margin-top: 8px; font-size: 14px; line-height: 1.625; color: #5b6b7f;">Cancel link, phone number, or a ready-to-send cancellation email. And we tell you the truth: &ldquo;request sent&rdquo; is not &ldquo;cancelled&rdquo; until the provider confirms.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Privacy band -->
+  <div style="background: #0a1626; color: #ffffff;">
+    <div style="max-width: 1152px; margin: 0 auto; padding: 80px 16px;">
+      <h2 style="text-align: center; font-size: 30px; font-weight: 800; letter-spacing: -0.025em;">Your inbox stays yours</h2>
+      <div style="max-width: 896px; margin: 40px auto 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; text-align: center;">
+        <div>
+          <h3 style="font-size: 16px; font-weight: 600; color: #22b8d4;">Read-only access</h3>
+          <p style="margin-top: 8px; font-size: 14px; line-height: 1.625; color: #a8b8ca;">SubZero can never send, delete, or modify your email.</p>
+        </div>
+        <div>
+          <h3 style="font-size: 16px; font-weight: 600; color: #22b8d4;">Nothing stored</h3>
+          <p style="margin-top: 8px; font-size: 14px; line-height: 1.625; color: #a8b8ca;">Bodies are processed in memory and discarded &mdash; only extracted facts are kept.</p>
+        </div>
+        <div>
+          <h3 style="font-size: 16px; font-weight: 600; color: #22b8d4;">One-click revoke</h3>
+          <p style="margin-top: 8px; font-size: 14px; line-height: 1.625; color: #a8b8ca;">Disconnect anytime and optionally erase everything we derived.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

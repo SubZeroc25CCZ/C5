@@ -1,0 +1,124 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
+  <style>
+    body { margin: 0; font-family: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+    h1, h2 { font-family: Sora, "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif; margin: 0; }
+    p { margin: 0; }
+    a { color: #0e7490; } a:hover { color: #155e75; }
+    .tnum { font-variant-numeric: tabular-nums; }
+  </style>
+</helmet>
+
+<div style="background: #f6f8fb; color: #0e1420; min-height: 100%;">
+  <div style="max-width: 1152px; margin: 0 auto; padding: 32px 16px;">
+
+    <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 16px;">
+      <div>
+        <h1 style="font-size: 24px; font-weight: 700;">Your subscriptions</h1>
+        <p style="margin-top: 2px; font-size: 14px; color: #5b6b7f;">Last scanned 2 hours ago &middot; 1 inbox connected</p>
+      </div>
+      <span style="display: inline-flex; align-items: center; gap: 6px; border-radius: 8px; padding: 8px 16px; font-size: 14px; font-weight: 600; background: #0e7490; color: #ffffff; box-shadow: 0 1px 2px rgb(0 0 0/0.05);">Re-scan inbox</span>
+    </div>
+
+    <!-- Stats -->
+    <div style="margin-top: 24px; display: flex; flex-wrap: wrap; gap: 12px;">
+      <div style="flex: 1; min-width: 176px; border-radius: 12px; border: 1px solid #dfe7ef; background: #ffffff; padding: 20px; box-shadow: 0 1px 2px rgb(0 0 0/0.04);">
+        <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #5b6b7f;">Monthly</div>
+        <div class="tnum" style="margin-top: 4px; font-size: 24px; font-weight: 700;">$48.96</div>
+        <div style="margin-top: 2px; font-size: 12px; color: #5b6b7f;">4 active subscriptions</div>
+      </div>
+      <div style="flex: 1; min-width: 176px; border-radius: 12px; border: 1px solid #dfe7ef; background: #ffffff; padding: 20px; box-shadow: 0 1px 2px rgb(0 0 0/0.04);">
+        <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #5b6b7f;">Yearly</div>
+        <div class="tnum" style="margin-top: 4px; font-size: 24px; font-weight: 700;">$587.52</div>
+        <div style="margin-top: 2px; font-size: 12px; color: #5b6b7f;">at today&rsquo;s prices</div>
+      </div>
+      <div style="flex: 1; min-width: 176px; border-radius: 12px; border: 1px solid #dfe7ef; background: #ffffff; padding: 20px; box-shadow: 0 1px 2px rgb(0 0 0/0.04);">
+        <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #5b6b7f;">Needs review</div>
+        <div class="tnum" style="margin-top: 4px; font-size: 24px; font-weight: 700;">2</div>
+        <div style="margin-top: 2px; font-size: 12px; color: #5b6b7f;">below the confidence threshold</div>
+      </div>
+      <div style="flex: 1; min-width: 176px; border-radius: 12px; border: 1px solid #dfe7ef; background: #ffffff; padding: 20px; box-shadow: 0 1px 2px rgb(0 0 0/0.04);">
+        <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #5b6b7f;">Price rises</div>
+        <div class="tnum" style="margin-top: 4px; font-size: 24px; font-weight: 700;">1</div>
+        <div style="margin-top: 2px; font-size: 12px; color: #5b6b7f;">in the last 90 days</div>
+      </div>
+    </div>
+
+    <!-- Subscription list -->
+    <div style="margin-top: 24px; display: flex; flex-direction: column; gap: 12px;">
+
+      <div style="border-radius: 12px; border: 1px solid #dfe7ef; background: #ffffff; padding: 20px; box-shadow: 0 1px 2px rgb(0 0 0/0.04); display: flex; align-items: center; gap: 16px;">
+        <div style="width: 36px; height: 36px; flex-shrink: 0; border-radius: 8px; background: #eef3f8; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: #5b6b7f;">S</div>
+        <div style="flex-grow: 1;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 16px; font-weight: 600;">Stream Plus</span>
+            <span style="display: inline-flex; align-items: center; border-radius: 9999px; padding: 2px 10px; font-size: 12px; font-weight: 600; background: #d1fae5; color: #047857;">active</span>
+          </div>
+          <div style="margin-top: 2px; font-size: 12px; color: #5b6b7f;">Entertainment &middot; 6 charges seen &middot; last 14 Aug 2026</div>
+        </div>
+        <div style="text-align: right;">
+          <div class="tnum" style="font-size: 18px; font-weight: 700;">$17.99</div>
+          <div style="font-size: 12px; color: #5b6b7f;">per month</div>
+        </div>
+      </div>
+
+      <div style="border-radius: 12px; border: 1px solid #dfe7ef; background: #ffffff; padding: 20px; box-shadow: 0 1px 2px rgb(0 0 0/0.04); display: flex; align-items: center; gap: 16px;">
+        <div style="width: 36px; height: 36px; flex-shrink: 0; border-radius: 8px; background: #eef3f8; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: #5b6b7f;">C</div>
+        <div style="flex-grow: 1;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 16px; font-weight: 600;">Cloud Box</span>
+            <span style="display: inline-flex; align-items: center; border-radius: 9999px; padding: 2px 10px; font-size: 12px; font-weight: 600; background: #d1fae5; color: #047857;">active</span>
+            <span style="display: inline-flex; align-items: center; border-radius: 9999px; padding: 2px 10px; font-size: 12px; font-weight: 600; background: #fef3c7; color: #92400e;">price rose $2.00</span>
+          </div>
+          <div style="margin-top: 2px; font-size: 12px; color: #5b6b7f;">Storage &middot; 9 charges seen &middot; last 03 Aug 2026</div>
+        </div>
+        <div style="text-align: right;">
+          <div class="tnum" style="font-size: 18px; font-weight: 700;">$11.99</div>
+          <div style="font-size: 12px; color: #5b6b7f;">per month</div>
+        </div>
+      </div>
+
+      <div style="border-radius: 12px; border: 1px solid #dfe7ef; background: #ffffff; padding: 20px; box-shadow: 0 1px 2px rgb(0 0 0/0.04); display: flex; align-items: center; gap: 16px;">
+        <div style="width: 36px; height: 36px; flex-shrink: 0; border-radius: 8px; background: #eef3f8; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: #5b6b7f;">A</div>
+        <div style="flex-grow: 1;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 16px; font-weight: 600;">Apple Services</span>
+            <span style="display: inline-flex; align-items: center; border-radius: 9999px; padding: 2px 10px; font-size: 12px; font-weight: 600; background: #e0f2fe; color: #0e7490;">storefront charges</span>
+          </div>
+          <div style="margin-top: 2px; font-size: 12px; line-height: 1.5; color: #5b6b7f;">This storefront bills many services together &mdash; amounts vary by receipt, so we show observed spend instead of a monthly price.</div>
+        </div>
+        <div style="text-align: right;">
+          <div class="tnum" style="font-size: 18px; font-weight: 700;">$63.44</div>
+          <div style="font-size: 12px; color: #5b6b7f;">observed, 8 receipts</div>
+        </div>
+      </div>
+
+      <div style="border-radius: 12px; border: 1px solid #dfe7ef; background: #ffffff; padding: 20px; box-shadow: 0 1px 2px rgb(0 0 0/0.04); display: flex; align-items: center; gap: 16px;">
+        <div style="width: 36px; height: 36px; flex-shrink: 0; border-radius: 8px; background: #eef3f8; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: #5b6b7f;">D</div>
+        <div style="flex-grow: 1;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 16px; font-weight: 600;">Daily Read</span>
+            <span style="display: inline-flex; align-items: center; border-radius: 9999px; padding: 2px 10px; font-size: 12px; font-weight: 600; background: #fef3c7; color: #92400e;">seen once</span>
+          </div>
+          <div style="margin-top: 2px; font-size: 12px; color: #5b6b7f;">News &middot; 1 charge seen &middot; not counted in your total</div>
+        </div>
+        <div style="text-align: right;">
+          <div class="tnum" style="font-size: 18px; font-weight: 700;">$3.99</div>
+          <div style="font-size: 12px; color: #5b6b7f;">per charge</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

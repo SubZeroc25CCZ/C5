@@ -1,0 +1,94 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
+  <style>
+    body { margin: 0; font-family: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+    h1, h2 { font-family: Sora, "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif; margin: 0; }
+    p, ul { margin: 0; }
+    ul { padding: 0; list-style: none; }
+    a { color: #0e7490; } a:hover { color: #155e75; }
+    .tnum { font-variant-numeric: tabular-nums; }
+  </style>
+</helmet>
+
+<div style="background: #f6f8fb; color: #0e1420; min-height: 100%;">
+  <div style="max-width: 1024px; margin: 0 auto; padding: 64px 16px;">
+
+    <h1 style="text-align: center; font-size: 36px; font-weight: 800; letter-spacing: -0.025em;">Simple, honest pricing</h1>
+    <p style="max-width: 576px; margin: 12px auto 0; text-align: center; font-size: 16px; line-height: 1.625; color: #5b6b7f;">Scan for free and see what you&rsquo;re dealing with &mdash; your totals and your most expensive subscription, evidence included. Unlock the full list when you&rsquo;re ready.</p>
+
+    <!-- Interval toggle -->
+    <div style="margin-top: 48px; display: flex; justify-content: center;">
+      <div style="display: inline-flex; border-radius: 9999px; border: 1px solid #dfe7ef; background: #ffffff; padding: 4px; font-size: 14px; gap: 0;">
+        <span style="border-radius: 9999px; padding: 6px 16px; background: #0e7490; font-weight: 600; color: #ffffff;">Monthly</span>
+        <span style="border-radius: 9999px; padding: 6px 16px; color: #5b6b7f;">Annual &middot; 2 months free</span>
+      </div>
+    </div>
+
+    <div style="margin-top: 32px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; align-items: start;">
+
+      <!-- Teaser -->
+      <div style="border-radius: 16px; border: 1px solid #dfe7ef; background: #ffffff; padding: 28px;">
+        <h2 style="font-size: 18px; font-weight: 600;">Free scan</h2>
+        <p class="tnum" style="margin-top: 8px; font-size: 36px; font-weight: 800;">$0</p>
+        <p style="margin-top: 4px; font-size: 14px; color: #5b6b7f;">see what you&rsquo;re dealing with</p>
+        <ul style="margin-top: 24px; display: flex; flex-direction: column; gap: 10px; font-size: 14px;">
+          <li style="display: flex; gap: 10px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0e7490" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-top: 2px; flex-shrink: 0;"><path d="M20 6L9 17l-5-5"></path></svg><span>Full 24-month inbox scan</span></li>
+          <li style="display: flex; gap: 10px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0e7490" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-top: 2px; flex-shrink: 0;"><path d="M20 6L9 17l-5-5"></path></svg><span>Per-currency monthly + yearly totals</span></li>
+          <li style="display: flex; gap: 10px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0e7490" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-top: 2px; flex-shrink: 0;"><path d="M20 6L9 17l-5-5"></path></svg><span>How many subscriptions we found</span></li>
+          <li style="display: flex; gap: 10px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0e7490" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-top: 2px; flex-shrink: 0;"><path d="M20 6L9 17l-5-5"></path></svg><span>Your most expensive subscription &mdash; full detail and evidence</span></li>
+        </ul>
+        <p style="margin-top: 16px; font-size: 12px; line-height: 1.5; color: #5b6b7f;">The rest of your subscriptions stay locked until you upgrade &mdash; no re-scans, no cancellation tools.</p>
+        <div style="margin-top: 24px;">
+          <span style="display: inline-flex; width: 100%; box-sizing: border-box; align-items: center; justify-content: center; border-radius: 8px; border: 1px solid #dfe7ef; padding: 12px 16px; font-size: 14px; font-weight: 500; color: #5b6b7f;">Start the free scan</span>
+        </div>
+      </div>
+
+      <!-- Basic -->
+      <div style="position: relative; border-radius: 16px; border: 2px solid #0e7490; background: #ffffff; padding: 28px;">
+        <span style="position: absolute; top: -12px; left: 24px; border-radius: 9999px; background: #0e7490; padding: 2px 12px; font-size: 12px; font-weight: 700; color: #ffffff;">MOST POPULAR</span>
+        <h2 style="font-size: 18px; font-weight: 600; color: #0e7490;">Basic</h2>
+        <p class="tnum" style="margin-top: 8px; font-size: 36px; font-weight: 800;">$4.99<span style="font-size: 18px; font-weight: 500; color: #5b6b7f;">/month</span></p>
+        <p style="margin-top: 4px; font-size: 14px; color: #5b6b7f;">cancel anytime &mdash; of course</p>
+        <ul style="margin-top: 24px; display: flex; flex-direction: column; gap: 10px; font-size: 14px;">
+          <li style="display: flex; gap: 10px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0e7490" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-top: 2px; flex-shrink: 0;"><path d="M20 6L9 17l-5-5"></path></svg><span>Every subscription, unlocked</span></li>
+          <li style="display: flex; gap: 10px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0e7490" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-top: 2px; flex-shrink: 0;"><path d="M20 6L9 17l-5-5"></path></svg><span>Evidence log + price history for each</span></li>
+          <li style="display: flex; gap: 10px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0e7490" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-top: 2px; flex-shrink: 0;"><path d="M20 6L9 17l-5-5"></path></svg><span>Cancellation drafts, links, and tracking</span></li>
+          <li style="display: flex; gap: 10px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0e7490" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-top: 2px; flex-shrink: 0;"><path d="M20 6L9 17l-5-5"></path></svg><span>Monthly re-scan &middot; 1 inbox</span></li>
+        </ul>
+        <div style="margin-top: 28px;">
+          <span style="display: inline-flex; width: 100%; box-sizing: border-box; align-items: center; justify-content: center; border-radius: 8px; padding: 12px 16px; font-size: 14px; font-weight: 600; background: #0e7490; color: #ffffff; box-shadow: 0 1px 2px rgb(0 0 0/0.05);">Get Basic</span>
+        </div>
+      </div>
+
+      <!-- Pro -->
+      <div style="border-radius: 16px; border: 1px solid #dfe7ef; background: #ffffff; padding: 28px;">
+        <h2 style="font-size: 18px; font-weight: 600;">Pro</h2>
+        <p class="tnum" style="margin-top: 8px; font-size: 36px; font-weight: 800;">$9.99<span style="font-size: 18px; font-weight: 500; color: #5b6b7f;">/month</span></p>
+        <p style="margin-top: 4px; font-size: 14px; color: #5b6b7f;">for people with many inboxes</p>
+        <ul style="margin-top: 24px; display: flex; flex-direction: column; gap: 10px; font-size: 14px;">
+          <li style="display: flex; gap: 10px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0e7490" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-top: 2px; flex-shrink: 0;"><path d="M20 6L9 17l-5-5"></path></svg><span>Everything in Basic</span></li>
+          <li style="display: flex; gap: 10px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0e7490" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-top: 2px; flex-shrink: 0;"><path d="M20 6L9 17l-5-5"></path></svg><span>Unlimited connected inboxes</span></li>
+          <li style="display: flex; gap: 10px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0e7490" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-top: 2px; flex-shrink: 0;"><path d="M20 6L9 17l-5-5"></path></svg><span>Daily sync &mdash; catch new charges fast</span></li>
+          <li style="display: flex; gap: 10px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0e7490" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-top: 2px; flex-shrink: 0;"><path d="M20 6L9 17l-5-5"></path></svg><span>Renewal and price-increase alerts</span></li>
+        </ul>
+        <div style="margin-top: 28px;">
+          <span style="display: inline-flex; width: 100%; box-sizing: border-box; align-items: center; justify-content: center; border-radius: 8px; padding: 12px 16px; font-size: 14px; font-weight: 600; background: #0e7490; color: #ffffff; box-shadow: 0 1px 2px rgb(0 0 0/0.05);">Get Pro</span>
+        </div>
+      </div>
+
+    </div>
+
+    <p style="margin-top: 40px; text-align: center; font-size: 14px; line-height: 1.625; color: #5b6b7f;">Payments are handled by Stripe. We never see your card details &mdash; fitting, for a subscription-cancellation service, to make our own easy to cancel.</p>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>
