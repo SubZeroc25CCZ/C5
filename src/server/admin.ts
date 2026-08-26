@@ -24,9 +24,58 @@ export function adminUserIds(): string[] {
     .filter(Boolean);
 }
 
-export function isAdmin(userId: string | null | undefined): boolean {
+/**
+ * Super administrators by VERIFIED email, from the environment. Clerk does
+ * not guarantee one identity per person — a new sign-in method mints a new
+ * user id (it did, twice, on launch day), and an id-only allowlist silently
+ * locks the founder out each time. An email survives identity churn.
+ *
+ * Still an environment variable, and still matched against Clerk's own
+ * verified-email records — never the local users table — so an attacker
+ * with database write access cannot promote themselves, and an unverified
+ * address someone merely typed into their Clerk profile counts for nothing.
+ */
+export function adminEmails(): string[] {
+  return (process.env.ADMIN_EMAILS ?? "")
+    .split(",")
+    .map((email) => email.trim().toLowerCase())
+    .filter(Boolean);
+}
+
+// One Clerk lookup per admin candidate per few minutes, not per request.
+// Only consulted after the id list missed, so customers never trigger it
+// unless ADMIN_EMAILS is configured at all.
+const emailVerdicts = new Map<string, { admin: boolean; at: number }>();
+const EMAIL_VERDICT_TTL_MS = 5 * 60_000;
+
+export async function isAdmin(userId: string | null | undefined): Promise<boolean> {
   if (!userId) return false;
-  return adminUserIds().includes(userId);
+  if (adminUserIds().includes(userId)) return true;
+
+  const emails = adminEmails();
+  if (emails.length === 0) return false;
+
+  const cached = emailVerdicts.get(userId);
+  if (cached && Date.now() - cached.at < EMAIL_VERDICT_TTL_MS) return cached.admin;
+
+  try {
+    // Imported lazily: this path needs Clerk's backend API, which only
+    // exists when ADMIN_EMAILS is in use and the id check already missed.
+    const { clerkClient } = await import("@clerk/nextjs/server");
+    const client = await clerkClient();
+    const user = await client.users.getUser(userId);
+    const admin = user.emailAddresses.some(
+      (entry) =>
+        entry.verification?.status === "verified" &&
+        emails.includes(entry.emailAddress.toLowerCase()),
+    );
+    emailVerdicts.set(userId, { admin, at: Date.now() });
+    return admin;
+  } catch {
+    // Clerk unreachable → fail closed. Better a locked-out founder than an
+    // open panel.
+    return false;
+  }
 }
 
 /**
@@ -73,8 +122,8 @@ export async function auditSession(db: Database, actorUserId: string): Promise<v
 }
 
 /** Every admin procedure: authenticated AND on the Super administrator list. */
-export const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
-  if (!isAdmin(ctx.userId)) {
+export const adminProcedure = protectedProcedure.use(async ({ ctx, next }) => {
+  if (!(await isAdmin(ctx.userId))) {
     // Deliberately NOT_FOUND-shaped in message: an admin panel should not
     // confirm its own existence to a signed-in customer probing for it.
     throw new TRPCError({ code: "FORBIDDEN", message: "Not found." });
