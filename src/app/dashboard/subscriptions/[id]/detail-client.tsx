@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { trpc } from "@/lib/trpc";
-import { formatMinor } from "@/lib/money";
+import { formatMinor, majorToMinor, minorToMajor } from "@/lib/money";
 import {
   Badge,
   Button,
@@ -303,7 +303,9 @@ function EditForm({
   onCancel: () => void;
 }) {
   const [name, setName] = useState(initial.name);
-  const [amount, setAmount] = useState((initial.amountMinor / 100).toFixed(2));
+  const [amount, setAmount] = useState(
+    String(minorToMajor(initial.amountMinor, initial.currency)),
+  );
   const [currency, setCurrency] = useState(initial.currency);
   const [cycle, setCycle] = useState(initial.cycle);
 
@@ -353,7 +355,8 @@ function EditForm({
           onClick={() =>
             onSave({
               name,
-              amountMinor: Math.round(Number.parseFloat(amount) * 100),
+              // majorToMinor respects zero-decimal currencies (JPY etc.)
+              amountMinor: majorToMinor(Number.parseFloat(amount), currency),
               currency: currency.toUpperCase(),
               cycle: cycle as "weekly" | "monthly" | "quarterly" | "yearly",
             })
