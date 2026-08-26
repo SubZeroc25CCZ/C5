@@ -109,6 +109,9 @@ export function DashboardClient() {
   const accounts = accountsQuery.data ?? [];
   const plan = planQuery.data?.plan ?? "teaser";
 
+  const listFailed = listQuery.isError;
+  const listLoading = listQuery.isLoading;
+
   // Funnel step (§3.1): results actually seen, recorded once per mount when
   // a scan has produced something to look at.
   const hasResults = data ? (data.teaser ? data.counts.total > 0 : data.subscriptions.length > 0) : false;
@@ -120,6 +123,25 @@ export function DashboardClient() {
       trackEvent.mutate({ name: "results_viewed" });
     }
   }, [hasResults, trackEvent]);
+
+  if (listLoading) return <DashboardSkeleton />;
+
+  if (listFailed) {
+    return (
+      <main className="mx-auto max-w-6xl px-4 py-8">
+        <h1 className="mb-6 text-2xl font-bold">Your subscriptions</h1>
+        <Card className="py-10 text-center">
+          <p className="font-semibold">We couldn&rsquo;t load your subscriptions.</p>
+          <p className="mx-auto mt-1 max-w-md text-sm text-muted">
+            Nothing is lost — this page just failed to fetch. Try again in a moment.
+          </p>
+          <div className="mt-4">
+            <Button onClick={() => listQuery.refetch()}>Try again</Button>
+          </div>
+        </Card>
+      </main>
+    );
+  }
 
   if (data?.teaser) {
     return (
@@ -229,12 +251,24 @@ function TeaserDashboard({
             </Card>
           )}
         </section>
-      ) : accounts.length > 0 && !scanState.running ? (
+      ) : scanState.running ? null : accounts.length === 0 ? (
+        <EmptyState icon={<SnowflakeIcon width={36} height={36} className="text-frost" />} title="Your subscriptions will appear here">
+          Connect a Gmail inbox above (read-only) and run the free scan — your per-currency
+          totals, how many subscriptions we found, and your most expensive one in full detail.
+        </EmptyState>
+      ) : accounts.some((account) => account.lastSyncedAt) ? (
+        // Scanned and found nothing — an empty result is a real result, and
+        // it must not read like the scan never ran.
+        <EmptyState icon={<SnowflakeIcon width={36} height={36} className="text-frost" />} title="No subscriptions found">
+          We scanned your receipts and didn&rsquo;t find recurring charges — an empty result is a
+          real result. Connect another inbox or re-scan after new receipts arrive.
+        </EmptyState>
+      ) : (
         <EmptyState icon={<SnowflakeIcon width={36} height={36} className="text-frost" />} title="Run your free scan">
           Start the scan above — results show up here, free: your per-currency totals, how many
           subscriptions we found, and your most expensive one in full detail.
         </EmptyState>
-      ) : null}
+      )}
     </main>
   );
 }
@@ -383,7 +417,12 @@ function FullDashboard({
       )}
 
       {/* Subscription list */}
-      {listLoaded && rows.length === 0 ? (
+      {listLoaded && rows.length === 0 && accounts.length === 0 ? (
+        <EmptyState icon={<SnowflakeIcon width={36} height={36} className="text-frost" />} title="Your subscriptions will appear here">
+          Connect a Gmail inbox above (read-only) and run a scan — every recurring charge we can
+          evidence shows up here, with receipts attached.
+        </EmptyState>
+      ) : listLoaded && rows.length === 0 ? (
         <EmptyState icon={<SnowflakeIcon width={36} height={36} className="text-frost" />} title="No subscriptions found">
           We scanned your receipts and didn&rsquo;t find recurring charges — an empty result is a
           real result. Connect another inbox or re-scan after new receipts arrive.
@@ -420,6 +459,25 @@ function FullDashboard({
           </div>
         </section>
       ) : null}
+    </main>
+  );
+}
+
+/** Loading is a skeleton of the real layout, never a spinner (design law 4). */
+function DashboardSkeleton() {
+  return (
+    <main className="mx-auto max-w-6xl px-4 py-8" aria-busy="true" aria-label="Loading your subscriptions">
+      <div className="mb-6 h-8 w-60 animate-pulse rounded-lg bg-surface-2" />
+      <div className="mb-6 flex flex-wrap gap-4">
+        <div className="h-28 min-w-44 flex-1 animate-pulse rounded-xl bg-surface-2" />
+        <div className="h-28 min-w-44 flex-1 animate-pulse rounded-xl bg-surface-2" />
+      </div>
+      <div className="mb-6 h-24 animate-pulse rounded-xl bg-surface-2" />
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {[0, 1, 2, 3, 4, 5].map((i) => (
+          <div key={i} className="h-36 animate-pulse rounded-xl bg-surface-2" />
+        ))}
+      </div>
     </main>
   );
 }
