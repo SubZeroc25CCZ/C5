@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" font-family="Sora, 'Plus Jakarta Sans', system-ui, sans-serif">
+  <defs>
+    <radialGradient id="glow" cx="74%" cy="36%" r="50%">
+      <stop offset="0%" stop-color="#2E9EFF" stop-opacity="0.28"/>
+      <stop offset="100%" stop-color="#2E9EFF" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#12294a"/>
+      <stop offset="100%" stop-color="#0d203a"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="#071425"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+
+  <g transform="translate(80,66)" stroke="#68C4FF" stroke-width="3.2" fill="none" stroke-linecap="round">
+    <path d="M20 2v36M4 11l32 18M36 11L4 29M20 9l-4.5-4M20 9l4.5-4M20 31l-4.5 4M20 31l4.5 4"/>
+  </g>
+  <text x="136" y="96" fill="#F7FBFF" font-size="29" font-weight="800" letter-spacing="-0.4">SubZero</text>
+
+  <!-- Headline sized to clear the card, which starts at x=712 -->
+  <text x="80" y="268" fill="#F7FBFF" font-size="62" font-weight="800" letter-spacing="-1.8">Know what you’re</text>
+  <text x="80" y="342" fill="#F7FBFF" font-size="62" font-weight="800" letter-spacing="-1.8">paying for.</text>
+
+  <text x="80" y="400" fill="#9FB2C9" font-size="25">Recurring charges, found in your email receipts.</text>
+  <text x="80" y="528" fill="#9FB2C9" font-size="20">Read-only access &#183; No bank connection &#183; Revoke anytime</text>
+
+  <g transform="translate(742,192)">
+    <rect x="-16" y="-16" width="406" height="278" rx="36" fill="#2E9EFF" opacity="0.12"/>
+    <rect width="374" height="246" rx="26" fill="url(#card)" stroke="#2E9EFF" stroke-opacity="0.42" stroke-width="1.5"/>
+    <text x="30" y="52" fill="#9FB2C9" font-size="15" font-weight="600" letter-spacing="2">RECURRING, PER MONTH</text>
+    <text x="30" y="136" fill="#F7FBFF" font-size="70" font-weight="800" letter-spacing="-1.6">$48.96</text>
+    <g transform="translate(30,172)">
+      <rect width="110" height="34" rx="17" fill="#2FC493" opacity="0.17"/>
+      <text x="55" y="23" fill="#2FC493" font-size="15" font-weight="700" text-anchor="middle">3 active</text>
+      <rect x="122" width="160" height="34" rx="17" fill="#F3A83B" opacity="0.17"/>
+      <text x="202" y="23" fill="#F3A83B" font-size="15" font-weight="700" text-anchor="middle">1 price change</text>
+    </g>
+  </g>
+</svg>

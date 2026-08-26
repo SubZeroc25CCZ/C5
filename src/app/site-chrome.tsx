@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
+import { SignedIn, SignedOut, SignInButton, UserButton, useAuth, useClerk } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui";
 import { SnowflakeIcon } from "@/components/icons";
 
@@ -33,6 +34,31 @@ function Wordmark({ dark, size = 22 }: { dark: boolean; size?: number }) {
       />
       SubZero
     </Link>
+  );
+}
+
+function LandingHeaderCta() {
+  const { isLoaded, isSignedIn } = useAuth();
+  const { openSignIn } = useClerk();
+  const router = useRouter();
+  const signedIn = isLoaded && isSignedIn;
+
+  // Same reasoning as PrimaryCta: <SignedOut> keeps the button out of the
+  // server HTML until Clerk resolves, and the header CTA is persistent by
+  // design — it should never be the thing that pops in late.
+  return (
+    <button
+      onClick={() => (signedIn ? router.push("/dashboard") : openSignIn({}))}
+      className="lp-cta inline-flex min-h-11 items-center px-4 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2"
+      style={{
+        borderRadius: "var(--lp-radius-button)",
+        background: "var(--lp-primary)",
+        color: "#04111f",
+        outlineColor: "var(--lp-primary-bright)",
+      }}
+    >
+      {signedIn ? "Dashboard" : "Scan my inbox"}
+    </button>
   );
 }
 
@@ -88,35 +114,7 @@ export function SiteHeader() {
             </Link>
           ))}
         </nav>
-        <SignedOut>
-          <SignInButton mode="modal">
-            <button
-              className="lp-cta inline-flex min-h-11 items-center px-4 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2"
-              style={{
-                borderRadius: "var(--lp-radius-button)",
-                background: "var(--lp-primary)",
-                color: "#04111f",
-                outlineColor: "var(--lp-primary-bright)",
-              }}
-            >
-              Scan my inbox
-            </button>
-          </SignInButton>
-        </SignedOut>
-        <SignedIn>
-          <Link
-            href="/dashboard"
-            className="lp-cta inline-flex min-h-11 items-center px-4 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2"
-            style={{
-              borderRadius: "var(--lp-radius-button)",
-              background: "var(--lp-primary)",
-              color: "#04111f",
-              outlineColor: "var(--lp-primary-bright)",
-            }}
-          >
-            Dashboard
-          </Link>
-        </SignedIn>
+        <LandingHeaderCta />
       </div>
     </header>
   );

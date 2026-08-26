@@ -18,10 +18,30 @@ const display = Sora({ subsets: ["latin"], weight: ["600", "700", "800"], variab
 // Render everything on demand; env vars are needed only at request time.
 export const dynamic = "force-dynamic";
 
+const TITLE = "SubZero — find and cancel forgotten subscriptions";
+const DESCRIPTION =
+  "SubZero reads your email receipts (with your consent, read-only) and shows every recurring subscription, what it really costs per month, and how to escape it.";
+
+// D10 A4. A product whose growth loop is people sharing their own shocking
+// total cannot render as a bare link in WhatsApp or X. og.png is generated
+// from design/og.svg — edit the SVG, re-render, never hand-edit the PNG.
 export const metadata: Metadata = {
-  title: "SubZero — find and cancel forgotten subscriptions",
-  description:
-    "SubZero reads your email receipts (with your consent, read-only) and shows every recurring subscription, what it really costs per month, and how to escape it.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "https://subzero.o2c.one"),
+  title: TITLE,
+  description: DESCRIPTION,
+  openGraph: {
+    title: TITLE,
+    description: DESCRIPTION,
+    siteName: "SubZero",
+    type: "website",
+    images: [{ url: "/og.png", width: 1200, height: 630, alt: "SubZero — Know what you’re paying for." }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: DESCRIPTION,
+    images: ["/og.png"],
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
