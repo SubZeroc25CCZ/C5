@@ -1,9 +1,18 @@
 import type { Metadata } from "next";
+import { Plus_Jakarta_Sans, Sora } from "next/font/google";
 import { ClerkProvider, SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 import "./globals.css";
 import { Providers } from "./providers";
 import { Button } from "@/components/ui";
+import { SnowflakeIcon } from "@/components/icons";
+
+// Typography (ui-ux-pro-max + the frost identity): Sora for display —
+// geometric and cold, matching the brand — Plus Jakarta Sans for body, the
+// finance/B2B legibility pick. Self-hosted by next/font: no layout shift,
+// no external requests.
+const body = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-jakarta" });
+const display = Sora({ subsets: ["latin"], weight: ["600", "700", "800"], variable: "--font-sora" });
 
 // Every page is per-user and sits behind ClerkProvider, so nothing is
 // meaningfully static — and prerendering at build time would make the build
@@ -28,10 +37,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && !!process.env.CLERK_SECRET_KEY;
   if (!clerkConfigured) {
     return (
-      <html lang="en">
+      <html lang="en" className={`${body.variable} ${display.variable}`}>
         <body>
           <main className="mx-auto max-w-xl px-4 pt-24 text-center">
-            <h1 className="text-2xl font-bold">❄️ SubZero is deployed</h1>
+            <h1 className="text-2xl font-bold">SubZero is deployed</h1>
             <p className="mt-2 text-muted">
               The app is live but not configured yet: authentication keys are missing. Add the
               environment variables from <code>.env.example</code> in Vercel, then redeploy —
@@ -44,12 +53,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   }
   return (
     <ClerkProvider>
-      <html lang="en">
+      <html lang="en" className={`${body.variable} ${display.variable}`}>
         <body className="flex min-h-screen flex-col">
           <header className="sticky top-0 z-10 border-b border-line bg-surface/90 backdrop-blur">
             <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-              <Link href="/" className="text-lg font-extrabold tracking-tight">
-                ❄️ SubZero
+              <Link
+                href="/"
+                className="flex items-center gap-2 font-display text-lg font-extrabold tracking-tight"
+              >
+                <SnowflakeIcon width={22} height={22} className="text-frost" />
+                SubZero
               </Link>
               <nav className="flex items-center gap-4">
                 <SignedIn>
@@ -81,7 +94,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <footer className="border-t border-line">
             <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:grid-cols-[1.5fr_1fr_1fr]">
               <div>
-                <p className="text-sm font-extrabold tracking-tight">❄️ SubZero</p>
+                <p className="flex items-center gap-1.5 font-display text-sm font-extrabold tracking-tight">
+                  <SnowflakeIcon width={16} height={16} className="text-frost" />
+                  SubZero
+                </p>
                 <p className="mt-2 max-w-xs text-xs leading-relaxed text-muted">
                   Email-first subscription control. Read-only access; email bodies are processed in
                   memory and discarded.

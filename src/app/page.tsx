@@ -277,7 +277,7 @@ export default function LandingPage() {
             ],
           ].map(([q, a]) => (
             <details key={q} className="group rounded-xl border border-line bg-surface p-5">
-              <summary className="cursor-pointer list-none font-semibold marker:content-none">
+              <summary className="cursor-pointer list-none font-semibold marker:content-none transition-colors duration-200 hover:text-frost">
                 {q}
               </summary>
               <p className="mt-2 text-sm leading-relaxed text-muted">{a}</p>

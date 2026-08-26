@@ -18,6 +18,14 @@ import {
   cx,
 } from "@/components/ui";
 import { TriageWizard } from "./triage-wizard";
+import {
+  CardsIcon,
+  SearchIcon,
+  LockIcon,
+  SnowflakeIcon,
+  SparkleIcon,
+  TrendUpIcon,
+} from "@/components/icons";
 
 import type { inferRouterOutputs } from "@trpc/server";
 import type { AppRouter } from "@/server/routers/_app";
@@ -144,7 +152,9 @@ function TeaserDashboard({
     <main className="mx-auto max-w-6xl px-4 py-8">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold">Your scan results</h1>
-        <LinkButton href="/pricing">⭐ Unlock everything</LinkButton>
+        <LinkButton href="/pricing">
+          <SparkleIcon width={16} height={16} /> Unlock everything
+        </LinkButton>
       </div>
 
       {data.totals.length > 0 && (
@@ -199,7 +209,7 @@ function TeaserDashboard({
           )}
         </section>
       ) : accounts.length > 0 && !scanState.running ? (
-        <EmptyState icon="❄️" title="Run your free scan">
+        <EmptyState icon={<SnowflakeIcon width={36} height={36} className="text-frost" />} title="Run your free scan">
           Start the scan above — results show up here, free: your per-currency totals, how many
           subscriptions we found, and your most expensive one in full detail.
         </EmptyState>
@@ -225,7 +235,7 @@ function LockedCard({ status }: { status: string }) {
         <div className="mt-4 h-6 w-24 rounded bg-surface-2" />
       </div>
       <div className="absolute inset-0 flex flex-col items-center justify-center gap-1">
-        <span className="text-xl">🔒</span>
+        <span className="text-frost"><LockIcon width={22} height={22} /></span>
         <StatusBadge status={status} />
       </div>
     </Card>
@@ -281,12 +291,12 @@ function FullDashboard({
           (row) => row.subscription.status === "active" || row.subscription.status === "possible",
         ) && (
           <Button variant="secondary" onClick={() => setTriageOpen(true)}>
-            🃏 Review one by one
+            <CardsIcon width={16} height={16} /> Review one by one
           </Button>
         )}
         {plan !== "pro" && (
           <LinkButton variant="secondary" href="/pricing">
-            ⭐ Upgrade to Pro
+            <SparkleIcon width={16} height={16} /> Upgrade to Pro
           </LinkButton>
         )}
       </div>
@@ -294,7 +304,9 @@ function FullDashboard({
       {/* Price-increase alerts — only observed changes, never predictions */}
       {alerts.length > 0 && (
         <Card className="mb-6 border-warn bg-warn-bg/40">
-          <h3 className="font-semibold">💸 Price increases spotted</h3>
+          <h3 className="flex items-center gap-2 font-semibold">
+            <TrendUpIcon width={16} height={16} className="text-warn" /> Price increases spotted
+          </h3>
           <ul className="mt-1 space-y-0.5 text-sm">
             {alerts.slice(0, 4).map((change) => (
               <li key={change.id}>
@@ -347,7 +359,7 @@ function FullDashboard({
 
       {/* Subscription list */}
       {listLoaded && rows.length === 0 ? (
-        <EmptyState icon="❄️" title="No subscriptions found">
+        <EmptyState icon={<SnowflakeIcon width={36} height={36} className="text-frost" />} title="No subscriptions found">
           We scanned your receipts and didn&rsquo;t find recurring charges — an empty result is a
           real result. Connect another inbox or re-scan after new receipts arrive.
         </EmptyState>
@@ -365,7 +377,7 @@ function FullDashboard({
                   key={entry.key}
                   onClick={() => setFilter(entry.key)}
                   className={cx(
-                    "cursor-pointer rounded-full px-3 py-1 text-sm transition-colors",
+                    "cursor-pointer rounded-full px-3.5 py-1.5 text-sm transition-colors duration-200",
                     filter === entry.key
                       ? "bg-frost text-frost-ink font-semibold"
                       : "text-muted hover:bg-surface-2",
@@ -615,7 +627,9 @@ function ReviewQueue({ items }: { items: ReviewItem[] }) {
   if (items.length === 0) return null;
   return (
     <Card className="mb-6">
-      <h3 className="font-semibold">🔎 Needs your review ({items.length})</h3>
+      <h3 className="flex items-center gap-2 font-semibold">
+        <SearchIcon width={16} height={16} className="text-frost" /> Needs your review ({items.length})
+      </h3>
       <p className="mt-1 text-sm text-muted">
         The AI wasn&rsquo;t confident enough about these. Nothing counts as a subscription until you
         approve it.

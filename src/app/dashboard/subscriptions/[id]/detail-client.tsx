@@ -6,6 +6,7 @@ import { trpc } from "@/lib/trpc";
 import { formatMinor, majorToMinor, minorToMajor } from "@/lib/money";
 import { gmailComposeHref, mailtoHref } from "@/lib/mail-links";
 import { AGGREGATOR_EXPLAINER, isAggregatorMerchant } from "@/lib/aggregators";
+import { DoorIcon, LockIcon, PencilIcon, StoreIcon } from "@/components/icons";
 import {
   Badge,
   Button,
@@ -37,7 +38,7 @@ export function SubscriptionDetailClient({ id }: { id: number }) {
     // Teaser plan (D5): this subscription is locked server-side.
     return (
       <main className="mx-auto max-w-xl px-4 py-24 text-center">
-        <div className="text-4xl">🔒</div>
+        <div className="flex justify-center text-frost"><LockIcon width={40} height={40} /></div>
         <h1 className="mt-3 text-2xl font-extrabold tracking-tight">
           This subscription is locked
         </h1>
@@ -141,7 +142,9 @@ export function SubscriptionDetailClient({ id }: { id: number }) {
 
       {aggregator && (
         <Card className="mt-4 border-dashed">
-          <p className="text-sm text-muted">🏬 {AGGREGATOR_EXPLAINER}</p>
+          <p className="flex items-start gap-2 text-sm text-muted">
+            <StoreIcon width={16} height={16} className="mt-0.5 shrink-0" /> {AGGREGATOR_EXPLAINER}
+          </p>
         </Card>
       )}
       {!aggregator && sub.status === "possible" && evidence.length > 1 && (
@@ -157,7 +160,7 @@ export function SubscriptionDetailClient({ id }: { id: number }) {
       {/* Actions */}
       <div className="mt-4 flex flex-wrap gap-2">
         <Button variant="secondary" onClick={() => setEditing((value) => !value)}>
-          ✏️ Edit details
+          <PencilIcon width={15} height={15} /> Edit details
         </Button>
         {sub.status === "active" && (
           <Button
@@ -190,7 +193,9 @@ export function SubscriptionDetailClient({ id }: { id: number }) {
       {(sub.status === "active" || sub.status === "cancellation_requested") && (
         <Card className="mt-6">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <h3 className="text-lg font-semibold">🚪 Escape path</h3>
+            <h3 className="flex items-center gap-2 text-lg font-semibold">
+              <DoorIcon width={18} height={18} className="text-frost" /> Escape path
+            </h3>
             {merchant && (
               <span className="flex items-center gap-2 text-sm text-muted">
                 difficulty <DifficultyMeter level={merchant.difficulty} />
