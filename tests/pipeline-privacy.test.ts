@@ -108,6 +108,32 @@ describe("process-and-discard privacy guarantee", () => {
     expect(containsSentinel(logLines.join("\n"))).toBe(false);
   });
 
+  it("survives a Stage 2 model failure: the candidate is discarded, the scan continues", async () => {
+    const persisted: PersistableCharge[] = [];
+    const logLines: string[] = [];
+    const stats = await processBatch(
+      [candidates[1]!, candidates[0]!], // failing Stage 2 candidate first, then a Stage 1 hit
+      {
+        matcher: new MerchantMatcher([netflix]),
+        model: {
+          complete: async () => {
+            throw new Error("model unavailable");
+          },
+        },
+        logger: {
+          info: () => {},
+          warn: (message, fields) => logLines.push(JSON.stringify({ message, ...fields })),
+        },
+        sink: { save: async (charge) => void persisted.push(charge) },
+      },
+    );
+    expect(stats.processed).toBe(2);
+    expect(stats.discarded).toBe(1); // the failed candidate, not a crash
+    expect(stats.stage1Hits).toBe(1); // later candidates still processed
+    expect(logLines.join("\n")).toContain("stage2_error");
+    expect(containsSentinel(logLines.join("\n"))).toBe(false); // error logs carry no body either
+  });
+
   it("keeps only the allowed fields: merchant, amount, currency, date, cycle, message ref, subject", async () => {
     const persisted: PersistableCharge[] = [];
     await processBatch([candidates[0]!], {
