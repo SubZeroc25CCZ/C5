@@ -17,10 +17,15 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  // Graceful pre-configuration state: with no Clerk key, ClerkProvider (and
+  // Graceful pre-configuration state: without Clerk keys, ClerkProvider (and
   // every Signed* component below) would throw on each request. Serve a
   // plain status page instead of a 500 until the environment is complete.
-  if (!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) {
+  // Requires BOTH keys, matching the middleware's check: with only the
+  // publishable key, server routes (auth()/currentUser()) still throw on the
+  // missing CLERK_SECRET_KEY.
+  const clerkConfigured =
+    !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && !!process.env.CLERK_SECRET_KEY;
+  if (!clerkConfigured) {
     return (
       <html lang="en">
         <body>
