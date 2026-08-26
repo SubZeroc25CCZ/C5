@@ -4,7 +4,7 @@
 // message naming the variable to set.
 
 import { afterEach, describe, expect, it } from "vitest";
-import { priceId } from "../src/services/stripe";
+import { priceId, stripeClient } from "../src/services/stripe";
 
 const KEY = process.env.STRIPE_SECRET_KEY;
 const ENV_KEYS = [
@@ -57,5 +57,26 @@ describe("priceId", () => {
     // The missing-key case is reported by requireStripeKey() at call time,
     // with its own message; priceId must not pre-empt it with a confusing one.
     expect(priceId("basic", "monthly")).toBe("price_1U8aR2G8giGg4s7R5Dgx1OdI");
+  });
+});
+
+describe("stripeClient", () => {
+  // The first version of this guard lived inside createCheckoutSession, which
+  // never ran: every caller builds the client first, so the SDK constructor
+  // threw "Neither apiKey nor config.authenticator provided" and the log
+  // never named STRIPE_SECRET_KEY. The guard has to be on the constructor.
+  it("names STRIPE_SECRET_KEY when the key is missing", () => {
+    delete process.env.STRIPE_SECRET_KEY;
+    expect(() => stripeClient()).toThrow(/STRIPE_SECRET_KEY is not set/);
+  });
+
+  it("names STRIPE_SECRET_KEY when the key is empty rather than absent", () => {
+    process.env.STRIPE_SECRET_KEY = "";
+    expect(() => stripeClient()).toThrow(/STRIPE_SECRET_KEY is not set/);
+  });
+
+  it("constructs a client when the key is present", () => {
+    process.env.STRIPE_SECRET_KEY = "sk_test_abc";
+    expect(() => stripeClient()).not.toThrow();
   });
 });
