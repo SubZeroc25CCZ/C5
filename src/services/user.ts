@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import type { Database } from "@/db/client";
 import { profiles, users } from "@/db/schema";
+import { track } from "./analytics";
 
 /** Upsert the local user + profile rows for a Clerk identity. */
 export async function ensureUser(
@@ -16,5 +17,7 @@ export async function ensureUser(
       userId: input.userId,
       displayName: input.displayName ?? null,
     });
+    // Funnel step 1 (§3.1) — recorded once, when the account first appears.
+    await track(db, input.userId, "signed_in");
   }
 }

@@ -228,3 +228,51 @@ export const webhookEvents = sqliteTable("webhook_events", {
   type: text("type").notNull(),
   processedAt: integer("processed_at", { mode: "timestamp_ms" }).default(now).notNull(),
 });
+
+// ── Beta research kit ────────────────────────────────────────────────────
+// Two tables serving the two questions the beta must answer: accuracy
+// (does the scan find what the user expected?) and action (do they try to
+// cancel?). Both are keyed by the Clerk user id — no merchant-level
+// personal data ever leaves for a third-party analytics vendor, and
+// free-text answers live here, in our own database.
+
+export const surveyResponses = sqliteTable(
+  "survey_responses",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    userId: text("user_id").notNull(),
+    /** Which survey this is; today only the post-scan micro-survey. */
+    survey: text("survey", { enum: ["post_scan"] }).default("post_scan").notNull(),
+    /** Q1 accuracy. "dismissed" records a decline so we never ask twice. */
+    accuracy: text("accuracy", {
+      enum: ["all_of_them", "mostly", "missed_a_lot", "found_forgotten", "dismissed"],
+    }).notNull(),
+    /** Q2: which subscriptions were missing — merchant-database gaps. */
+    missingText: text("missing_text"),
+    /** Q3 willingness to pay. */
+    willingness: text("willingness", {
+      enum: ["yes", "maybe_later", "too_expensive", "diy", "unanswered"],
+    })
+      .default("unanswered")
+      .notNull(),
+    /** Q3b: what would make it worth paying for. */
+    willingnessText: text("willingness_text"),
+    createdAt: createdAt(),
+  },
+  // One response per user per survey: asked once, never again.
+  (t) => [uniqueIndex("survey_responses_user_survey_idx").on(t.userId, t.survey)],
+);
+
+/** Product analytics: the activation funnel plus accuracy/action signals. */
+export const analyticsEvents = sqliteTable(
+  "analytics_events",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    userId: text("user_id").notNull(), // pseudonymous: the Clerk id, never an email
+    name: text("name").notNull(),
+    /** Small numeric payload (durations, counts) — never merchant names. */
+    value: integer("value"),
+    createdAt: createdAt(),
+  },
+  (t) => [index("analytics_events_name_idx").on(t.name, t.createdAt)],
+);

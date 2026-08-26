@@ -5,6 +5,7 @@ import { db } from "@/db/client";
 import { emailAccounts } from "@/db/schema";
 import { encryptToken } from "@/lib/encryption";
 import { OAUTH_STATE_COOKIE } from "@/lib/oauth-state";
+import { track } from "@/services/analytics";
 
 function stateMatches(state: string | null, cookie: string | undefined): boolean {
   if (!state || !cookie) return false;
@@ -73,6 +74,8 @@ export async function GET(req: NextRequest) {
         status: "active",
       },
     });
+
+  await track(db, userId, "inbox_connected");
 
   const response = NextResponse.redirect(new URL("/dashboard?connected=1", req.url));
   response.cookies.delete(OAUTH_STATE_COOKIE); // single-use
