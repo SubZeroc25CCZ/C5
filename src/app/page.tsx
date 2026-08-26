@@ -69,8 +69,10 @@ export default function LandingPage() {
     <div className="lp">
       <Hero />
 
-      {/* §C — problem strip */}
-      <section className="mx-auto max-w-[1200px] px-4 py-20 lg:py-[120px]">
+      {/* §C — problem strip. Minor tier of the vertical rhythm (D10 B3):
+          connective sections breathe at 96px on desktop, the big set pieces
+          (hero, how-it-works, pricing) keep 120px. */}
+      <section className="mx-auto max-w-[1200px] px-4 py-16 lg:py-24">
         <h2 className="lp-h2 lp-measure-title">
           Subscriptions are easy to start — and strangely hard to escape.
         </h2>
@@ -90,7 +92,7 @@ export default function LandingPage() {
       <HowItWorks />
 
       {/* §E — evidence, not guesses */}
-      <section className="mx-auto max-w-[1200px] px-4 py-20 lg:py-[120px]">
+      <section className="mx-auto max-w-[1200px] px-4 py-16 lg:py-24">
         <h2 className="lp-h2 lp-measure-title">Every result comes with evidence.</h2>
         <p className="lp-body-lg lp-measure-copy mt-4" style={{ color: "var(--lp-text-muted)" }}>
           You can see exactly which receipts produced a subscription, and decide for yourself
@@ -102,8 +104,8 @@ export default function LandingPage() {
       </section>
 
       {/* §F — privacy */}
-      <section style={{ background: "rgba(0,0,0,0.28)" }}>
-        <div className="mx-auto max-w-[1200px] px-4 py-20 lg:py-[120px]">
+      <section className="lp-band">
+        <div className="mx-auto max-w-[1200px] px-4 py-16 lg:py-24">
           <h2 className="lp-h2 lp-measure-title">Your inbox stays yours.</h2>
           <div className="mt-10 grid gap-8 md:grid-cols-3">
             {PRIVACY.map((item) => (

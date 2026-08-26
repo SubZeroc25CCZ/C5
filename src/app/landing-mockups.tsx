@@ -2,6 +2,16 @@
 // merchants are invented ("Stream Plus", not Netflix) and the amounts are
 // illustrative. Nothing in this file is read from, or represents, a real
 // account. The brief is explicit: no real company names, no savings claims.
+//
+// The hero is different from the step mockups: it is a SCREENSHOT of the
+// real dashboard (src/app/dev/preview renders <DashboardClient> against a
+// demo scan run through the real Stage 1 matcher and recurrence engine),
+// captured dark, with merchant names pseudonymized to honor the no-real-
+// company-names rule. Regenerate: run the dev server, screenshot
+// /dev/preview, replace public/dashboard-demo.png — never hand-edit it.
+
+import Image from "next/image";
+import dashboardDemo from "../../public/dashboard-demo.png";
 
 function Row({
   name,
@@ -36,82 +46,35 @@ function Row({
   );
 }
 
-/** Hero dashboard: totals, status counts, three subscriptions, one price rise. */
+/** Hero: a real dashboard screenshot (sample data), not a drawn imitation. */
 export function HeroMockup() {
   return (
-    <div
-      className="lp-rise w-full p-5 sm:p-6"
-      style={{
-        borderRadius: "var(--lp-radius-panel)",
-        background: "var(--lp-surface)",
-        border: "1px solid var(--lp-hairline)",
-        boxShadow: "var(--lp-shadow-card)",
-      }}
-      role="img"
-      aria-label="Sample SubZero dashboard: an estimated monthly total of $48.96 across four detected subscriptions, three listed with renewal dates, and one price increase from $9.99 to $11.99."
-    >
-      <div className="flex items-baseline justify-between gap-3">
-        <span className="text-xs font-semibold uppercase tracking-[0.12em]" style={{ color: "var(--lp-text-muted)" }}>
-          Recurring, per month
-        </span>
-        <span className="text-xs" style={{ color: "var(--lp-text-muted)" }}>
-          from your receipts
-        </span>
-      </div>
-      <div className="mt-1 text-4xl font-extrabold" style={{ fontVariantNumeric: "tabular-nums" }}>
-        $48.96
-      </div>
-
-      <div className="mt-4 flex flex-wrap gap-2">
-        <span className="rounded-full px-3 py-1 text-xs font-semibold" style={{ background: "rgba(47,196,147,0.14)", color: "var(--lp-success)" }}>
-          3 active
-        </span>
-        <span className="rounded-full px-3 py-1 text-xs font-semibold" style={{ background: "rgba(255,255,255,0.07)", color: "var(--lp-text-muted)" }}>
-          1 possible
-        </span>
-        <span className="rounded-full px-3 py-1 text-xs font-semibold" style={{ background: "rgba(243,168,59,0.16)", color: "var(--lp-accent)" }}>
-          1 price change
-        </span>
-      </div>
-
-      <div className="mt-4 flex flex-col gap-2">
-        <Row name="Stream Plus" meta="Renews 14 Sep" amount="$17.99" cadence="per month" />
-        <Row name="Cloud Box" meta="Renews 03 Sep" amount="$11.99" cadence="per month" />
-        <Row name="Design Pro" meta="Renews 21 Sep" amount="$14.99" cadence="per month" />
-      </div>
-
-      {/* Price alert — the ONE place amber is allowed. */}
+    <figure className="lp-rise w-full">
       <div
-        className="lp-pulse-once mt-3 rounded-xl p-3"
-        style={{ background: "rgba(243,168,59,0.10)", border: "1px solid rgba(243,168,59,0.28)" }}
+        className="overflow-hidden"
+        style={{
+          borderRadius: "var(--lp-radius-panel)",
+          border: "1px solid var(--lp-hairline)",
+          boxShadow: "var(--lp-shadow-card)",
+          background: "var(--lp-surface)",
+        }}
       >
-        <div className="flex items-center gap-2 text-xs font-semibold" style={{ color: "var(--lp-accent)" }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-            <path d="M12 19V5M5 12l7-7 7 7" />
-          </svg>
-          Price increased
-        </div>
-        <div className="mt-1 text-sm" style={{ color: "var(--lp-text)" }}>
-          Cloud Box <span style={{ fontVariantNumeric: "tabular-nums", color: "var(--lp-text-muted)", textDecoration: "line-through" }}>$9.99</span>
-          {" → "}
-          <span style={{ fontVariantNumeric: "tabular-nums", fontWeight: 700 }}>$11.99</span>
-        </div>
+        <Image
+          src={dashboardDemo}
+          alt="SubZero dashboard with sample data: $41.97 per month across 3 active subscriptions ($503.64 per year), next renewal September 11, a price increase from $10.99 to $11.99 on one of them, two more at $17.99 and $11.99 per month, a storefront group with $28.96 of observed charges across 4 receipts, and one subscription seen once."
+          priority
+          placeholder="blur"
+          sizes="(min-width: 1024px) 660px, 100vw"
+          className="h-auto w-full"
+        />
       </div>
-
-      {/* Keep / Cancel / Ignore */}
-      <div className="mt-4 rounded-xl p-3" style={{ background: "rgba(255,255,255,0.04)" }}>
-        <div className="text-xs" style={{ color: "var(--lp-text-muted)" }}>What do you want to do with Design Pro?</div>
-        <div className="mt-2 grid grid-cols-3 gap-2">
-          <span className="rounded-lg py-2 text-center text-xs font-semibold" style={{ background: "rgba(47,196,147,0.16)", color: "var(--lp-success)" }}>Keep</span>
-          <span className="rounded-lg py-2 text-center text-xs font-semibold" style={{ background: "rgba(230,91,104,0.16)", color: "var(--lp-danger)" }}>Cancel</span>
-          <span className="rounded-lg py-2 text-center text-xs font-semibold" style={{ background: "rgba(255,255,255,0.07)", color: "var(--lp-text-muted)" }}>Ignore</span>
-        </div>
-      </div>
-
-      <p className="mt-3 text-[11px] leading-snug" style={{ color: "var(--lp-text-muted)" }}>
-        Sample data, shown for illustration.
-      </p>
-    </div>
+      <figcaption
+        className="mt-2.5 text-center text-[11px] leading-snug"
+        style={{ color: "var(--lp-text-muted)" }}
+      >
+        Real product screenshot — sample data from a demo scan.
+      </figcaption>
+    </figure>
   );
 }
 

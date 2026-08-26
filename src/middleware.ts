@@ -25,7 +25,10 @@ export default clerkConfigured
 
 export const config = {
   matcher: [
-    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
+    // `dev/preview` is the development-only design harness (404 in prod):
+    // Clerk's dev-instance handshake redirect would break headless
+    // screenshots of it, and it has no auth to protect.
+    "/((?!_next|dev/preview|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
     "/(api|trpc)(.*)",
   ],
 };
