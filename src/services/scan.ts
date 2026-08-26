@@ -100,7 +100,7 @@ export async function runScan(
             extractionConfidence: charge.confidence,
             detectedFrom: "email",
           })
-          .onDuplicateKeyUpdate({ set: { userId: options.userId } });
+          .onConflictDoNothing(); // unique (userId, sourceMessageRef) dedupes re-scans
       },
     },
   });

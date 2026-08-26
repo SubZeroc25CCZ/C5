@@ -97,16 +97,19 @@ export async function syncSubscriptionsForUser(
         .set(overridden ? values : { ...values, status: "active" })
         .where(eq(subscriptions.id, subscriptionId));
     } else {
-      const inserted = await db.insert(subscriptions).values({
-        userId,
-        name: detected.merchant,
-        currency: detected.currency,
-        status: "active",
-        detectedFrom: "email",
-        firstChargeAt: detected.priceChanges[0]?.observedAt ?? detected.lastChargedAt,
-        ...values,
-      });
-      subscriptionId = Number(inserted.insertId);
+      const inserted = await db
+        .insert(subscriptions)
+        .values({
+          userId,
+          name: detected.merchant,
+          currency: detected.currency,
+          status: "active",
+          detectedFrom: "email",
+          firstChargeAt: detected.priceChanges[0]?.observedAt ?? detected.lastChargedAt,
+          ...values,
+        })
+        .returning({ id: subscriptions.id });
+      subscriptionId = inserted[0]!.id;
     }
 
     // Evidence links — the "what we saw" log (§6).
@@ -115,7 +118,7 @@ export async function syncSubscriptionsForUser(
       await db
         .insert(subscriptionEvidence)
         .values(evidenceIds.map((chargeId) => ({ subscriptionId, chargeId })))
-        .onDuplicateKeyUpdate({ set: { subscriptionId } });
+        .onConflictDoNothing();
     }
 
     // Price changes: insert only ones not already recorded (by observedAt).
@@ -156,29 +159,32 @@ export async function syncSubscriptionsForUser(
       )
       .limit(1);
     if (existing[0]) continue;
-    const inserted = await db.insert(subscriptions).values({
-      userId,
-      name: charge.merchant,
-      merchantId: merchantIdByGroup.get(key) ?? null,
-      amountMinor: majorToMinor(charge.amount, charge.currency),
-      currency: charge.currency.toUpperCase(),
-      cycle: "monthly", // display placeholder; status "possible" gates all math
-      status: "possible",
-      detectedFrom: "email",
-      firstChargeAt: charge.chargedAt,
-      lastChargeAt: charge.chargedAt,
-    });
+    const inserted = await db
+      .insert(subscriptions)
+      .values({
+        userId,
+        name: charge.merchant,
+        merchantId: merchantIdByGroup.get(key) ?? null,
+        amountMinor: majorToMinor(charge.amount, charge.currency),
+        currency: charge.currency.toUpperCase(),
+        cycle: "monthly", // display placeholder; status "possible" gates all math
+        status: "possible",
+        detectedFrom: "email",
+        firstChargeAt: charge.chargedAt,
+        lastChargeAt: charge.chargedAt,
+      })
+      .returning({ id: subscriptions.id });
     const evidenceIds = chargeIdsByGroup.get(key) ?? [];
     if (evidenceIds.length > 0) {
       await db
         .insert(subscriptionEvidence)
         .values(
           evidenceIds.map((chargeId) => ({
-            subscriptionId: Number(inserted.insertId),
+            subscriptionId: inserted[0]!.id,
             chargeId,
           })),
         )
-        .onDuplicateKeyUpdate({ set: { subscriptionId: Number(inserted.insertId) } });
+        .onConflictDoNothing();
     }
     possibleCount += 1;
   }

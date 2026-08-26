@@ -58,17 +58,20 @@ export const cancellationsRouter = router({
       });
 
       const method = row.merchant?.cancelMethod ?? "email";
-      const inserted = await ctx.db.insert(cancellationRequests).values({
-        userId: ctx.userId,
-        subscriptionId: row.subscription.id,
-        status: "draft",
-        method,
-        draftSubject: draft.subject,
-        draftBody: draft.body,
-      });
+      const inserted = await ctx.db
+        .insert(cancellationRequests)
+        .values({
+          userId: ctx.userId,
+          subscriptionId: row.subscription.id,
+          status: "draft",
+          method,
+          draftSubject: draft.subject,
+          draftBody: draft.body,
+        })
+        .returning({ id: cancellationRequests.id });
 
       return {
-        requestId: Number(inserted.insertId),
+        requestId: inserted[0]!.id,
         draft,
         method,
         cancelUrl: row.merchant?.cancelUrl ?? null,
