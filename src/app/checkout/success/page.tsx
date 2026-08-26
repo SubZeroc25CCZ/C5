@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui";
+import { SnowflakeIcon } from "@/components/icons";
 
 export const metadata: Metadata = {
   title: "Welcome to Pro — SubZero",
@@ -11,8 +12,8 @@ export const metadata: Metadata = {
 export default function CheckoutSuccessPage() {
   return (
     <main className="mx-auto max-w-xl px-4 py-24 text-center">
-      <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-frost-soft text-3xl">
-        ❄️
+      <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-frost-soft text-frost">
+        <SnowflakeIcon width={30} height={30} />
       </div>
       <h1 className="text-3xl font-extrabold tracking-tight">Everything is unlocked</h1>
       <p className="mt-3 text-muted">

@@ -7,6 +7,7 @@ import { formatMinor, majorToMinor, minorToMajor } from "@/lib/money";
 import { normalizedMonthly, round2, type BillingCycle } from "@/engine/normalize";
 import { gmailComposeHref, mailtoHref } from "@/lib/mail-links";
 import { Badge, Button, Card, EmptyState, MerchantLogo, cx } from "@/components/ui";
+import { LockIcon, SnowflakeIcon } from "@/components/icons";
 import type { inferRouterOutputs } from "@trpc/server";
 import type { AppRouter } from "@/server/routers/_app";
 
@@ -85,7 +86,7 @@ export function CancellationsClient({ accountEmail }: { accountEmail: string }) 
     // Cancellation tools are Basic+ (D5) — the server returns nothing here.
     return (
       <main className="mx-auto max-w-xl px-4 py-24 text-center">
-        <div className="text-4xl">🔒</div>
+        <div className="flex justify-center text-frost"><LockIcon width={40} height={40} /></div>
         <h1 className="mt-3 text-2xl font-extrabold tracking-tight">
           Cancellation tools come with Basic
         </h1>
@@ -134,7 +135,10 @@ export function CancellationsClient({ accountEmail }: { accountEmail: string }) 
 
       {rows.length === 0 ? (
         <div className="mt-10">
-          <EmptyState icon="🧊" title="Nothing in the pipeline yet">
+          <EmptyState
+            icon={<SnowflakeIcon width={36} height={36} className="mx-auto text-frost" />}
+            title="Nothing in the pipeline yet"
+          >
             Pick a subscription on your{" "}
             <Link href="/dashboard" className="font-medium text-frost">
               dashboard

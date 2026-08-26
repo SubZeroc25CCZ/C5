@@ -25,7 +25,7 @@ export function Button({
   return (
     <button
       className={cx(
-        "inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm transition-colors disabled:opacity-50 disabled:pointer-events-none cursor-pointer",
+        "inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm transition-colors duration-200 disabled:opacity-50 disabled:pointer-events-none cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-frost",
         buttonVariants[variant],
         className,
       )}
@@ -42,7 +42,7 @@ export function LinkButton({
   return (
     <a
       className={cx(
-        "inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm transition-colors no-underline",
+        "inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm transition-colors duration-200 no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-frost",
         buttonVariants[variant],
         className,
       )}
