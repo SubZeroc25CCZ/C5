@@ -7,7 +7,7 @@ const handler = (req: Request) =>
     endpoint: "/api/trpc",
     req,
     router: appRouter,
-    createContext,
+    createContext: ({ req: request }) => createContext({ req: request }),
     // Without this, a failing procedure returns a bare 500 and leaves no
     // trace in the platform logs — which is exactly how a Stripe
     // misconfiguration reached production looking like "please try again".

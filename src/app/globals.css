@@ -100,3 +100,92 @@ h2 {
 .tnum {
   font-variant-numeric: tabular-nums;
 }
+
+/* ── Landing page ("From inbox chaos to total clarity" brief) ─────────────
+   The marketing page is an always-dark surface with its own palette: it
+   keeps one look in both themes, so these are fixed values rather than
+   theme tokens. Scoped to .lp so nothing here can leak into the product,
+   where the frost tokens remain the law. */
+.lp {
+  --lp-bg: #071425;
+  --lp-surface: #0d203a;
+  --lp-surface-light: #f4f8fc;
+  --lp-primary: #2e9eff;
+  --lp-primary-bright: #68c4ff;
+  --lp-accent: #f3a83b; /* price-change alerts ONLY — never decoration */
+  --lp-success: #2fc493;
+  --lp-danger: #e65b68;
+  --lp-text: #f7fbff;
+  --lp-text-muted: #9fb2c9;
+  --lp-ink: #0a1525;
+
+  --lp-radius-button: 12px;
+  --lp-radius-card: 20px;
+  --lp-radius-panel: 28px;
+  --lp-shadow-card: 0 16px 60px rgba(0, 16, 40, 0.16);
+  --lp-hairline: rgba(255, 255, 255, 0.09);
+
+  background: var(--lp-bg);
+  color: var(--lp-text);
+}
+
+/* Type scale: fluid between the brief's mobile and desktop ends, so no
+   breakpoint jump and no artificial word-breaking at 390px. */
+.lp-hero-title {
+  font-size: clamp(2.625rem, 1.6rem + 4.2vw, 4.5rem);
+  line-height: 0.98;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+.lp-h2 {
+  font-size: clamp(2rem, 1.4rem + 2.6vw, 3.25rem);
+  line-height: 1.05;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+.lp-h3 {
+  font-size: clamp(1.375rem, 1.2rem + 0.6vw, 1.75rem);
+  line-height: 1.2;
+  font-weight: 650;
+}
+.lp-body-lg {
+  font-size: clamp(1.125rem, 1.05rem + 0.3vw, 1.3125rem);
+  line-height: 1.55;
+}
+.lp-body { font-size: 1rem; line-height: 1.6; }
+.lp-small { font-size: 0.875rem; line-height: 1.45; }
+
+/* Measure caps from the brief: 620px headings, 680px paragraphs. */
+.lp-measure-title { max-width: 620px; }
+.lp-measure-copy { max-width: 680px; }
+
+/* Motion. Every animation below is opt-out via prefers-reduced-motion,
+   which the global rule at the top of this file already enforces. */
+@keyframes lp-rise {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: none; }
+}
+.lp-rise { animation: lp-rise 600ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+@keyframes lp-pulse-once {
+  0% { box-shadow: 0 0 0 0 rgba(243, 168, 59, 0.5); }
+  100% { box-shadow: 0 0 0 12px rgba(243, 168, 59, 0); }
+}
+/* A single pulse, never a loop — a price rise should catch the eye once. */
+.lp-pulse-once { animation: lp-pulse-once 1400ms ease-out 800ms 1 both; }
+
+.lp-cta {
+  transition: transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+}
+.lp-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(46, 158, 255, 0.35);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-rise { animation: none; opacity: 1; transform: none; }
+  .lp-pulse-once { animation: none; }
+  .lp-cta:hover { transform: none; }
+}

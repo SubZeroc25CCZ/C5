@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, Sora } from "next/font/google";
-import { ClerkProvider, SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
-import Link from "next/link";
+import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 import { Providers } from "./providers";
-import { Button } from "@/components/ui";
-import { SnowflakeIcon } from "@/components/icons";
+import { SiteFooter, SiteHeader } from "./site-chrome";
 
 // Typography (ui-ux-pro-max + the frost identity): Sora for display —
 // geometric and cold, matching the brand — Plus Jakarta Sans for body, the
@@ -55,84 +53,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <ClerkProvider>
       <html lang="en" className={`${body.variable} ${display.variable}`}>
         <body className="flex min-h-screen flex-col">
-          <header className="sticky top-0 z-10 border-b border-line bg-surface/90 backdrop-blur">
-            <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-              <Link
-                href="/"
-                className="flex items-center gap-2 font-display text-lg font-extrabold tracking-tight"
-              >
-                <SnowflakeIcon width={22} height={22} className="text-frost" />
-                SubZero
-              </Link>
-              <nav className="flex items-center gap-4">
-                <SignedIn>
-                  <Link
-                    href="/dashboard"
-                    className="text-sm font-medium text-muted transition-colors hover:text-ink"
-                  >
-                    Dashboard
-                  </Link>
-                  <Link
-                    href="/dashboard/cancellations"
-                    className="text-sm font-medium text-muted transition-colors hover:text-ink"
-                  >
-                    Cancellations
-                  </Link>
-                  <UserButton />
-                </SignedIn>
-                <SignedOut>
-                  <SignInButton mode="modal">
-                    <Button>Sign in with Google</Button>
-                  </SignInButton>
-                </SignedOut>
-              </nav>
-            </div>
-          </header>
+          <SiteHeader />
           <Providers>
             <div className="flex-1">{children}</div>
           </Providers>
-          <footer className="border-t border-line">
-            <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:grid-cols-[1.5fr_1fr_1fr]">
-              <div>
-                <p className="flex items-center gap-1.5 font-display text-sm font-extrabold tracking-tight">
-                  <SnowflakeIcon width={16} height={16} className="text-frost" />
-                  SubZero
-                </p>
-                <p className="mt-2 max-w-xs text-xs leading-relaxed text-muted">
-                  Email-first subscription control. Read-only access; email bodies are processed in
-                  memory and discarded.
-                </p>
-              </div>
-              <nav className="text-xs">
-                <p className="font-semibold">Product</p>
-                <ul className="mt-2 space-y-1.5 text-muted">
-                  <li>
-                    <Link href="/#how" className="hover:text-ink">How it works</Link>
-                  </li>
-                  <li>
-                    <Link href="/pricing" className="hover:text-ink">Pricing</Link>
-                  </li>
-                  <li>
-                    <Link href="/dashboard" className="hover:text-ink">Dashboard</Link>
-                  </li>
-                </ul>
-              </nav>
-              <nav className="text-xs">
-                <p className="font-semibold">Legal</p>
-                <ul className="mt-2 space-y-1.5 text-muted">
-                  <li>
-                    <Link href="/privacy" className="hover:text-ink">Privacy policy</Link>
-                  </li>
-                  <li>
-                    <Link href="/terms" className="hover:text-ink">Terms of service</Link>
-                  </li>
-                </ul>
-              </nav>
-            </div>
-            <div className="border-t border-line py-4 text-center text-xs text-muted">
-              © 2026 SubZero. All rights reserved.
-            </div>
-          </footer>
+          <SiteFooter />
         </body>
       </html>
     </ClerkProvider>

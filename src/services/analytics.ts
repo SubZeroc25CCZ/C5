@@ -28,7 +28,30 @@ export type AnalyticsEvent =
   | "cancellation_sent"
   | "cancellation_confirmed" // the north star
   // health (§3.4)
-  | "scan_failed";
+  | "scan_failed"
+  // landing page (conversion brief §11). These are the only events that can
+  // fire before sign-in, so they are the only ones recorded against the
+  // shared ANON_ACTOR rather than a person — see research.landingEvent.
+  | "hero_cta_clicked"
+  | "oauth_started"
+  | "oauth_completed"
+  | "oauth_failed"
+  | "demo_step_viewed"
+  | "pricing_viewed"
+  | "faq_opened"
+  | "final_cta_clicked";
+
+/**
+ * The actor id for events from signed-out visitors.
+ *
+ * Deliberately a single shared constant, not a per-visitor id: measuring the
+ * landing funnel needs COUNTS (how many hero clicks per N page views), not
+ * individuals. A visitor identifier would be a new tracking cookie, a new
+ * disclosure in the privacy policy, and a consent question — for a ratio we
+ * can compute without it. Anything recorded under this id is aggregate only
+ * and must never be presented as per-user behaviour.
+ */
+export const ANON_ACTOR = "anon";
 
 /**
  * Record an event. Analytics must never break a user's actual request, so
