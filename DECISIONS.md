@@ -113,3 +113,32 @@ only while no admin has verified a better one.
 Also in Phase D: every scan writes a `scan_runs` row up front, so a run that
 dies mid-flight still appears in monitoring — a scan that vanished is the
 failure mode that table exists to catch.
+
+## D9 — Stripe goes live (and why checkout was 500ing)
+
+Both checkout buttons returned 500 in production. The four D7 prices existed
+in **test mode only**, while production held a live secret key — the Stripe
+account is shared with another project (LeadMachine), whose live key was
+already in the environment. Live mode carried no SubZero products at all.
+
+Decision: **go live now** rather than pointing production back at test keys.
+Live products and the four D7 prices were created on `acct_1QE7jSG8giGg4s7R`
+($4.99/$49 Basic, $9.99/$99 Pro), plus a live webhook endpoint for
+`checkout.session.completed`, `customer.subscription.updated` and
+`customer.subscription.deleted` — without that endpoint a card would be
+charged and the plan would never upgrade.
+
+The code lesson outlives the config one. Three separate things conspired to
+make a one-line misconfiguration expensive:
+
+1. The tRPC handler had no `onError`, so a failed procedure left a bare 500
+   and **no log line at all**. Diagnosis had to start at Stripe.
+2. `priceId()` fell back to test-mode ids under a live key instead of
+   refusing. A fallback that is wrong in production is not a fallback.
+3. The UI told the user to "try again" — advice that could never succeed.
+
+All three are fixed: server faults are logged, a live key with unset
+`STRIPE_PRICE_*` fails naming the variable, and the checkout error now says
+the fault is ours and that nothing was charged. The same guard covers an
+unset `STRIPE_SECRET_KEY` and an unset `NEXT_PUBLIC_APP_URL`, which produced
+the identical bare 500.
