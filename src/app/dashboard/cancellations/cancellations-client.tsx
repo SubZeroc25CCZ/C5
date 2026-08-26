@@ -55,6 +55,7 @@ function TotalLine({ rows, label }: { rows: RequestRow[]; label: string }) {
 
 export function CancellationsClient({ accountEmail }: { accountEmail: string }) {
   const utils = trpc.useUtils();
+  const planQuery = trpc.billing.plan.useQuery();
   const listQuery = trpc.cancellations.list.useQuery();
   const markSent = trpc.cancellations.markSent.useMutation({
     onSettled: () => utils.cancellations.invalidate(),
@@ -76,6 +77,29 @@ export function CancellationsClient({ accountEmail }: { accountEmail: string }) 
           {[0, 1, 2].map((i) => (
             <div key={i} className="h-48 animate-pulse rounded-2xl bg-surface-2" />
           ))}
+        </div>
+      </main>
+    );
+  }
+  if (planQuery.data?.plan === "teaser") {
+    // Cancellation tools are Basic+ (D5) — the server returns nothing here.
+    return (
+      <main className="mx-auto max-w-xl px-4 py-24 text-center">
+        <div className="text-4xl">🔒</div>
+        <h1 className="mt-3 text-2xl font-extrabold tracking-tight">
+          Cancellation tools come with Basic
+        </h1>
+        <p className="mx-auto mt-2 max-w-md text-sm text-muted">
+          Prepared cancellation emails, verified cancel links, and honest tracking from draft to
+          provider-confirmed — from $2.99/month.
+        </p>
+        <div className="mt-6">
+          <Link
+            href="/pricing"
+            className="inline-flex items-center rounded-lg bg-frost px-6 py-3 text-sm font-semibold text-frost-ink hover:bg-frost-strong"
+          >
+            See plans
+          </Link>
         </div>
       </main>
     );

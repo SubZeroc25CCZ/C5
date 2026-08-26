@@ -5,10 +5,9 @@ import Link from "next/link";
 import { trpc } from "@/lib/trpc";
 import { formatMinor } from "@/lib/money";
 import { Button, Card, MerchantLogo, ProgressBar, StatusBadge } from "@/components/ui";
-import type { inferRouterOutputs } from "@trpc/server";
-import type { AppRouter } from "@/server/routers/_app";
+import type { FullListPayload } from "./dashboard-client";
 
-type Row = inferRouterOutputs<AppRouter>["subscriptions"]["list"]["subscriptions"][number];
+type Row = FullListPayload["subscriptions"][number];
 
 type Decision = "keep" | "cancel" | "ignore";
 

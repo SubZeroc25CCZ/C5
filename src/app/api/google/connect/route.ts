@@ -4,7 +4,7 @@ import { auth } from "@clerk/nextjs/server";
 import { eq, and } from "drizzle-orm";
 import { db } from "@/db/client";
 import { emailAccounts, profiles } from "@/db/schema";
-import { canConnectInbox } from "@/lib/quota";
+import { asPlan, canConnectInbox } from "@/lib/quota";
 import { OAUTH_STATE_COOKIE } from "@/lib/oauth-state";
 
 // Incremental consent (§8 P0): Gmail read-only is requested here, separately
@@ -23,7 +23,7 @@ export async function GET(req: Request) {
     .select({ id: emailAccounts.id })
     .from(emailAccounts)
     .where(and(eq(emailAccounts.userId, userId), eq(emailAccounts.status, "active")));
-  if (!canConnectInbox(profile?.plan ?? "free", connected.length)) {
+  if (!canConnectInbox(asPlan(profile?.plan), connected.length)) {
     return NextResponse.redirect(new URL("/dashboard?error=inbox_quota", req.url));
   }
 

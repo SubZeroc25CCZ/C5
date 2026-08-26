@@ -87,7 +87,17 @@ export async function runScan(
     ).map((row) => row.ref),
   ]);
   const newIds = ids.filter((id) => !seen.has(id));
-  const batchIds = options.maxMessages ? newIds.slice(0, options.maxMessages) : newIds;
+  // The per-batch cap is only safe when the candidate set is stable across
+  // batches. Backfill's window is anchored to a fixed 24-month `after:` date,
+  // so truncating one batch leaves the rest listable on the next call. Delta's
+  // window is derived from `account.lastSyncedAt`, which every batch advances
+  // to now — a second delta batch would recompute a ~1-day window and no
+  // longer list the older, still-unprocessed candidates, dropping them
+  // permanently. Delta therefore drains in a single call (as the daily-sync
+  // cron already does); its window is naturally bounded by the days since the
+  // last sync.
+  const batchLimit = options.mode === "backfill" ? options.maxMessages : undefined;
+  const batchIds = batchLimit ? newIds.slice(0, batchLimit) : newIds;
 
   const candidates = [];
   for (const id of batchIds) {

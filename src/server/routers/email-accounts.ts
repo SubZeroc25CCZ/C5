@@ -2,18 +2,12 @@ import { z } from "zod";
 import { and, eq } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { protectedProcedure, router } from "../trpc";
-import { emailAccounts, profiles } from "@/db/schema";
-import { canConnectInbox, nextScanAt, scanDue, type Plan } from "@/lib/quota";
+import { emailAccounts } from "@/db/schema";
+import { canConnectInbox, nextScanAt, scanDue } from "@/lib/quota";
 import { scanContinuationLimiter, scanLimiter } from "@/lib/rate-limit";
 import { runScan } from "@/services/scan";
 import { deleteDerivedDataForUser } from "@/services/subscription-sync";
-
-async function userPlan(db: typeof import("@/db/client").db, userId: string): Promise<Plan> {
-  const profile = (
-    await db.select({ plan: profiles.plan }).from(profiles).where(eq(profiles.userId, userId)).limit(1)
-  )[0];
-  return profile?.plan ?? "free";
-}
+import { userPlan } from "../plan";
 
 export const emailAccountsRouter = router({
   list: protectedProcedure.query(async ({ ctx }) => {
@@ -98,7 +92,10 @@ export const emailAccountsRouter = router({
           const next = nextScanAt(plan, account.lastSyncedAt);
           throw new TRPCError({
             code: "FORBIDDEN",
-            message: `Next re-scan unlocks ${next?.toLocaleDateString() ?? "soon"} on the free plan — Pro re-scans daily.`,
+            message:
+              plan === "teaser"
+                ? "Re-scans are part of Basic — upgrade to keep your results fresh."
+                : `Next re-scan unlocks ${next?.toLocaleDateString() ?? "soon"} on Basic — Pro re-scans daily.`,
           });
         }
       }

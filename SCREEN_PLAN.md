@@ -55,6 +55,7 @@ Purpose: the emotional peak. The moment of truth.
 Elements: "We found **23 subscriptions** costing **€212/month** (€2,544/year)" per currency; confirmed vs possible split; top-3 most expensive with logos; [Review & take control] CTA.
 P1: **share card** — the same summary rendered as a beautiful downloadable/shareable image (anonymized amounts optional). This is the viral loop.
 States: zero-results ("Your inbox is clean — or your subscriptions live in another inbox; connect it?"), partial-scan warning.
+**D5 (teaser paywall):** for unpaid users this screen IS the teaser — per-currency totals, subscription count, and the most expensive confirmed subscription in full (evidence included); all other rows arrive from the API already redacted and render as blurred locked rows with the upgrade CTA. Redaction happens server-side; the client never receives locked merchants or amounts.
 
 ### 1.8 Review uncertain findings (needs-review queue) — P0
 Purpose: human confirmation of low-confidence Stage 2 extractions.
@@ -73,12 +74,12 @@ States: skippable at any point; resumable.
 ### 2.1 Overview (dashboard) — P0
 Purpose: the daily truth screen.
 Elements: monthly total per currency (hero number); active count; next renewal ("Netflix renews in 3 days — €13.99"); price-increase alerts strip; recent activity; [Re-scan] with plan-cadence state ("next re-scan unlocks 12 Sep" for free).
-States: loading skeleton, no-data (points to connect/scan), expired-permission banner (Gmail token revoked → reconnect), scan-in-progress strip.
+States: loading skeleton, no-data (points to connect/scan), expired-permission banner (Gmail token revoked → reconnect), scan-in-progress strip, **teaser paywall variant (D5): totals + count + one unlocked subscription, blurred locked rows, upgrade CTA; no re-scan.**
 
 ### 2.2 All subscriptions — P0
 Purpose: the full inventory.
 Elements: cards with logo, name, amount + cycle, normalized monthly cost, status chip (active / possible / needs review / cancel requested / provider confirmed / ignored); filter by status/category/inbox; sort by cost/name/renewal; per-currency section totals.
-States: empty, filtered-empty.
+States: empty, filtered-empty, **teaser (D5): only the unlocked subscription renders; the rest are locked placeholders.**
 
 ### 2.3 Subscription detail — P0
 Purpose: everything we know about one merchant relationship.
@@ -95,12 +96,12 @@ Purpose: the watchdog feed.
 Elements: every observed price change, old → new, date, yearly impact ("+€24/year"); mark-as-seen.
 States: empty ("no price changes observed — we're watching").
 
-### 2.6 Cancellation center — P0 (board), P1 (sending)
+### 2.6 Cancellation center — P0 (board), P1 (sending) · **Basic+ only (D5)**
 Purpose: the pipeline of escapes.
 Elements: board columns **Draft → Request sent → Provider confirmed**; each card: merchant, monthly amount at stake, days since request; follow-up nudge after 7 silent days; running "monthly money freed" total (observed amounts only).
 States: empty (points to triage/list), per-card error states.
 
-### 2.7 Cancellation options (per subscription) — P0
+### 2.7 Cancellation options (per subscription) — P0 · **Basic+ only (D5)**
 Purpose: choose the escape route.
 Elements: from the merchant playbook — cancel URL (only if verified) with difficulty meter (1–5 snowflakes), phone if known, and **email draft** path; honest labeling: "This prepares your request — the provider must confirm."
 States: unknown-merchant playbook (draft-only + "help us: how did you cancel?" feedback).
@@ -124,7 +125,7 @@ States: expired-permission (reconnect flow), disconnect confirm.
 Sections:
 - **Profile** — name, email, language. P0.
 - **Notifications** — renewal alerts, price-increase alerts, scan-complete; email now, push P2. P1 (defaults on at P0 without UI).
-- **Plan & billing** — current plan, usage vs limits, upgrade → Stripe checkout, invoices + cancel via Stripe portal. P0.
+- **Plan & billing** — current plan (teaser / Basic / Pro per D5), usage vs limits, upgrade → Stripe checkout (monthly or annual), invoices + cancel via Stripe portal. P0.
 - **Privacy & data** — what we store (and don't), **export my data** (JSON/CSV download), **delete my account** (full derived-data deletion + token revocation, typed confirmation). Export P1, deletion P0 (legal requirement).
 States: each action has confirm + result states.
 

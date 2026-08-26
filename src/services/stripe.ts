@@ -14,16 +14,52 @@ export function stripeClient(): Stripe {
   });
 }
 
+export type PaidPlan = "basic" | "pro";
+export type BillingInterval = "monthly" | "annual";
+
+/**
+ * Price ids per (plan, interval) — decision D5's two-tier structure.
+ * Defaults are the test-mode prices; env vars override for live mode.
+ */
+export function priceId(plan: PaidPlan, interval: BillingInterval): string {
+  const prices: Record<PaidPlan, Record<BillingInterval, string>> = {
+    basic: {
+      monthly: process.env.STRIPE_PRICE_BASIC_MONTHLY ?? "price_1U8a8vG8giGg4s7RLMhJz1mn",
+      annual: process.env.STRIPE_PRICE_BASIC_ANNUAL ?? "price_1U8a8wG8giGg4s7RAtCEpclk",
+    },
+    pro: {
+      monthly:
+        process.env.STRIPE_PRICE_PRO_MONTHLY ??
+        process.env.STRIPE_PRO_PRICE_ID ??
+        "price_1U8XEcG8giGg4s7RBGZc0cqD",
+      annual: process.env.STRIPE_PRICE_PRO_ANNUAL ?? "price_1U8a8xG8giGg4s7RZcVsZhOG",
+    },
+  };
+  const id = prices[plan][interval];
+  if (!id) throw new Error(`No Stripe price configured for ${plan}/${interval}`);
+  return id;
+}
+
 export async function createCheckoutSession(
   stripe: Stripe,
-  input: { userId: string; email: string; customerId?: string | null },
+  input: {
+    userId: string;
+    email: string;
+    customerId?: string | null;
+    plan: PaidPlan;
+    interval: BillingInterval;
+  },
 ): Promise<string> {
   const session = await stripe.checkout.sessions.create({
     mode: "subscription",
-    line_items: [{ price: process.env.STRIPE_PRO_PRICE_ID ?? "", quantity: 1 }],
+    line_items: [{ price: priceId(input.plan, input.interval), quantity: 1 }],
     customer: input.customerId ?? undefined,
     customer_email: input.customerId ? undefined : input.email,
     client_reference_id: input.userId,
+    // The plan rides on both the session and the subscription, so every
+    // later webhook (updated/deleted) knows which tier it concerns.
+    metadata: { plan: input.plan },
+    subscription_data: { metadata: { plan: input.plan } },
     success_url: `${process.env.NEXT_PUBLIC_APP_URL}/checkout/success`,
     cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/pricing`,
   });
@@ -40,9 +76,14 @@ export async function createPortalSession(stripe: Stripe, customerId: string): P
 }
 
 export interface PlanUpdate {
-  plan: "free" | "pro";
+  plan: "teaser" | "basic" | "pro";
   stripeCustomerId?: string | null;
   stripeSubscriptionId?: string | null;
+}
+
+/** The paid plan named in webhook metadata; legacy events default to pro. */
+function paidPlanFromMetadata(metadata: Stripe.Metadata | null | undefined): PaidPlan {
+  return metadata?.plan === "basic" ? "basic" : "pro";
 }
 
 export interface BillingStore {
@@ -96,7 +137,7 @@ export async function processStripeEvent(
       const userId = session.client_reference_id;
       if (!userId) return { handled: false, duplicate: false };
       await store.setPlanByUser(userId, {
-        plan: "pro",
+        plan: paidPlanFromMetadata(session.metadata),
         stripeCustomerId: typeof session.customer === "string" ? session.customer : null,
         stripeSubscriptionId:
           typeof session.subscription === "string" ? session.subscription : null,
@@ -108,7 +149,7 @@ export async function processStripeEvent(
       const customerId =
         typeof subscription.customer === "string" ? subscription.customer : null;
       if (!customerId) return { handled: false, duplicate: false };
-      await store.setPlanByCustomer(customerId, { plan: "free", stripeSubscriptionId: null });
+      await store.setPlanByCustomer(customerId, { plan: "teaser", stripeSubscriptionId: null });
       return { handled: true, duplicate: false };
     }
     case "customer.subscription.updated": {
@@ -117,7 +158,9 @@ export async function processStripeEvent(
         typeof subscription.customer === "string" ? subscription.customer : null;
       if (!customerId) return { handled: false, duplicate: false };
       const active = subscription.status === "active" || subscription.status === "trialing";
-      await store.setPlanByCustomer(customerId, { plan: active ? "pro" : "free" });
+      await store.setPlanByCustomer(customerId, {
+        plan: active ? paidPlanFromMetadata(subscription.metadata) : "teaser",
+      });
       return { handled: true, duplicate: false };
     }
     default:

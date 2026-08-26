@@ -12,6 +12,9 @@ import {
 } from "@/db/schema";
 import { portfolioTotalsByCurrency } from "@/engine/normalize";
 import { minorToMajor } from "@/lib/money";
+import { PLAN_LIMITS } from "@/lib/quota";
+import { userPlan } from "../plan";
+import { redactListForTeaser, unlockedSubscriptionId } from "@/services/redaction";
 
 const cycleSchema = z.enum(["weekly", "monthly", "quarterly", "yearly"]);
 
@@ -58,7 +61,25 @@ export const subscriptionsRouter = router({
             .orderBy(desc(priceChanges.observedAt))
         : [];
 
-    return { subscriptions: rows, totals, recentPriceChanges };
+    // Teaser plan (D5): redact at the API layer — totals, counts, and the
+    // single most expensive confirmed subscription are all that leave the
+    // server; every other row becomes a locked placeholder.
+    const plan = await userPlan(ctx.db, ctx.userId);
+    if (!PLAN_LIMITS[plan].fullResults) {
+      return redactListForTeaser({ subscriptions: rows, totals, recentPriceChanges });
+    }
+
+    return {
+      teaser: false as const,
+      subscriptions: rows,
+      totals,
+      recentPriceChanges,
+      counts: {
+        total: rows.length,
+        confirmed: rows.filter((row) => row.subscription.status === "active").length,
+        possible: rows.filter((row) => row.subscription.status === "possible").length,
+      },
+    };
   }),
 
   /** Full detail for one subscription: merchant, evidence, price history, cancellations. */
@@ -72,6 +93,7 @@ export const subscriptionsRouter = router({
         .limit(1)
     )[0];
     if (!row) throw new TRPCError({ code: "NOT_FOUND" });
+    await assertPlanSeesSubscription(ctx, input.id);
 
     const links = await ctx.db
       .select({ chargeId: subscriptionEvidence.chargeId })
@@ -128,6 +150,7 @@ export const subscriptionsRouter = router({
     .mutation(async ({ ctx, input }) => {
       const { id, ...fields } = input;
       await assertOwnership(ctx, id);
+      await assertPlanSeesSubscription(ctx, id);
       await ctx.db
         .update(subscriptions)
         .set({ ...fields, currency: fields.currency?.toUpperCase() })
@@ -139,6 +162,7 @@ export const subscriptionsRouter = router({
     .input(z.object({ id: z.number().int(), status: z.enum(["active", "ignored"]) }))
     .mutation(async ({ ctx, input }) => {
       await assertOwnership(ctx, input.id);
+      await assertPlanSeesSubscription(ctx, input.id);
       await ctx.db
         .update(subscriptions)
         .set({ status: input.status })
@@ -151,6 +175,7 @@ export const subscriptionsRouter = router({
     .input(z.object({ id: z.number().int() }))
     .query(async ({ ctx, input }) => {
       await assertOwnership(ctx, input.id);
+      await assertPlanSeesSubscription(ctx, input.id);
       const links = await ctx.db
         .select({ chargeId: subscriptionEvidence.chargeId })
         .from(subscriptionEvidence)
@@ -179,6 +204,36 @@ export const subscriptionsRouter = router({
       return rows;
     }),
 });
+
+/**
+ * Teaser users can open (and edit) only their one unlocked subscription —
+ * the same selection the redacted list exposes. Everything else is behind
+ * the paywall, enforced server-side.
+ */
+async function assertPlanSeesSubscription(
+  ctx: { db: typeof import("@/db/client").db; userId: string },
+  subscriptionId: number,
+) {
+  const plan = await userPlan(ctx.db, ctx.userId);
+  if (PLAN_LIMITS[plan].fullResults) return;
+  const rows = await ctx.db
+    .select({
+      id: subscriptions.id,
+      status: subscriptions.status,
+      amountMinor: subscriptions.amountMinor,
+      currency: subscriptions.currency,
+      cycle: subscriptions.cycle,
+    })
+    .from(subscriptions)
+    .where(eq(subscriptions.userId, ctx.userId));
+  const unlockedId = unlockedSubscriptionId(rows.map((r) => ({ subscription: r })));
+  if (subscriptionId !== unlockedId) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "This subscription is locked on the free scan — upgrade to Basic to see everything.",
+    });
+  }
+}
 
 async function assertOwnership(
   ctx: { db: typeof import("@/db/client").db; userId: string },

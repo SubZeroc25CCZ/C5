@@ -35,13 +35,14 @@ describe("stripe webhook processing (§8 P0 — idempotent)", () => {
         client_reference_id: "user_abc",
         customer: "cus_123",
         subscription: "sub_456",
+        metadata: { plan: "basic" },
       }),
     );
     expect(outcome).toEqual({ handled: true, duplicate: false });
     expect(byUser).toEqual([
       {
         userId: "user_abc",
-        update: { plan: "pro", stripeCustomerId: "cus_123", stripeSubscriptionId: "sub_456" },
+        update: { plan: "basic", stripeCustomerId: "cus_123", stripeSubscriptionId: "sub_456" },
       },
     ]);
   });
@@ -66,7 +67,7 @@ describe("stripe webhook processing (§8 P0 — idempotent)", () => {
       event("evt_2", "customer.subscription.deleted", { customer: "cus_123" }),
     );
     expect(byCustomer).toEqual([
-      { customerId: "cus_123", update: { plan: "free", stripeSubscriptionId: null } },
+      { customerId: "cus_123", update: { plan: "teaser", stripeSubscriptionId: null } },
     ]);
   });
 
@@ -74,13 +75,30 @@ describe("stripe webhook processing (§8 P0 — idempotent)", () => {
     const { store, byCustomer } = memoryStore();
     await processStripeEvent(
       store,
-      event("evt_3", "customer.subscription.updated", { customer: "cus_1", status: "active" }),
+      event("evt_3", "customer.subscription.updated", {
+        customer: "cus_1",
+        status: "active",
+        metadata: { plan: "pro" },
+      }),
     );
     await processStripeEvent(
       store,
       event("evt_4", "customer.subscription.updated", { customer: "cus_1", status: "unpaid" }),
     );
-    expect(byCustomer.map((entry) => entry.update.plan)).toEqual(["pro", "free"]);
+    expect(byCustomer.map((entry) => entry.update.plan)).toEqual(["pro", "teaser"]);
+  });
+
+  it("legacy checkout events without plan metadata default to pro", async () => {
+    const { store, byUser } = memoryStore();
+    await processStripeEvent(
+      store,
+      event("evt_legacy", "checkout.session.completed", {
+        client_reference_id: "user_old",
+        customer: "cus_9",
+        subscription: "sub_9",
+      }),
+    );
+    expect(byUser[0]!.update.plan).toBe("pro");
   });
 
   it("records but does not act on unrelated event types", async () => {
