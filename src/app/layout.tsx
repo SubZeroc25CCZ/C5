@@ -72,9 +72,44 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Providers>
             <div className="flex-1">{children}</div>
           </Providers>
-          <footer className="border-t border-line py-6 text-center text-xs text-muted">
-            ❄️ SubZero — your subscriptions, under your control. Read-only email access; bodies are
-            processed in memory and discarded.
+          <footer className="border-t border-line">
+            <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:grid-cols-[1.5fr_1fr_1fr]">
+              <div>
+                <p className="text-sm font-extrabold tracking-tight">❄️ SubZero</p>
+                <p className="mt-2 max-w-xs text-xs leading-relaxed text-muted">
+                  Email-first subscription control. Read-only access; email bodies are processed in
+                  memory and discarded.
+                </p>
+              </div>
+              <nav className="text-xs">
+                <p className="font-semibold">Product</p>
+                <ul className="mt-2 space-y-1.5 text-muted">
+                  <li>
+                    <Link href="/#how" className="hover:text-ink">How it works</Link>
+                  </li>
+                  <li>
+                    <Link href="/pricing" className="hover:text-ink">Pricing</Link>
+                  </li>
+                  <li>
+                    <Link href="/dashboard" className="hover:text-ink">Dashboard</Link>
+                  </li>
+                </ul>
+              </nav>
+              <nav className="text-xs">
+                <p className="font-semibold">Legal</p>
+                <ul className="mt-2 space-y-1.5 text-muted">
+                  <li>
+                    <Link href="/privacy" className="hover:text-ink">Privacy policy</Link>
+                  </li>
+                  <li>
+                    <Link href="/terms" className="hover:text-ink">Terms of service</Link>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+            <div className="border-t border-line py-4 text-center text-xs text-muted">
+              © 2026 SubZero. All rights reserved.
+            </div>
           </footer>
         </body>
       </html>

@@ -24,8 +24,8 @@ export async function createCheckoutSession(
     customer: input.customerId ?? undefined,
     customer_email: input.customerId ? undefined : input.email,
     client_reference_id: input.userId,
-    success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?upgraded=1`,
-    cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`,
+    success_url: `${process.env.NEXT_PUBLIC_APP_URL}/checkout/success`,
+    cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/pricing`,
   });
   if (!session.url) throw new Error("Stripe did not return a checkout URL");
   return session.url;
