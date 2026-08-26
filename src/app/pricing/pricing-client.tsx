@@ -5,14 +5,21 @@ import Link from "next/link";
 import { SignInButton, useAuth } from "@clerk/nextjs";
 import { trpc } from "@/lib/trpc";
 import { Button, cx } from "@/components/ui";
+import { planById, PLANS } from "@/lib/plans";
 
 type PaidPlan = "basic" | "pro";
+
+// Names, prices and bullets come from src/lib/plans.ts — the one place they
+// are allowed to live (D10 A1). These aliases keep the JSX below readable.
+const PRICING: Record<PaidPlan, Record<Interval, string>> = {
+  basic: { monthly: planById("basic").monthly, annual: planById("basic").annual! },
+  pro: { monthly: planById("pro").monthly, annual: planById("pro").annual! },
+};
+const TEASER_FEATURES = planById("teaser").features;
+const BASIC_FEATURES = planById("basic").features;
+const PRO_FEATURES = planById("pro").features;
 type Interval = "monthly" | "annual";
 
-const PRICING: Record<PaidPlan, Record<Interval, string>> = {
-  basic: { monthly: "$4.99", annual: "$49" },
-  pro: { monthly: "$9.99", annual: "$99" },
-};
 
 function Check() {
   return (
@@ -33,26 +40,8 @@ function Check() {
   );
 }
 
-const TEASER_FEATURES = [
-  "Full 24-month inbox scan",
-  "Per-currency monthly + yearly totals",
-  "How many subscriptions we found",
-  "Your most expensive subscription — full detail and evidence",
-];
 
-const BASIC_FEATURES = [
-  "Every subscription, unlocked",
-  "Evidence log + price history for each",
-  "Cancellation drafts, links, and tracking",
-  "Monthly re-scan · 1 inbox",
-];
 
-const PRO_FEATURES = [
-  "Everything in Basic",
-  "Unlimited connected inboxes",
-  "Daily sync — catch new charges fast",
-  "Renewal and price-increase alerts",
-];
 
 export function PricingPlans() {
   const [interval, setInterval] = useState<Interval>("monthly");
@@ -79,7 +68,7 @@ export function PricingPlans() {
         {/* Teaser */}
         <div className="rounded-2xl border border-line bg-surface p-7">
           <h2 className="text-lg font-semibold">Free scan</h2>
-          <p className="tnum mt-2 text-4xl font-extrabold">$0</p>
+          <p className="tnum mt-2 text-4xl font-extrabold">{planById("teaser").monthly}</p>
           <p className="mt-1 text-sm text-muted">see what you&rsquo;re dealing with</p>
           <ul className="mt-6 space-y-2.5 text-sm">
             {TEASER_FEATURES.map((feature) => (

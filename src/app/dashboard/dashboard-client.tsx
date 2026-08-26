@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { trpc } from "@/lib/trpc";
 import { formatMinor, minorToMajor } from "@/lib/money";
+import { CHEAPEST_PAID, TEASER_BOUNDARY } from "@/lib/plans";
 import { normalizedMonthly } from "@/engine/normalize";
 import {
   Badge,
@@ -212,8 +213,9 @@ function TeaserDashboard({
                 {data.lockedRows.length === 1 ? "" : "s"}
               </h3>
               <p className="mx-auto mt-1 max-w-md text-sm text-muted">
-                Basic shows every subscription with evidence and price history, and prepares
-                cancellations for the ones you don&rsquo;t want — from $4.99/month.
+                {CHEAPEST_PAID.name} shows every subscription with evidence and price history,
+                and prepares cancellations for the ones you don&rsquo;t want — from{" "}
+                {CHEAPEST_PAID.monthly}/month.
               </p>
               <div className="mt-4">
                 <LinkButton href="/pricing" className="px-6 py-2.5">
@@ -562,6 +564,11 @@ function InboxPanel({
               SubZero requests <strong>read-only</strong> Gmail access, only searches for receipts,
               and discards email bodies after processing.
             </p>
+          )}
+          {/* D10 A3: say what the free scan does and does not show BEFORE
+              the consent screen, never after it. */}
+          {accounts.length === 0 && plan === "teaser" && (
+            <p className="mt-1.5 max-w-lg text-sm text-muted">{TEASER_BOUNDARY}</p>
           )}
         </div>
         <a href="/api/google/connect">

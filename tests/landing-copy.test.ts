@@ -4,6 +4,7 @@
 
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
+import { planById } from "../src/lib/plans";
 
 /**
  * Comments are stripped before scanning: these rules are about what a
@@ -90,16 +91,21 @@ describe("landing copy — required disclosures", () => {
 });
 
 describe("landing pricing matches the shipped plans (D5/D7)", () => {
-  it("names Basic and Pro at their real prices", () => {
-    expect(all).toContain("$4.99");
-    expect(all).toContain("$9.99");
+  // These used to assert the literal "$4.99" appeared in the landing source.
+  // Since D10 A1 the prices live in src/lib/plans.ts and the page renders
+  // them from there, so a literal in this file would now be the BUG — the
+  // drift the shared module exists to prevent. The check moved up a level:
+  // the module carries the real prices, and the page reads the module
+  // (enforced by tests/plan-consistency.test.ts).
+  it("carries the real D7 prices in the shared module", () => {
+    expect(planById("basic").monthly).toBe("$4.99");
+    expect(planById("basic").annual).toBe("$49");
+    expect(planById("pro").monthly).toBe("$9.99");
+    expect(planById("pro").annual).toBe("$99");
   });
 
-  it("does not invent a price the checkout cannot honour", () => {
-    const prices = new Set(all.match(/\$\d+\.99(?=\D)/g) ?? []);
-    // $4.99 / $9.99 are the plans; the rest are sample subscription amounts
-    // in the mockups, which are clearly labelled as such.
-    expect(prices.has("$4.99")).toBe(true);
-    expect(prices.has("$9.99")).toBe(true);
+  it("renders its pricing strip from the module rather than its own copy", () => {
+    const landing = readFileSync("src/app/landing-sections.tsx", "utf8");
+    expect(landing).toMatch(/PLANS\.map/);
   });
 });

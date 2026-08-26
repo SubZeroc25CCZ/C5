@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useAuth, useClerk } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { useLandingEvents, type LandingEvent } from "./landing-analytics";
+import { isPaid, PLANS, TEASER_BOUNDARY } from "@/lib/plans";
 import { ActionsMock, ConnectMock, GroupingMock, HeroMockup, TimelineMock } from "./landing-mockups";
 
 // Interactive parts of the landing page (conversion brief §B, §D, §G–I).
@@ -99,7 +100,12 @@ export function Hero() {
           </a>
         </div>
 
+        {/* D10 A3: the teaser boundary has to be visible BEFORE anyone
+            grants inbox access, not only on /pricing. */}
         <p className="lp-small mt-5" style={{ color: "var(--lp-text-muted)" }}>
+          {TEASER_BOUNDARY}
+        </p>
+        <p className="lp-small mt-2" style={{ color: "var(--lp-text-muted)" }}>
           Read-only access &middot; No bank connection &middot; Revoke anytime
         </p>
       </div>
@@ -330,11 +336,6 @@ export function PricingStrip() {
     return () => observer.disconnect();
   }, [trackOnce]);
 
-  const tiers = [
-    { name: "Free scan", price: "$0", note: "Your totals and your most expensive subscription, with evidence.", featured: false },
-    { name: "Basic", price: "$4.99", note: "Every subscription unlocked, evidence and price history, cancellation tools.", featured: true },
-    { name: "Pro", price: "$9.99", note: "Unlimited inboxes, daily sync, renewal and price-increase alerts.", featured: false },
-  ];
 
   return (
     <section id="pricing" ref={ref} className="mx-auto max-w-[1200px] px-4 py-20 lg:py-[120px]">
@@ -344,9 +345,9 @@ export function PricingStrip() {
       </p>
 
       <div className="mt-10 grid gap-4 md:grid-cols-3">
-        {tiers.map((tier) => (
+        {PLANS.map((tier) => (
           <div
-            key={tier.name}
+            key={tier.id}
             className="relative p-6"
             style={{
               borderRadius: "var(--lp-radius-card)",
@@ -364,12 +365,12 @@ export function PricingStrip() {
             )}
             <div className="lp-h3">{tier.name}</div>
             <div className="mt-2 text-3xl font-extrabold" style={{ fontVariantNumeric: "tabular-nums" }}>
-              {tier.price}
-              {tier.price !== "$0" && (
+              {tier.monthly}
+              {isPaid(tier) && (
                 <span className="text-base font-medium" style={{ color: "var(--lp-text-muted)" }}>/month</span>
               )}
             </div>
-            <p className="lp-small mt-3" style={{ color: "var(--lp-text-muted)" }}>{tier.note}</p>
+            <p className="lp-small mt-3" style={{ color: "var(--lp-text-muted)" }}>{tier.summary}</p>
           </div>
         ))}
       </div>
