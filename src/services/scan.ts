@@ -13,6 +13,7 @@ import { processBatch, type PipelineLogger, type PipelineStats } from "@/ingesti
 import { ClaudeExtractionModel, type ExtractionModel } from "@/ingestion/stage2-extractor";
 import { seedAsRecords } from "@/merchants/seed";
 import { syncSubscriptionsForUser, type SyncResult } from "./subscription-sync";
+import { track } from "./analytics";
 
 export interface ScanOutcome {
   pipeline: PipelineStats;
@@ -66,6 +67,8 @@ export async function runScan(
       ? buildBackfillQueries(domains)
       : buildDeltaQueries(domains, sinceDays);
 
+  await track(db, options.userId, "scan_started");
+
   const ids = await listCandidateIds(accessToken, queries);
 
   // Skip messages already processed — whatever their outcome. The
@@ -105,12 +108,16 @@ export async function runScan(
   }
 
   const logger = options.logger ?? structuredLogger;
+  // D6 aggregator watch (§3.2): a storefront receipt that split into
+  // per-service charges carries a "#n" suffix on its message ref.
+  let splitCharges = 0;
   const pipeline = await processBatch(candidates, {
     matcher,
     model: options.model ?? new ClaudeExtractionModel(),
     logger,
     sink: {
       save: async (charge) => {
+        if (charge.messageId.includes("#")) splitCharges += 1;
         await db
           .insert(charges)
           .values({
@@ -139,12 +146,18 @@ export async function runScan(
       .onConflictDoNothing();
   }
 
+  if (splitCharges > 0) {
+    await track(db, options.userId, "aggregator_split", splitCharges);
+  }
+
   const sync = await syncSubscriptionsForUser(db, options.userId);
 
   await db
     .update(emailAccounts)
     .set({ lastSyncedAt: new Date() })
     .where(eq(emailAccounts.id, account.id));
+
+  await track(db, options.userId, "scan_completed", batchIds.length);
 
   return {
     pipeline,

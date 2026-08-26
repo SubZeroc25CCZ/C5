@@ -5,6 +5,7 @@ import { charges } from "@/db/schema";
 import { syncSubscriptionsForUser } from "@/services/subscription-sync";
 import { userPlan } from "../plan";
 import { PLAN_LIMITS } from "@/lib/quota";
+import { track } from "@/services/analytics";
 
 // The needs-review queue (§5.2): Stage 2 extractions below the auto-accept
 // threshold. Approving marks the charge reviewed and re-runs detection;
@@ -51,6 +52,7 @@ export const reviewRouter = router({
           currency: input.currency?.toUpperCase(),
         })
         .where(and(eq(charges.id, input.chargeId), eq(charges.userId, ctx.userId)));
+      await track(ctx.db, ctx.userId, "review_accepted");
       const sync = await syncSubscriptionsForUser(ctx.db, ctx.userId);
       return { ok: true, sync };
     }),
@@ -61,6 +63,7 @@ export const reviewRouter = router({
       await ctx.db
         .delete(charges)
         .where(and(eq(charges.id, input.chargeId), eq(charges.userId, ctx.userId)));
+      await track(ctx.db, ctx.userId, "review_rejected");
       return { ok: true };
     }),
 });

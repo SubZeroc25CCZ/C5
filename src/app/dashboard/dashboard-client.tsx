@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { trpc } from "@/lib/trpc";
 import { formatMinor, minorToMajor } from "@/lib/money";
@@ -18,6 +18,7 @@ import {
   cx,
 } from "@/components/ui";
 import { TriageWizard } from "./triage-wizard";
+import { PostScanSurvey } from "./post-scan-survey";
 import {
   CardsIcon,
   SearchIcon,
@@ -107,6 +108,18 @@ export function DashboardClient() {
   const accounts = accountsQuery.data ?? [];
   const plan = planQuery.data?.plan ?? "teaser";
 
+  // Funnel step (§3.1): results actually seen, recorded once per mount when
+  // a scan has produced something to look at.
+  const hasResults = data ? (data.teaser ? data.counts.total > 0 : data.subscriptions.length > 0) : false;
+  const trackEvent = trpc.research.event.useMutation();
+  const resultsSeen = useRef(false);
+  useEffect(() => {
+    if (hasResults && !resultsSeen.current) {
+      resultsSeen.current = true;
+      trackEvent.mutate({ name: "results_viewed" });
+    }
+  }, [hasResults, trackEvent]);
+
   if (data?.teaser) {
     return (
       <TeaserDashboard
@@ -174,6 +187,8 @@ function TeaserDashboard({
           />
         </div>
       )}
+
+      {hasResults && <PostScanSurvey />}
 
       <InboxPanel accounts={accounts} plan="teaser" scanState={scanState} onScan={onScan} />
 
@@ -342,6 +357,8 @@ function FullDashboard({
           />
         </div>
       )}
+
+      {rows.length > 0 && <PostScanSurvey />}
 
       <InboxPanel accounts={accounts} plan={plan} scanState={scanState} onScan={onScan} />
 

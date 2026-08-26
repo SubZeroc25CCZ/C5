@@ -11,6 +11,7 @@ import {
 } from "@/services/cancellation-email";
 import { formatMinor } from "@/lib/money";
 import { assertCancellationAccess, userPlan } from "../plan";
+import { track } from "@/services/analytics";
 
 // "Prepare cancellation email" flow (§8 P0). The ledger is explicit:
 // draft → request_sent → provider_confirmed. Only provider_confirmed is
@@ -128,6 +129,7 @@ export const cancellationsRouter = router({
         })
         .returning({ id: cancellationRequests.id });
 
+      await track(ctx.db, ctx.userId, "cancellation_drafted");
       return { requestId: inserted[0]!.id, draft, ...playbook };
     }),
 
@@ -168,6 +170,7 @@ export const cancellationsRouter = router({
             eq(subscriptions.userId, ctx.userId),
           ),
         );
+      await track(ctx.db, ctx.userId, "cancellation_sent");
       return { ok: true, statusLabel: statusLabel("request_sent") };
     }),
 
@@ -196,6 +199,8 @@ export const cancellationsRouter = router({
             eq(subscriptions.userId, ctx.userId),
           ),
         );
+      // The north star (§3.3): the only event that proves SubZero worked.
+      await track(ctx.db, ctx.userId, "cancellation_confirmed");
       return { ok: true, statusLabel: statusLabel("provider_confirmed") };
     }),
 });

@@ -15,6 +15,7 @@ import { minorToMajor } from "@/lib/money";
 import { isAggregatorMerchant } from "@/lib/aggregators";
 import { PLAN_LIMITS } from "@/lib/quota";
 import { userPlan } from "../plan";
+import { track } from "@/services/analytics";
 import { redactListForTeaser, unlockedSubscriptionId } from "@/services/redaction";
 
 const cycleSchema = z.enum(["weekly", "monthly", "quarterly", "yearly"]);
@@ -193,6 +194,8 @@ export const subscriptionsRouter = router({
         .update(subscriptions)
         .set({ ...fields, currency: fields.currency?.toUpperCase() })
         .where(and(eq(subscriptions.id, id), eq(subscriptions.userId, ctx.userId)));
+      // Accuracy signal (§3.2): every correction is extraction feedback.
+      await track(ctx.db, ctx.userId, "subscription_corrected");
       return { ok: true };
     }),
 
@@ -205,6 +208,9 @@ export const subscriptionsRouter = router({
         .update(subscriptions)
         .set({ status: input.status })
         .where(and(eq(subscriptions.id, input.id), eq(subscriptions.userId, ctx.userId)));
+      if (input.status === "ignored") {
+        await track(ctx.db, ctx.userId, "subscription_ignored");
+      }
       return { ok: true };
     }),
 
