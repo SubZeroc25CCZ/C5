@@ -46,5 +46,12 @@ export function createRateLimiter(options: RateLimitOptions) {
 /** Per-user limits for endpoints that spend Claude tokens. */
 export const aiEndpointLimiter = createRateLimiter({ limit: 20, windowMs: 60_000 });
 
-/** Per-user limit on triggering full inbox scans. */
+/** Per-user limit on STARTING inbox scans. */
 export const scanLimiter = createRateLimiter({ limit: 3, windowMs: 60 * 60_000 });
+
+/**
+ * Cost ceiling on scan continuations (batches of an in-progress scan).
+ * A full 500-message backfill is 20 batches; 120/hour leaves headroom
+ * without letting a misbehaving client spend unbounded AI tokens.
+ */
+export const scanContinuationLimiter = createRateLimiter({ limit: 120, windowMs: 60 * 60_000 });

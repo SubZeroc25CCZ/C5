@@ -7,6 +7,7 @@ import type { Database } from "@/db/client";
 import {
   charges,
   priceChanges,
+  scannedMessages,
   subscriptionEvidence,
   subscriptions,
 } from "@/db/schema";
@@ -217,4 +218,5 @@ export async function deleteDerivedDataForUser(db: Database, userId: string): Pr
   }
   await db.delete(subscriptions).where(eq(subscriptions.userId, userId));
   await db.delete(charges).where(eq(charges.userId, userId));
+  await db.delete(scannedMessages).where(eq(scannedMessages.userId, userId));
 }

@@ -208,6 +208,20 @@ export const spendSnapshots = sqliteTable(
   (t) => [uniqueIndex("spend_snapshots_user_month_idx").on(t.userId, t.month)],
 );
 
+// Every message the pipeline has processed for a user, whatever the
+// outcome — persisted, discarded, or one-time purchase. This is what makes
+// batched scans terminate: without it, discarded candidates would be
+// re-listed and re-processed (and re-billed) on every batch.
+export const scannedMessages = sqliteTable(
+  "scanned_messages",
+  {
+    userId: text("user_id").notNull(),
+    messageRef: text("message_ref").notNull(),
+    scannedAt: integer("scanned_at", { mode: "timestamp_ms" }).default(now).notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.messageRef] })],
+);
+
 // Stripe webhook idempotency ledger: an event id lands here exactly once.
 export const webhookEvents = sqliteTable("webhook_events", {
   id: text("id").primaryKey(), // Stripe event id

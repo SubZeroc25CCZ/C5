@@ -4,7 +4,7 @@ import { TRPCError } from "@trpc/server";
 import { protectedProcedure, router } from "../trpc";
 import { emailAccounts, profiles } from "@/db/schema";
 import { canConnectInbox, nextScanAt, scanDue, type Plan } from "@/lib/quota";
-import { scanLimiter } from "@/lib/rate-limit";
+import { scanContinuationLimiter, scanLimiter } from "@/lib/rate-limit";
 import { runScan } from "@/services/scan";
 import { deleteDerivedDataForUser } from "@/services/subscription-sync";
 
@@ -55,7 +55,33 @@ export const emailAccountsRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      if (!input.continuation) {
+      const account = (
+        await ctx.db
+          .select({ lastSyncedAt: emailAccounts.lastSyncedAt })
+          .from(emailAccounts)
+          .where(and(eq(emailAccounts.id, input.accountId), eq(emailAccounts.userId, ctx.userId)))
+          .limit(1)
+      )[0];
+      if (!account) throw new TRPCError({ code: "NOT_FOUND" });
+
+      // The continuation flag is client-supplied, so it is only honored with
+      // server-side proof a scan is actually in progress: a batch updated
+      // lastSyncedAt within the last 15 minutes. Anything else is treated
+      // as a fresh scan and pays the full rate limit + cadence gate.
+      const genuineContinuation =
+        !!input.continuation &&
+        !!account.lastSyncedAt &&
+        Date.now() - account.lastSyncedAt.getTime() < 15 * 60_000;
+
+      if (genuineContinuation) {
+        const rate = await scanContinuationLimiter(`scan-cont:${ctx.userId}`);
+        if (!rate.allowed) {
+          throw new TRPCError({
+            code: "TOO_MANY_REQUESTS",
+            message: "Scan batch limit reached — try again later.",
+          });
+        }
+      } else {
         const rate = await scanLimiter(`scan:${ctx.userId}`);
         if (!rate.allowed) {
           throw new TRPCError({
@@ -64,17 +90,10 @@ export const emailAccountsRouter = router({
           });
         }
       }
+
       const plan = await userPlan(ctx.db, ctx.userId);
-      if (input.mode === "delta" && !input.continuation) {
+      if (input.mode === "delta" && !genuineContinuation) {
         // Manual re-scans obey the plan cadence: free monthly, Pro daily (D2).
-        const account = (
-          await ctx.db
-            .select({ lastSyncedAt: emailAccounts.lastSyncedAt })
-            .from(emailAccounts)
-            .where(and(eq(emailAccounts.id, input.accountId), eq(emailAccounts.userId, ctx.userId)))
-            .limit(1)
-        )[0];
-        if (!account) throw new TRPCError({ code: "NOT_FOUND" });
         if (!scanDue(plan, account.lastSyncedAt)) {
           const next = nextScanAt(plan, account.lastSyncedAt);
           throw new TRPCError({
