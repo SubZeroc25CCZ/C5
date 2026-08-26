@@ -288,3 +288,54 @@ export const demoAccounts = [
     lastSyncedAt: daysAgo(0.05),
   },
 ];
+
+/**
+ * Detail payload for /dev/preview/subscription: the price-changed
+ * subscription with its full evidence timeline, in the shape
+ * subscriptions.get returns. Evidence is rebuilt from the same receipts the
+ * pipeline detected it from, pseudonymized the same way.
+ */
+export function demoDetail() {
+  const row = demoList.subscriptions.find(
+    (entry) => entry.subscription.name === "Tune Box",
+  );
+  if (!row) throw new Error("Tune Box missing from the demo scan");
+  const receipts = RECEIPTS.filter((receipt) => receipt.from.startsWith("Spotify"));
+  const evidence = receipts
+    .map((receipt, index) => ({
+      id: 100 + index,
+      userId: "demo",
+      merchantId: row.subscription.merchantId,
+      merchantName: "Tune Box",
+      amountMinor: majorToMinor(receipt.amount, receipt.currency),
+      currency: receipt.currency,
+      chargedAt: daysAgo(receipt.chargedAtDaysAgo),
+      sourceMessageRef: `demo-msg-${index}`,
+      sourceSubject: `Your Tune Box receipt — $${receipt.amount.toFixed(2)}`,
+      extractionConfidence: null,
+      reviewedAt: null,
+      detectedFrom: "email" as const,
+      createdAt: daysAgo(receipt.chargedAtDaysAgo),
+    }))
+    .sort((a, b) => b.chargedAt.getTime() - a.chargedAt.getTime());
+  return {
+    subscription: row.subscription,
+    merchant: row.merchant,
+    evidence,
+    priceChanges: demoList.recentPriceChanges.filter(
+      (change) => change.subscriptionId === row.subscription.id,
+    ),
+    cancellationRequests: [],
+  };
+}
+
+// The zero-results payload: same shape, nothing found. Paired with a synced
+// account it renders "an empty result is a real result"; with no account it
+// renders the first-visit state.
+export const emptyList: FullListPayload = {
+  teaser: false,
+  subscriptions: [],
+  totals: [],
+  recentPriceChanges: [],
+  counts: { total: 0, confirmed: 0, possible: 0 },
+};

@@ -143,38 +143,10 @@ export function Stat({
   );
 }
 
-/** Merchant logo via favicon service, falling back to an initial tile. */
-export function MerchantLogo({
-  name,
-  domain,
-  size = 36,
-}: {
-  name: string;
-  domain?: string | null;
-  size?: number;
-}) {
-  if (domain) {
-    return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
-        src={`https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=64`}
-        alt=""
-        width={size}
-        height={size}
-        className="rounded-lg bg-surface-2 object-contain p-1"
-        loading="lazy"
-      />
-    );
-  }
-  return (
-    <div
-      style={{ width: size, height: size }}
-      className="flex items-center justify-center rounded-lg bg-frost-soft text-sm font-bold text-frost"
-    >
-      {name.slice(0, 1).toUpperCase()}
-    </div>
-  );
-}
+// Lives in its own client module (it holds failure state so a broken
+// favicon degrades to the initial tile); re-exported here so every consumer
+// keeps importing the whole kit from one place.
+export { MerchantLogo } from "./merchant-logo";
 
 /** Cancellation difficulty, 1 (easy) – 5 (hostile). */
 export function DifficultyMeter({ level }: { level: number }) {

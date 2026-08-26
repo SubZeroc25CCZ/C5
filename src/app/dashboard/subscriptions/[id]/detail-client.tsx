@@ -32,7 +32,21 @@ export function SubscriptionDetailClient({ id }: { id: number }) {
   const [editing, setEditing] = useState(false);
 
   if (detail.isLoading) {
-    return <main className="mx-auto max-w-4xl px-4 py-8 text-muted">Loading…</main>;
+    return (
+      <main className="mx-auto max-w-4xl px-4 py-8" aria-busy="true" aria-label="Loading subscription">
+        <div className="h-4 w-32 animate-pulse rounded bg-surface-2" />
+        <div className="mt-4 flex items-center gap-4">
+          <div className="h-[52px] w-[52px] animate-pulse rounded-lg bg-surface-2" />
+          <div className="flex-1">
+            <div className="h-7 w-48 animate-pulse rounded bg-surface-2" />
+            <div className="mt-2 h-4 w-32 animate-pulse rounded bg-surface-2" />
+          </div>
+          <div className="h-10 w-28 animate-pulse rounded bg-surface-2" />
+        </div>
+        <div className="mt-6 h-44 animate-pulse rounded-xl bg-surface-2" />
+        <div className="mt-6 h-64 animate-pulse rounded-xl bg-surface-2" />
+      </main>
+    );
   }
   if (detail.error?.data?.code === "FORBIDDEN") {
     // Teaser plan (D5): this subscription is locked server-side.
@@ -124,7 +138,7 @@ export function SubscriptionDetailClient({ id }: { id: number }) {
           {/* D6: never a cycle claim for unconfirmed recurrence or storefronts. */}
           {aggregator || sub.status === "possible" ? (
             <>
-              <div className="text-2xl font-bold">
+              <div className="text-3xl font-bold sm:text-4xl">
                 {formatMinor(observedTotalMinor, sub.currency)}
               </div>
               <div className="text-sm text-muted">
@@ -133,7 +147,9 @@ export function SubscriptionDetailClient({ id }: { id: number }) {
             </>
           ) : (
             <>
-              <div className="text-2xl font-bold">{formatMinor(sub.amountMinor, sub.currency)}</div>
+              <div className="text-3xl font-bold sm:text-4xl">
+                {formatMinor(sub.amountMinor, sub.currency)}
+              </div>
               <div className="text-sm text-muted">per {sub.cycle.replace("ly", "")}</div>
             </>
           )}
@@ -320,7 +336,10 @@ export function SubscriptionDetailClient({ id }: { id: number }) {
           extracted amount — never the email body.
         </p>
         {timeline.length === 0 ? (
-          <p className="mt-3 text-sm text-muted">No source emails recorded for this entry.</p>
+          <p className="mt-3 text-sm text-muted">
+            No source emails recorded for this entry — it was added manually or its receipts
+            predate the connected inbox. A re-scan attaches any receipts that arrive later.
+          </p>
         ) : (
           <ol className="mt-4 space-y-0 border-l-2 border-line pl-4">
             {timeline.map((item, index) => (
