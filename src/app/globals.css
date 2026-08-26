@@ -41,6 +41,29 @@
   }
 }
 
+/* ── Depth system (D10 B5): exactly three elevations. ─────────────────────
+   1 — resting card (border + whisper of shadow); 2 — raised: hover states
+   and the sticky header; 3 — overlay: modals over a scrim. Nothing floats
+   without a reason, and nothing invents a fourth level. Dark mode needs
+   deeper shadows to read at all against the navy. */
+:root {
+  --elev-1: 0 1px 2px rgb(0 0 0 / 0.04);
+  --elev-2: 0 4px 16px rgb(15 32 58 / 0.10);
+  --elev-3: 0 24px 64px rgb(10 20 40 / 0.28);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --elev-1: 0 1px 2px rgb(0 0 0 / 0.3);
+    --elev-2: 0 4px 16px rgb(0 0 0 / 0.4);
+    --elev-3: 0 24px 64px rgb(0 0 0 / 0.6);
+  }
+}
+
+/* Contrast floor (D10 B9), audited 2026-08: every ink-on-ground pair above
+   clears WCAG AA — the lowest are muted-on-surface-2 (4.88 light) and
+   ok-on-ok-bg (4.84 light); dark mode's lowest is 5.62. When changing any
+   ink or ground here, re-run the audit before shipping. */
+
 @theme inline {
   --color-bg: var(--bg);
   --color-surface: var(--surface);
@@ -58,6 +81,9 @@
   --color-warn-bg: var(--warn-bg);
   --color-danger: var(--danger);
   --color-danger-bg: var(--danger-bg);
+  --shadow-elev-1: var(--elev-1);
+  --shadow-elev-2: var(--elev-2);
+  --shadow-elev-3: var(--elev-3);
   --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-display: var(--font-sora), var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
 }

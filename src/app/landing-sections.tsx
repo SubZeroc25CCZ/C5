@@ -194,8 +194,10 @@ export function HowItWorks() {
                     stepRefs.current[index] = node;
                   }}
                   data-step={index}
+                  // 0.78, not lower: the dim state must still clear WCAG AA
+                  // for the muted copy it contains (D10 B9).
                   className="transition-opacity duration-[350ms]"
-                  style={{ opacity: active === index ? 1 : 0.55 }}
+                  style={{ opacity: active === index ? 1 : 0.78 }}
                 >
                   <div className="flex items-center gap-3">
                     <span
@@ -461,6 +463,10 @@ export function StickyCta() {
         background: "linear-gradient(to top, var(--lp-bg) 65%, transparent)",
       }}
       aria-hidden={!visible}
+      // Focus must go where sight goes: while hidden the button would still
+      // be tab-reachable, so the subtree is inert too (Lighthouse
+      // aria-hidden-focus).
+      inert={!visible}
     >
       <div className={visible ? "" : "pointer-events-none"}>
         <PrimaryCta event="hero_cta_clicked" className="w-full">

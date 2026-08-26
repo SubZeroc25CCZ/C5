@@ -61,7 +61,7 @@ export function Card({
   return (
     <div
       className={cx(
-        "rounded-xl border border-line bg-surface p-5 shadow-[0_1px_2px_rgb(0_0_0/0.04)]",
+        "rounded-xl border border-line bg-surface p-5 shadow-elev-1",
         className,
       )}
     >

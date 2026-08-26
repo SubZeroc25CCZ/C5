@@ -203,7 +203,13 @@ function TeaserDashboard({
               // side at standard size (never merged — §10.1).
               hero={index === 0}
               label={`Monthly · ${total.currency}`}
-              value={money(total.monthly, total.currency)}
+              value={
+                index === 0 ? (
+                  <HeroMoney amount={total.monthly} currency={total.currency} />
+                ) : (
+                  money(total.monthly, total.currency)
+                )
+              }
               hint={`${money(total.yearly, total.currency)} / year`}
             />
           ))}
@@ -388,7 +394,13 @@ function FullDashboard({
               // Money is the hero: one number leads the screen (D10 B2).
               hero={index === 0}
               label={`Monthly · ${total.currency}`}
-              value={money(total.monthly, total.currency)}
+              value={
+                index === 0 ? (
+                  <HeroMoney amount={total.monthly} currency={total.currency} />
+                ) : (
+                  money(total.monthly, total.currency)
+                )
+              }
               hint={`${money(total.yearly, total.currency)} / year · ${total.activeCount} active`}
             />
           ))}
@@ -463,6 +475,48 @@ function FullDashboard({
   );
 }
 
+/**
+ * One-time count-up for the hero number (D10 B4): the monthly total sweeps
+ * to its value on first paint — money is the hero, so the money gets the
+ * only entrance. Runs once per mount, never on refetches, and collapses to
+ * the final value under prefers-reduced-motion.
+ */
+function useCountUpOnce(target: number, durationMs = 900): number {
+  const [value, setValue] = useState(0);
+  const played = useRef(false);
+  useEffect(() => {
+    if (played.current) {
+      setValue(target);
+      return;
+    }
+    played.current = true;
+    if (
+      typeof window === "undefined" ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      setValue(target);
+      return;
+    }
+    let raf = 0;
+    const start = performance.now();
+    const tick = (now: number) => {
+      const progress = Math.min(1, (now - start) / durationMs);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setValue(target * eased);
+      if (progress < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target, durationMs]);
+  return value;
+}
+
+/** The hero stat's value: counted up once, tabular so nothing jitters. */
+function HeroMoney({ amount, currency }: { amount: number; currency: string }) {
+  const animated = useCountUpOnce(amount);
+  return <>{money(animated, currency)}</>;
+}
+
 /** Loading is a skeleton of the real layout, never a spinner (design law 4). */
 function DashboardSkeleton() {
   return (
@@ -509,7 +563,7 @@ function SubscriptionCard({ row }: { row: Row }) {
   if (row.aggregator) {
     return (
       <Link href={`/dashboard/subscriptions/${sub.id}`} className="group">
-        <Card className="h-full border-dashed transition-shadow group-hover:shadow-md">
+        <Card className="h-full border-dashed transition-shadow group-hover:shadow-elev-2">
           <div className="flex items-start justify-between gap-2">
             <div className="flex items-center gap-3">
               <MerchantLogo name={sub.name} domain={domain} />
@@ -539,7 +593,7 @@ function SubscriptionCard({ row }: { row: Row }) {
 
   return (
     <Link href={`/dashboard/subscriptions/${sub.id}`} className="group">
-      <Card className="h-full transition-shadow group-hover:shadow-md">
+      <Card className="h-full transition-shadow group-hover:shadow-elev-2">
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-3">
             <MerchantLogo name={sub.name} domain={domain} />

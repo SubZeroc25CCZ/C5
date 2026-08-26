@@ -66,7 +66,7 @@ function Icon({ path }: { path: string }) {
 
 export default function LandingPage() {
   return (
-    <div className="lp">
+    <main className="lp">
       <Hero />
 
       {/* §C — problem strip. Minor tier of the vertical rhythm (D10 B3):
@@ -141,6 +141,6 @@ export default function LandingPage() {
       {/* Sentinel: the sticky mobile CTA hides once this is on screen. */}
       <div id="lp-end" aria-hidden />
       <StickyCta />
-    </div>
+    </main>
   );
 }

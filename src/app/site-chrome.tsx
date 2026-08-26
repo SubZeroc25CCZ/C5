@@ -67,7 +67,7 @@ export function SiteHeader() {
 
   if (!isLanding) {
     return (
-      <header className="sticky top-0 z-10 border-b border-line bg-surface/90 backdrop-blur">
+      <header className="sticky top-0 z-10 border-b border-line bg-surface/90 shadow-elev-1 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <Wordmark dark={false} />
           <nav className="flex items-center gap-4">
@@ -175,7 +175,7 @@ export function SiteFooter() {
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className={dark ? "hover:underline" : "text-muted hover:text-ink"}
+                    className={"inline-block py-1 " + (dark ? "hover:underline" : "text-muted hover:text-ink")}
                     style={dark ? { color: "var(--lp-text-muted)" } : undefined}
                   >
                     {link.label}
