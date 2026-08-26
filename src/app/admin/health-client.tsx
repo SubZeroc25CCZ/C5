@@ -24,6 +24,14 @@ export function HealthClient() {
   if (health.error) return <p className="text-sm text-danger">{health.error.message}</p>;
   const data = health.data;
 
+  // Scale the bars to the largest step, and say so when a step reads higher
+  // than the one before it — that means users predate the earlier event
+  // rather than that the funnel grew.
+  const funnelTop = Math.max(...data.funnel.map((entry) => entry.users), 0);
+  const hasBackfillGap = data.funnel.some(
+    (entry, index) => index > 0 && entry.users > (data.funnel[index - 1]?.users ?? 0),
+  );
+
   const surveyTotal = Object.entries(data.survey)
     .filter(([key]) => key !== "dismissed")
     .reduce((sum, [, value]) => sum + value, 0);
@@ -92,11 +100,18 @@ export function HealthClient() {
               key={entry.step}
               step={entry.step}
               users={entry.users}
-              top={data.funnel[0]?.users ?? 0}
+              top={funnelTop}
               previous={index === 0 ? null : (data.funnel[index - 1]?.users ?? null)}
             />
           ))}
         </div>
+        {hasBackfillGap && (
+          <p className="mt-3 text-xs text-warn">
+            A step reads higher than the one before it, which a funnel can&rsquo;t really do: those
+            users signed up before that earlier event existed, so their first steps were never
+            recorded. Read the funnel from the beta cohort onward, not from these totals.
+          </p>
+        )}
       </Card>
 
       <div className="grid gap-6 lg:grid-cols-2">

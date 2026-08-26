@@ -69,9 +69,14 @@ export function AdminTable({
 }
 
 /**
- * One funnel step. The bar is proportional to the FIRST step, so the shape
- * of the drop-off is the thing you see — the research kit calls this the
- * highest-value number in the business.
+ * One funnel step.
+ *
+ * The bar is scaled to the LARGEST step, not the first. A funnel normally
+ * only shrinks, so those are the same number — but users who signed up
+ * before an event existed never emitted the earlier steps, which makes a
+ * later step legitimately larger. Scaling to the first step would then
+ * render a bar wider than its track. Scaling to the largest keeps every bar
+ * truthful without inventing the missing history.
  */
 export function FunnelRow({
   step,
@@ -95,7 +100,12 @@ export function FunnelRow({
         <div className="h-full rounded-md bg-frost" style={{ width: `${width}%` }} />
       </div>
       <div className="tnum w-12 shrink-0 text-right text-sm font-semibold">{users}</div>
-      <div className="tnum w-20 shrink-0 text-right text-xs text-muted">
+      <div
+        className={cx(
+          "tnum w-20 shrink-0 text-right text-xs",
+          conversion !== null && conversion > 100 ? "text-warn" : "text-muted",
+        )}
+      >
         {conversion === null ? "—" : `${conversion}% of prev`}
       </div>
     </div>
