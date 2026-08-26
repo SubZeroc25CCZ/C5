@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { trpc } from "@/lib/trpc";
 import { formatMinor, majorToMinor, minorToMajor } from "@/lib/money";
+import { gmailComposeHref, mailtoHref } from "@/lib/mail-links";
 import {
   Badge,
   Button,
@@ -166,16 +167,43 @@ export function SubscriptionDetailClient({ id }: { id: number }) {
                     {`Subject: ${latestRequest.draftSubject}\n\n${latestRequest.draftBody}`}
                   </pre>
                   <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <LinkButton
+                      href={mailtoHref({
+                        to: merchant?.cancelEmail,
+                        subject: latestRequest.draftSubject ?? "",
+                        body: latestRequest.draftBody ?? "",
+                      })}
+                    >
+                      Open in email app
+                    </LinkButton>
+                    <LinkButton
+                      variant="secondary"
+                      href={gmailComposeHref({
+                        to: merchant?.cancelEmail,
+                        subject: latestRequest.draftSubject ?? "",
+                        body: latestRequest.draftBody ?? "",
+                      })}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Open in Gmail
+                    </LinkButton>
                     <Button
+                      variant="ghost"
                       onClick={() => markSent.mutate({ requestId: latestRequest.id })}
                       disabled={markSent.isPending}
                     >
-                      I sent the request
+                      I sent it ✓
                     </Button>
-                    <span className="text-xs text-muted">
-                      Copy the draft into an email from your own address first.
-                    </span>
                   </div>
+                  <p className="mt-2 text-xs text-muted">
+                    It sends from your own address — merchants accept that. Edit before sending in
+                    the{" "}
+                    <Link href="/dashboard/cancellations" className="font-medium text-frost">
+                      cancellation center
+                    </Link>
+                    .
+                  </p>
                 </>
               )}
               {latestRequest.status === "request_sent" && (

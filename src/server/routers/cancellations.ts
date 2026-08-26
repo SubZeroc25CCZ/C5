@@ -18,11 +18,33 @@ import { formatMinor } from "@/lib/money";
 export const cancellationsRouter = router({
   list: protectedProcedure.query(async ({ ctx }) => {
     const rows = await ctx.db
-      .select()
+      .select({
+        request: cancellationRequests,
+        subscription: {
+          id: subscriptions.id,
+          name: subscriptions.name,
+          amountMinor: subscriptions.amountMinor,
+          currency: subscriptions.currency,
+          cycle: subscriptions.cycle,
+        },
+        merchant: {
+          cancelUrl: merchants.cancelUrl,
+          cancelEmail: merchants.cancelEmail,
+          difficulty: merchants.difficulty,
+          domains: merchants.domains,
+        },
+      })
       .from(cancellationRequests)
+      .innerJoin(subscriptions, eq(cancellationRequests.subscriptionId, subscriptions.id))
+      .leftJoin(merchants, eq(subscriptions.merchantId, merchants.id))
       .where(eq(cancellationRequests.userId, ctx.userId))
       .orderBy(desc(cancellationRequests.createdAt));
-    return rows.map((row) => ({ ...row, statusLabel: statusLabel(row.status) }));
+    return rows.map((row) => ({
+      ...row.request,
+      statusLabel: statusLabel(row.request.status),
+      subscription: row.subscription,
+      merchant: row.merchant,
+    }));
   }),
 
   /** Draft the escape path for one subscription: playbook + email draft. */
@@ -80,9 +102,19 @@ export const cancellationsRouter = router({
       };
     }),
 
-  /** User says they sent the request. Subscription is NOT "cancelled" yet. */
+  /**
+   * User says they sent the request. Subscription is NOT "cancelled" yet.
+   * Optionally persists the edited draft, so the ledger records what was
+   * actually sent rather than the original template.
+   */
   markSent: protectedProcedure
-    .input(z.object({ requestId: z.number().int() }))
+    .input(
+      z.object({
+        requestId: z.number().int(),
+        draftSubject: z.string().max(500).optional(),
+        draftBody: z.string().max(10_000).optional(),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
       const request = await ownedRequest(ctx, input.requestId);
       if (!canTransition(request.status, "request_sent")) {
@@ -90,7 +122,12 @@ export const cancellationsRouter = router({
       }
       await ctx.db
         .update(cancellationRequests)
-        .set({ status: "request_sent", sentAt: new Date() })
+        .set({
+          status: "request_sent",
+          sentAt: new Date(),
+          ...(input.draftSubject ? { draftSubject: input.draftSubject } : {}),
+          ...(input.draftBody ? { draftBody: input.draftBody } : {}),
+        })
         .where(eq(cancellationRequests.id, input.requestId));
       await ctx.db
         .update(subscriptions)

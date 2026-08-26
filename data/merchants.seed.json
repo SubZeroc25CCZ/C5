@@ -8,7 +8,7 @@
       ],
       "category": "streaming",
       "cancel_method": "url",
-      "cancel_url": null,
+      "cancel_url": "https://www.netflix.com/cancelplan",
       "difficulty": 1
     },
     {
@@ -18,8 +18,8 @@
       ],
       "category": "music",
       "cancel_method": "url",
-      "cancel_url": null,
-      "difficulty": 1
+      "cancel_url": "https://www.spotify.com/account/subscription/",
+      "difficulty": 2
     },
     {
       "name": "YouTube Premium",
@@ -29,8 +29,8 @@
       ],
       "category": "streaming",
       "cancel_method": "url",
-      "cancel_url": null,
-      "difficulty": 1
+      "cancel_url": "https://www.youtube.com/paid_memberships",
+      "difficulty": 2
     },
     {
       "name": "Disney+",
@@ -40,7 +40,7 @@
       ],
       "category": "streaming",
       "cancel_method": "url",
-      "cancel_url": null,
+      "cancel_url": "https://www.disneyplus.com/account",
       "difficulty": 2
     },
     {
@@ -53,7 +53,7 @@
       ],
       "category": "shopping",
       "cancel_method": "url",
-      "cancel_url": null,
+      "cancel_url": "https://www.amazon.com/gp/primecentral",
       "difficulty": 3
     },
     {
@@ -65,7 +65,7 @@
       ],
       "category": "platform",
       "cancel_method": "url",
-      "cancel_url": null,
+      "cancel_url": "https://apps.apple.com/account/subscriptions",
       "difficulty": 2
     },
     {
@@ -75,8 +75,8 @@
       ],
       "category": "cloud",
       "cancel_method": "url",
-      "cancel_url": null,
-      "difficulty": 1
+      "cancel_url": "https://one.google.com/settings",
+      "difficulty": 2
     },
     {
       "name": "iCloud+",
@@ -96,7 +96,7 @@
       ],
       "category": "cloud",
       "cancel_method": "url",
-      "cancel_url": null,
+      "cancel_url": "https://www.dropbox.com/account/plan",
       "difficulty": 2
     },
     {
@@ -107,7 +107,7 @@
       ],
       "category": "software",
       "cancel_method": "url",
-      "cancel_url": null,
+      "cancel_url": "https://account.adobe.com/plans",
       "difficulty": 4
     },
     {
@@ -118,7 +118,7 @@
       ],
       "category": "software",
       "cancel_method": "url",
-      "cancel_url": null,
+      "cancel_url": "https://account.microsoft.com/services",
       "difficulty": 2
     },
     {
@@ -170,7 +170,7 @@
       ],
       "category": "software",
       "cancel_method": "url",
-      "cancel_url": null,
+      "cancel_url": "https://zoom.us/billing",
       "difficulty": 2
     },
     {
@@ -191,8 +191,8 @@
       ],
       "category": "ai",
       "cancel_method": "url",
-      "cancel_url": null,
-      "difficulty": 1
+      "cancel_url": "https://claude.ai/settings/billing",
+      "difficulty": 2
     },
     {
       "name": "Midjourney",
@@ -211,7 +211,7 @@
       ],
       "category": "developer",
       "cancel_method": "url",
-      "cancel_url": null,
+      "cancel_url": "https://github.com/settings/billing",
       "difficulty": 1
     },
     {
@@ -243,7 +243,7 @@
       ],
       "category": "streaming",
       "cancel_method": "url",
-      "cancel_url": null,
+      "cancel_url": "https://www.paramountplus.com/account/",
       "difficulty": 2
     },
     {
@@ -254,7 +254,7 @@
       ],
       "category": "streaming",
       "cancel_method": "url",
-      "cancel_url": null,
+      "cancel_url": "https://apps.apple.com/account/subscriptions",
       "difficulty": 2
     },
     {
@@ -265,7 +265,7 @@
       ],
       "category": "audio",
       "cancel_method": "url",
-      "cancel_url": null,
+      "cancel_url": "https://www.audible.com/account",
       "difficulty": 3
     },
     {
@@ -295,7 +295,7 @@
       ],
       "category": "education",
       "cancel_method": "url",
-      "cancel_url": null,
+      "cancel_url": "https://www.coursera.org/my-purchases",
       "difficulty": 2
     },
     {
@@ -305,8 +305,8 @@
       ],
       "category": "professional",
       "cancel_method": "url",
-      "cancel_url": null,
-      "difficulty": 2
+      "cancel_url": "https://www.linkedin.com/premium/manage",
+      "difficulty": 3
     },
     {
       "name": "X Premium",
@@ -378,8 +378,8 @@
       ],
       "category": "fitness",
       "cancel_method": "url",
-      "cancel_url": null,
-      "difficulty": 1
+      "cancel_url": "https://www.strava.com/account",
+      "difficulty": 2
     },
     {
       "name": "MyFitnessPal",
@@ -418,7 +418,7 @@
       ],
       "category": "news",
       "cancel_method": "url",
-      "cancel_url": null,
+      "cancel_url": "https://www.nytimes.com/account",
       "difficulty": 4
     },
     {
@@ -458,8 +458,8 @@
       ],
       "category": "creator",
       "cancel_method": "url",
-      "cancel_url": null,
-      "difficulty": 1
+      "cancel_url": "https://www.patreon.com/settings/memberships",
+      "difficulty": 2
     },
     {
       "name": "OnlyFans",
@@ -479,8 +479,8 @@
       ],
       "category": "gaming",
       "cancel_method": "url",
-      "cancel_url": null,
-      "difficulty": 2
+      "cancel_url": "https://www.playstation.com/acct/management",
+      "difficulty": 3
     },
     {
       "name": "Xbox Game Pass",
@@ -490,7 +490,7 @@
       ],
       "category": "gaming",
       "cancel_method": "url",
-      "cancel_url": null,
+      "cancel_url": "https://account.microsoft.com/services",
       "difficulty": 2
     },
     {
@@ -501,8 +501,8 @@
       ],
       "category": "gaming",
       "cancel_method": "url",
-      "cancel_url": null,
-      "difficulty": 2
+      "cancel_url": "https://accounts.nintendo.com",
+      "difficulty": 3
     },
     {
       "name": "Uber One",
@@ -531,7 +531,7 @@
       ],
       "category": "streaming",
       "cancel_method": "url",
-      "cancel_url": null,
+      "cancel_url": "https://secure.hulu.com/account",
       "difficulty": 2
     },
     {
@@ -541,7 +541,7 @@
       ],
       "category": "streaming",
       "cancel_method": "url",
-      "cancel_url": null,
+      "cancel_url": "https://www.peacocktv.com/account",
       "difficulty": 2
     },
     {
@@ -551,8 +551,8 @@
       ],
       "category": "streaming",
       "cancel_method": "url",
-      "cancel_url": null,
-      "difficulty": 1
+      "cancel_url": "https://www.crunchyroll.com/account/membership",
+      "difficulty": 2
     },
     {
       "name": "Curiosity Stream",
@@ -1462,7 +1462,7 @@
       ],
       "category": "software",
       "cancel_method": "url",
-      "cancel_url": null,
+      "cancel_url": "https://account.grammarly.com/subscription",
       "difficulty": 2
     },
     {
@@ -2129,9 +2129,9 @@
         "godaddy.com"
       ],
       "category": "developer",
-      "cancel_method": "phone",
-      "cancel_url": null,
-      "difficulty": 4
+      "cancel_method": "url",
+      "cancel_url": "https://account.godaddy.com/subscriptions",
+      "difficulty": 3
     },
     {
       "name": "JetBrains",
@@ -3261,8 +3261,8 @@
       ],
       "category": "gaming",
       "cancel_method": "url",
-      "cancel_url": null,
-      "difficulty": 1
+      "cancel_url": "https://www.twitch.tv/subscriptions",
+      "difficulty": 2
     },
     {
       "name": "Discord Nitro",
