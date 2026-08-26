@@ -81,6 +81,12 @@ export const merchants = sqliteTable(
       .notNull(),
     cancelEmail: text("cancel_email"),
     difficulty: integer("difficulty").default(3).notNull(), // 1 (easy) – 5 (hostile)
+    // §4.6 rule: an unverified cancel URL never renders to a customer. These
+    // three columns are the verification record — when, by which admin, and
+    // against what source (§4.7 requires a source note).
+    cancelUrlVerifiedAt: integer("cancel_url_verified_at", { mode: "timestamp_ms" }),
+    cancelUrlVerifiedBy: text("cancel_url_verified_by"),
+    cancelUrlSource: text("cancel_url_source"),
     createdAt: createdAt(),
   },
   (t) => [uniqueIndex("merchants_slug_idx").on(t.slug)],
@@ -261,6 +267,66 @@ export const surveyResponses = sqliteTable(
   },
   // One response per user per survey: asked once, never again.
   (t) => [uniqueIndex("survey_responses_user_survey_idx").on(t.userId, t.survey)],
+);
+
+// ── Admin panel (§4) ─────────────────────────────────────────────────────
+
+/**
+ * Every scan run, for admin 4.2. Deliberately metadata only: a pseudonymous
+ * user id, which inbox, how long, how many messages, what failed — never a
+ * subject line and never a body (security rule 1; bodies no longer exist).
+ */
+export const scanRuns = sqliteTable(
+  "scan_runs",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    userId: text("user_id").notNull(),
+    emailAccountId: integer("email_account_id").notNull(),
+    mode: text("mode", { enum: ["backfill", "delta"] }).notNull(),
+    status: text("status", { enum: ["running", "succeeded", "failed"] })
+      .default("running")
+      .notNull(),
+    /** Which pipeline stage the run died in, when it died. */
+    failedStage: text("failed_stage", {
+      enum: ["auth", "list", "fetch", "extract", "persist", "sync"],
+    }),
+    /** Error class + message. Never a payload, never message content. */
+    error: text("error"),
+    messagesTouched: integer("messages_touched").default(0).notNull(),
+    chargesFound: integer("charges_found").default(0).notNull(),
+    /** Started by the user, the daily cron, or an audited admin re-run. */
+    trigger: text("trigger", { enum: ["user", "cron", "admin"] }).default("user").notNull(),
+    startedAt: integer("started_at", { mode: "timestamp_ms" }).default(now).notNull(),
+    finishedAt: integer("finished_at", { mode: "timestamp_ms" }),
+    durationMs: integer("duration_ms"),
+  },
+  (t) => [
+    index("scan_runs_started_idx").on(t.startedAt),
+    index("scan_runs_user_idx").on(t.userId, t.startedAt),
+  ],
+);
+
+/**
+ * The immutable audit log (§4.12). Security rule 3: every admin sign-in,
+ * customer lookup, sensitive reveal and mutation writes here BEFORE the
+ * action completes. Nothing in the product deletes from this table — there
+ * is deliberately no delete path in any router.
+ */
+export const adminAuditLog = sqliteTable(
+  "admin_audit_log",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    /** The admin who acted (Clerk id) — never an impersonated user. */
+    actorUserId: text("actor_user_id").notNull(),
+    action: text("action").notNull(),
+    /** What was acted on: "merchant:42", "user:user_abc", "scan:7". */
+    target: text("target"),
+    /** Short reason or diff summary. Never tokens, never email content. */
+    detail: text("detail"),
+    ip: text("ip"),
+    createdAt: createdAt(),
+  },
+  (t) => [index("admin_audit_log_created_idx").on(t.createdAt)],
 );
 
 /** Product analytics: the activation funnel plus accuracy/action signals. */

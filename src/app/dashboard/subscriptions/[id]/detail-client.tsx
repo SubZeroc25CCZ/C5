@@ -203,7 +203,7 @@ export function SubscriptionDetailClient({ id }: { id: number }) {
             )}
           </div>
 
-          {merchant?.cancelUrl && (
+          {merchant?.cancelUrl ? (
             <p className="mt-2 text-sm">
               Cancel online:{" "}
               <a
@@ -214,6 +214,13 @@ export function SubscriptionDetailClient({ id }: { id: number }) {
               >
                 {merchant.cancelUrl}
               </a>
+            </p>
+          ) : (
+            // §4.6: we would rather admit we have no checked link than send
+            // someone to a guessed page they'd believe had cancelled them.
+            <p className="mt-2 text-sm text-muted">
+              We don&rsquo;t have a verified cancellation link for this one yet — the email below is
+              the reliable path.
             </p>
           )}
 

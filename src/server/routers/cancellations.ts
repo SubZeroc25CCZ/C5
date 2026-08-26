@@ -11,6 +11,7 @@ import {
 } from "@/services/cancellation-email";
 import { formatMinor } from "@/lib/money";
 import { assertCancellationAccess, userPlan } from "../plan";
+import { customerMerchant } from "../merchant-view";
 import { track } from "@/services/analytics";
 
 // "Prepare cancellation email" flow (§8 P0). The ledger is explicit:
@@ -34,6 +35,9 @@ export const cancellationsRouter = router({
         },
         merchant: {
           cancelUrl: merchants.cancelUrl,
+          cancelUrlVerifiedAt: merchants.cancelUrlVerifiedAt,
+          cancelUrlVerifiedBy: merchants.cancelUrlVerifiedBy,
+          cancelUrlSource: merchants.cancelUrlSource,
           cancelEmail: merchants.cancelEmail,
           difficulty: merchants.difficulty,
           domains: merchants.domains,
@@ -48,7 +52,7 @@ export const cancellationsRouter = router({
       ...row.request,
       statusLabel: statusLabel(row.request.status),
       subscription: row.subscription,
-      merchant: row.merchant,
+      merchant: customerMerchant(row.merchant),
     }));
   }),
 
@@ -72,12 +76,14 @@ export const cancellationsRouter = router({
       )[0];
       if (!row) throw new TRPCError({ code: "NOT_FOUND" });
 
-      const method = row.merchant?.cancelMethod ?? "email";
+      const merchant = customerMerchant(row.merchant);
+      const method = merchant?.cancelMethod ?? "email";
       const playbook = {
         method,
-        cancelUrl: row.merchant?.cancelUrl ?? null,
-        cancelEmail: row.merchant?.cancelEmail ?? null,
-        difficulty: row.merchant?.difficulty ?? null,
+        cancelUrl: merchant?.cancelUrl ?? null,
+        cancelUrlVerified: merchant?.cancelUrlVerified ?? false,
+        cancelEmail: merchant?.cancelEmail ?? null,
+        difficulty: merchant?.difficulty ?? null,
       };
 
       // Idempotent: an open request (draft or sent, not yet confirmed) for

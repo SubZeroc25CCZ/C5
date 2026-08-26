@@ -15,6 +15,7 @@ import { minorToMajor } from "@/lib/money";
 import { isAggregatorMerchant } from "@/lib/aggregators";
 import { PLAN_LIMITS } from "@/lib/quota";
 import { userPlan } from "../plan";
+import { customerMerchant } from "../merchant-view";
 import { track } from "@/services/analytics";
 import { redactListForTeaser, unlockedSubscriptionId } from "@/services/redaction";
 
@@ -59,6 +60,8 @@ export const subscriptionsRouter = router({
 
     const enriched = rows.map((row) => ({
       ...row,
+      // §4.6: unverified cancel URLs are stripped before they reach a client.
+      merchant: customerMerchant(row.merchant),
       evidenceCount: evidenceBySub.get(row.subscription.id)?.evidenceCount ?? 1,
       observedTotalMinor:
         evidenceBySub.get(row.subscription.id)?.observedTotalMinor ??
@@ -172,7 +175,13 @@ export const subscriptionsRouter = router({
       )
       .orderBy(desc(cancellationRequests.createdAt));
 
-    return { ...row, evidence, priceChanges: history, cancellationRequests: requests };
+    return {
+      ...row,
+      merchant: customerMerchant(row.merchant),
+      evidence,
+      priceChanges: history,
+      cancellationRequests: requests,
+    };
   }),
 
   /** Every AI-extracted field is editable (§10.3). */
