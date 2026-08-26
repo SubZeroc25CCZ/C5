@@ -23,13 +23,15 @@ describe("mailtoHref", () => {
 
 describe("gmailComposeHref", () => {
   it("builds a compose deep link with su/body and optional to", () => {
-    const href = gmailComposeHref({ to: "x@y.z", subject: "Sub", body: "Body text" });
+    const href = gmailComposeHref({ to: "x@y.z", subject: "Sub ject", body: "Body text" });
     const url = new URL(href);
     expect(url.origin + url.pathname).toBe("https://mail.google.com/mail/");
     expect(url.searchParams.get("view")).toBe("cm");
     expect(url.searchParams.get("to")).toBe("x@y.z");
-    expect(url.searchParams.get("su")).toBe("Sub");
+    expect(url.searchParams.get("su")).toBe("Sub ject");
     expect(url.searchParams.get("body")).toBe("Body text");
+    // Gmail renders "+" literally — spaces must be %20-encoded.
+    expect(href).not.toContain("+");
   });
 
   it("omits to when unknown", () => {

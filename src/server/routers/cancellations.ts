@@ -66,6 +66,38 @@ export const cancellationsRouter = router({
       )[0];
       if (!row) throw new TRPCError({ code: "NOT_FOUND" });
 
+      const method = row.merchant?.cancelMethod ?? "email";
+      const playbook = {
+        method,
+        cancelUrl: row.merchant?.cancelUrl ?? null,
+        cancelEmail: row.merchant?.cancelEmail ?? null,
+        difficulty: row.merchant?.difficulty ?? null,
+      };
+
+      // Idempotent: an open request (draft or sent, not yet confirmed) for
+      // this subscription is reused, so re-running the triage wizard or
+      // double-clicking "prepare" never duplicates board cards or totals.
+      const open = (
+        await ctx.db
+          .select()
+          .from(cancellationRequests)
+          .where(
+            and(
+              eq(cancellationRequests.userId, ctx.userId),
+              eq(cancellationRequests.subscriptionId, row.subscription.id),
+            ),
+          )
+          .orderBy(desc(cancellationRequests.createdAt))
+          .limit(1)
+      )[0];
+      if (open && open.status !== "provider_confirmed") {
+        return {
+          requestId: open.id,
+          draft: { subject: open.draftSubject ?? "", body: open.draftBody ?? "" },
+          ...playbook,
+        };
+      }
+
       const user = await currentUser();
       const accountEmail = user?.primaryEmailAddress?.emailAddress ?? "";
       const userName = user?.fullName ?? user?.firstName ?? "SubZero user";
@@ -79,7 +111,6 @@ export const cancellationsRouter = router({
         lastChargeDate: row.subscription.lastChargeAt?.toISOString().slice(0, 10),
       });
 
-      const method = row.merchant?.cancelMethod ?? "email";
       const inserted = await ctx.db
         .insert(cancellationRequests)
         .values({
@@ -92,14 +123,7 @@ export const cancellationsRouter = router({
         })
         .returning({ id: cancellationRequests.id });
 
-      return {
-        requestId: inserted[0]!.id,
-        draft,
-        method,
-        cancelUrl: row.merchant?.cancelUrl ?? null,
-        cancelEmail: row.merchant?.cancelEmail ?? null,
-        difficulty: row.merchant?.difficulty ?? null,
-      };
+      return { requestId: inserted[0]!.id, draft, ...playbook };
     }),
 
   /**

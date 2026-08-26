@@ -20,5 +20,8 @@ export function mailtoHref({ to, subject, body }: MailDraft): string {
 export function gmailComposeHref({ to, subject, body }: MailDraft): string {
   const params = new URLSearchParams({ view: "cm", su: subject, body });
   if (to) params.set("to", to);
-  return `https://mail.google.com/mail/?${params.toString()}`;
+  // Gmail's compose UI renders "+" literally, so (like mailtoHref) percent-
+  // encode the spaces that URLSearchParams would otherwise emit as "+".
+  const query = params.toString().replace(/\+/g, "%20");
+  return `https://mail.google.com/mail/?${query}`;
 }
