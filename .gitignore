@@ -4,9 +4,14 @@ out/
 build/
 dist/
 
+# Any env file, whatever it is called. The previous three patterns missed
+# names like import.env or prod.env — and this repo is public, so a single
+# mis-named file is a leaked secret. .env.example is the one exception.
 .env
 .env.local
 .env*.local
+*.env
+!.env.example
 
 *.tsbuildinfo
 next-env.d.ts
