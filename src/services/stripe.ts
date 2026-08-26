@@ -17,24 +17,65 @@ export function stripeClient(): Stripe {
 export type PaidPlan = "basic" | "pro";
 export type BillingInterval = "monthly" | "annual";
 
+/** Test-mode price ids (decision D7). Fallbacks for local/test work only. */
+const TEST_MODE_PRICES: Record<PaidPlan, Record<BillingInterval, string>> = {
+  basic: {
+    monthly: "price_1U8aR2G8giGg4s7R5Dgx1OdI",
+    annual: "price_1U8aR4G8giGg4s7RIN4oDe7l",
+  },
+  pro: {
+    monthly: "price_1U8aR6G8giGg4s7RXiAnWbXJ",
+    annual: "price_1U8aR7G8giGg4s7RWeeNlkh3",
+  },
+};
+
+const PRICE_ENV: Record<PaidPlan, Record<BillingInterval, string>> = {
+  basic: { monthly: "STRIPE_PRICE_BASIC_MONTHLY", annual: "STRIPE_PRICE_BASIC_ANNUAL" },
+  pro: { monthly: "STRIPE_PRICE_PRO_MONTHLY", annual: "STRIPE_PRICE_PRO_ANNUAL" },
+};
+
 /**
- * Price ids per (plan, interval) — decision D5's two-tier structure.
- * Defaults are the test-mode prices; env vars override for live mode.
+ * Price id for a (plan, interval).
+ *
+ * The built-in fallbacks are TEST-mode prices and do not exist on the live
+ * account, so a live key must name its own prices. Letting the fallback
+ * through under a live key produced exactly one symptom in production — a
+ * bare 500 and "please try again" — for a condition no amount of retrying
+ * can fix. Fail here instead, naming the variable to set.
  */
 export function priceId(plan: PaidPlan, interval: BillingInterval): string {
-  const prices: Record<PaidPlan, Record<BillingInterval, string>> = {
-    basic: {
-      monthly: process.env.STRIPE_PRICE_BASIC_MONTHLY ?? "price_1U8aR2G8giGg4s7R5Dgx1OdI",
-      annual: process.env.STRIPE_PRICE_BASIC_ANNUAL ?? "price_1U8aR4G8giGg4s7RIN4oDe7l",
-    },
-    pro: {
-      monthly: process.env.STRIPE_PRICE_PRO_MONTHLY ?? "price_1U8aR6G8giGg4s7RXiAnWbXJ",
-      annual: process.env.STRIPE_PRICE_PRO_ANNUAL ?? "price_1U8aR7G8giGg4s7RWeeNlkh3",
-    },
-  };
-  const id = prices[plan][interval];
-  if (!id) throw new Error(`No Stripe price configured for ${plan}/${interval}`);
-  return id;
+  const configured = process.env[PRICE_ENV[plan][interval]];
+  if (configured) return configured;
+  if (isLiveKey()) {
+    throw new Error(
+      `Stripe is in live mode but ${PRICE_ENV[plan][interval]} is not set. ` +
+        "The built-in price ids are test-mode and do not exist on the live account: " +
+        "either set the four STRIPE_PRICE_* variables to live prices, or use a test-mode secret key.",
+    );
+  }
+  return TEST_MODE_PRICES[plan][interval];
+}
+
+function isLiveKey(): boolean {
+  return (process.env.STRIPE_SECRET_KEY ?? "").startsWith("sk_live_");
+}
+
+/** The app's public origin, which Stripe requires for its return URLs. */
+function appUrl(): string {
+  const url = process.env.NEXT_PUBLIC_APP_URL;
+  if (!url) {
+    throw new Error(
+      "NEXT_PUBLIC_APP_URL is not set — Stripe checkout needs it for success_url and cancel_url.",
+    );
+  }
+  return url.replace(/\/$/, "");
+}
+
+/** Guard the key itself: an empty key fails deep inside Stripe's SDK. */
+function requireStripeKey(): void {
+  if (!process.env.STRIPE_SECRET_KEY) {
+    throw new Error("STRIPE_SECRET_KEY is not set — billing is not configured.");
+  }
 }
 
 export async function createCheckoutSession(
@@ -47,6 +88,8 @@ export async function createCheckoutSession(
     interval: BillingInterval;
   },
 ): Promise<string> {
+  requireStripeKey();
+  const origin = appUrl();
   const session = await stripe.checkout.sessions.create({
     mode: "subscription",
     line_items: [{ price: priceId(input.plan, input.interval), quantity: 1 }],
@@ -57,17 +100,18 @@ export async function createCheckoutSession(
     // later webhook (updated/deleted) knows which tier it concerns.
     metadata: { plan: input.plan },
     subscription_data: { metadata: { plan: input.plan } },
-    success_url: `${process.env.NEXT_PUBLIC_APP_URL}/checkout/success`,
-    cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/pricing`,
+    success_url: `${origin}/checkout/success`,
+    cancel_url: `${origin}/pricing`,
   });
   if (!session.url) throw new Error("Stripe did not return a checkout URL");
   return session.url;
 }
 
 export async function createPortalSession(stripe: Stripe, customerId: string): Promise<string> {
+  requireStripeKey();
   const session = await stripe.billingPortal.sessions.create({
     customer: customerId,
-    return_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`,
+    return_url: `${appUrl()}/dashboard`,
   });
   return session.url;
 }

@@ -203,8 +203,16 @@ function PlanAction({ plan, interval }: { plan: PaidPlan; interval: Interval }) 
           : `Get ${plan === "basic" ? "Basic" : "Pro"}`}
       </Button>
       {checkout.isError ? (
+        // Honesty rule: don't tell someone to retry a thing that cannot
+        // succeed. A failed checkout is almost always our configuration,
+        // not their click, so say so and give them a way to reach us.
         <p className="mt-2 text-center text-xs text-danger">
-          Checkout didn&rsquo;t open — please try again.
+          Checkout didn&rsquo;t open. That&rsquo;s a problem on our side, not yours — nothing was
+          charged. Email{" "}
+          <a href="mailto:support@subzero.o2c.one" className="underline">
+            support@subzero.o2c.one
+          </a>{" "}
+          and we&rsquo;ll sort it.
         </p>
       ) : null}
     </div>
