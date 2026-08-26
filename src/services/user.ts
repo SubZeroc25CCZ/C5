@@ -6,19 +6,25 @@ import { track } from "./analytics";
 /**
  * Upsert the local user + profile rows for a Clerk identity.
  *
- * `users.email` carries a unique index, so a Clerk id we have never seen
- * arriving with an email we already hold used to throw
- * `UNIQUE constraint failed: users.email` — straight out of the dashboard's
- * server render, as a 500 with a digest and nothing else. That is a real
- * situation, not a corrupt one: the same person can end up with a second
- * Clerk identity (a different sign-in method for the same address, or an
- * identity provider change), and it must never cost them the app.
+ * This used to throw `UNIQUE constraint failed: users.email` — a 500 on
+ * /dashboard during server render — whenever a Clerk id we had never seen
+ * arrived with an email we already held.
  *
- * So this is now total: it never throws, whatever collides. What it does
- * NOT do is merge the two accounts — the older identity keeps the
- * subscriptions, inboxes and billing, and deciding who owns what is a
- * product call, not something to improvise inside a page render. The
- * collision is recorded so it is visible rather than silent.
+ * The real fault was the schema, not this function. `users` mirrors Clerk
+ * identities, and Clerk does not promise one identity per address: the same
+ * person can hold a second through a different sign-in method or a provider
+ * change. The unique index asserted an invariant the upstream system never
+ * guaranteed, so the index is gone (drizzle/0004) and the Clerk id — the
+ * only identity that actually decides anything — remains the primary key.
+ *
+ * onConflictDoNothing stays for the case it is genuinely for: two concurrent
+ * first requests from the same new user racing on the id primary key.
+ *
+ * Note this creates a SEPARATE local account per Clerk identity; it does not
+ * merge them. For the two orphaned identities this bug produced that costs
+ * nothing — they held no subscriptions, inboxes or billing, only landing
+ * page events. Merging accounts, if it is ever needed, is a migration and a
+ * product decision, not something to improvise inside a page render.
  */
 export async function ensureUser(
   db: Database,
