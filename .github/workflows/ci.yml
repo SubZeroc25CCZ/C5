@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    env:
+      # Env fixtures (§8 P0): build/typecheck-time values for public-key-class
+      # variables. Real secrets live in Vercel/GitHub environments, never here.
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_fixture
+      CLERK_SECRET_KEY: sk_test_fixture
+      DATABASE_HOST: localhost
+      DATABASE_USERNAME: ci
+      DATABASE_PASSWORD: ci
+      DATABASE_NAME: subzero
+      GOOGLE_CLIENT_ID: fixture.apps.googleusercontent.com
+      GOOGLE_CLIENT_SECRET: fixture
+      TOKEN_ENCRYPTION_KEY: BwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwc=
+      ANTHROPIC_API_KEY: sk-ant-fixture
+      STRIPE_SECRET_KEY: sk_test_fixture
+      STRIPE_WEBHOOK_SECRET: whsec_fixture
+      STRIPE_PRO_PRICE_ID: price_fixture
+      CRON_SECRET: fixture
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Tests
+        run: pnpm test
