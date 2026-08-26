@@ -27,11 +27,18 @@ const updatedAt = () =>
 export const users = sqliteTable(
   "users",
   {
-    id: text("id").primaryKey(), // Clerk user ID
+    id: text("id").primaryKey(), // Clerk user ID — the only identity that counts
     email: text("email").notNull(),
     createdAt: createdAt(),
   },
-  (t) => [uniqueIndex("users_email_idx").on(t.email)],
+  // Deliberately NOT unique. This table mirrors Clerk identities, and Clerk
+  // does not guarantee one identity per address: the same person can hold a
+  // second one through a different sign-in method or a provider change. The
+  // unique index asserted an invariant the upstream system never promised,
+  // and the way it failed was a 500 on /dashboard during server render
+  // (UNIQUE constraint failed: users.email) for anyone who acquired one.
+  // Uniqueness belongs in Clerk's own configuration, not in a mirror of it.
+  (t) => [index("users_email_idx").on(t.email)],
 );
 
 export const profiles = sqliteTable("profiles", {
