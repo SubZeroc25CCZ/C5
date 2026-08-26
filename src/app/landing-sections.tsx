@@ -25,10 +25,11 @@ function PrimaryCta({
   className?: string;
 }) {
   const { track } = useLandingEvents();
-  const onActivate = () => {
-    track(event);
-    track("oauth_started");
-  };
+  // Only the click. oauth_started fires server-side in /api/google/connect,
+  // where consent actually begins — firing it here would make it a synonym
+  // for hero_cta_clicked and erase the consent-screen drop-off, which is the
+  // single step the brief expects to lose the most people.
+  const onActivate = () => track(event);
   return (
     <>
       <SignedOut>
