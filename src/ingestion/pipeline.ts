@@ -64,12 +64,20 @@ export async function processCandidate(
     }
   }
 
-  // Stage 2: ambiguous candidates only.
-  const outcome = await runStage2(deps.model, {
-    from: candidate.from,
-    subject: candidate.subject,
-    body: candidate.body,
-  });
+  // Stage 2: ambiguous candidates only. A model failure on one email must
+  // not abort a whole scan — the candidate is discarded (it can be picked
+  // up by a later re-scan) and the scan continues.
+  let outcome: Awaited<ReturnType<typeof runStage2>>;
+  try {
+    outcome = await runStage2(deps.model, {
+      from: candidate.from,
+      subject: candidate.subject,
+      body: candidate.body,
+    });
+  } catch {
+    deps.logger.warn("stage2_error", { messageId: candidate.messageId });
+    return null;
+  }
 
   if (!outcome.charge) {
     deps.logger.info("discarded", { messageId: candidate.messageId });
