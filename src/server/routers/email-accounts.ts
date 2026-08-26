@@ -40,16 +40,32 @@ export const emailAccountsRouter = router({
     return { allowed: canConnectInbox(plan, existing.length), plan, connected: existing.length };
   }),
 
-  /** Kick off a scan. Rate-limited: this endpoint spends Claude tokens (§8 P0). */
+  /**
+   * Kick off (or continue) a scan. Batched for serverless limits: each call
+   * processes up to 25 new messages and reports remaining; the client loops
+   * with continuation=true until remaining is 0. Rate limits and cadence
+   * gates apply to the first call of a scan, not its continuations.
+   */
   scan: protectedProcedure
-    .input(z.object({ accountId: z.number().int(), mode: z.enum(["backfill", "delta"]) }))
+    .input(
+      z.object({
+        accountId: z.number().int(),
+        mode: z.enum(["backfill", "delta"]),
+        continuation: z.boolean().optional(),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
-      const rate = await scanLimiter(`scan:${ctx.userId}`);
-      if (!rate.allowed) {
-        throw new TRPCError({ code: "TOO_MANY_REQUESTS", message: "Scan limit reached — try again later." });
+      if (!input.continuation) {
+        const rate = await scanLimiter(`scan:${ctx.userId}`);
+        if (!rate.allowed) {
+          throw new TRPCError({
+            code: "TOO_MANY_REQUESTS",
+            message: "Scan limit reached — try again later.",
+          });
+        }
       }
       const plan = await userPlan(ctx.db, ctx.userId);
-      if (input.mode === "delta") {
+      if (input.mode === "delta" && !input.continuation) {
         // Manual re-scans obey the plan cadence: free monthly, Pro daily (D2).
         const account = (
           await ctx.db
@@ -71,6 +87,7 @@ export const emailAccountsRouter = router({
         userId: ctx.userId,
         emailAccountId: input.accountId,
         mode: input.mode,
+        maxMessages: 25,
       });
     }),
 

@@ -17,6 +17,8 @@ import { syncSubscriptionsForUser, type SyncResult } from "./subscription-sync";
 export interface ScanOutcome {
   pipeline: PipelineStats;
   sync: SyncResult;
+  /** Batch progress: how much of the candidate set this call covered. */
+  candidates: { total: number; processed: number; remaining: number };
 }
 
 const structuredLogger: PipelineLogger = {
@@ -30,6 +32,9 @@ export async function runScan(
     userId: string;
     emailAccountId: number;
     mode: "backfill" | "delta";
+    /** Serverless-friendly batching: process at most this many new messages
+     *  per call; the client keeps calling until `remaining` hits 0. */
+    maxMessages?: number;
     model?: ExtractionModel;
     logger?: PipelineLogger;
   },
@@ -73,9 +78,10 @@ export async function runScan(
     ).map((row) => row.ref),
   );
   const newIds = ids.filter((id) => !seen.has(id));
+  const batchIds = options.maxMessages ? newIds.slice(0, options.maxMessages) : newIds;
 
   const candidates = [];
-  for (const id of newIds) {
+  for (const id of batchIds) {
     candidates.push(await fetchCandidate(accessToken, id));
   }
 
@@ -112,5 +118,13 @@ export async function runScan(
     .set({ lastSyncedAt: new Date() })
     .where(eq(emailAccounts.id, account.id));
 
-  return { pipeline, sync };
+  return {
+    pipeline,
+    sync,
+    candidates: {
+      total: newIds.length,
+      processed: batchIds.length,
+      remaining: newIds.length - batchIds.length,
+    },
+  };
 }
