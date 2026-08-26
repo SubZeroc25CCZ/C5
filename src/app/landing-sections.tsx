@@ -175,7 +175,8 @@ export function HowItWorks() {
   const ActiveVisual = STEPS[active]!.Visual;
 
   return (
-    <section id="how-it-works" className="mx-auto max-w-[1200px] px-4 py-20 lg:py-[120px]">
+    <section id="how-it-works" className="lp-band">
+      <div className="mx-auto max-w-[1200px] px-4 py-20 lg:py-[120px]">
       <h2 className="lp-h2 lp-measure-title">From inbox chaos to total clarity.</h2>
       <p className="lp-body-lg lp-measure-copy mt-4" style={{ color: "var(--lp-text-muted)" }}>
         Four steps, about two minutes.
@@ -238,6 +239,7 @@ export function HowItWorks() {
       <div className="mt-14 flex justify-center">
         <PrimaryCta event="hero_cta_clicked">Find my subscriptions</PrimaryCta>
       </div>
+      </div>
     </section>
   );
 }
@@ -273,7 +275,7 @@ const FAQ = [
 export function Faq() {
   const { trackOnce } = useLandingEvents();
   return (
-    <section id="faq" className="mx-auto max-w-3xl px-4 py-20 lg:py-[120px]">
+    <section id="faq" className="mx-auto max-w-3xl px-4 py-16 lg:py-24">
       <h2 className="lp-h2">Questions worth asking.</h2>
       <div className="mt-10 flex flex-col gap-3">
         {FAQ.map((item, index) => (
@@ -392,7 +394,8 @@ export function PricingStrip() {
 /** §I — final CTA. */
 export function FinalCta() {
   return (
-    <section className="mx-auto max-w-3xl px-4 py-20 text-center lg:py-[120px]">
+    <section className="lp-band-glow">
+      <div className="mx-auto max-w-3xl px-4 py-20 text-center lg:py-[120px]">
       <h2 className="lp-h2">Stop wondering where your money is going.</h2>
       <p className="lp-body-lg mt-4" style={{ color: "var(--lp-text-muted)" }}>
         See the recurring charges already hiding in your inbox.
@@ -403,6 +406,7 @@ export function FinalCta() {
       <p className="lp-small mt-5" style={{ color: "var(--lp-text-muted)" }}>
         No bank connection. Revoke access anytime.
       </p>
+      </div>
     </section>
   );
 }

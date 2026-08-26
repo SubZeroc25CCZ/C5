@@ -124,15 +124,20 @@ export function Stat({
   label,
   value,
   hint,
+  hero = false,
 }: {
   label: string;
   value: ReactNode;
   hint?: ReactNode;
+  /** Money is the hero (design law 2): ONE stat per screen gets ~2.5× body. */
+  hero?: boolean;
 }) {
   return (
     <Card className="flex-1 min-w-44">
       <div className="text-xs font-semibold uppercase tracking-wide text-muted">{label}</div>
-      <div className="tnum mt-1 text-2xl font-bold">{value}</div>
+      <div className={cx("tnum mt-1 font-bold", hero ? "text-4xl sm:text-[40px] sm:leading-[1.15]" : "text-2xl")}>
+        {value}
+      </div>
       {hint && <div className="mt-0.5 text-xs text-muted">{hint}</div>}
     </Card>
   );

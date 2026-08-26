@@ -173,9 +173,13 @@ function TeaserDashboard({
 
       {data.totals.length > 0 && (
         <div className="mb-6 flex flex-wrap gap-4">
-          {data.totals.map((total) => (
+          {data.totals.map((total, index) => (
             <Stat
               key={total.currency}
+              // Money is the hero: the primary currency total leads the
+              // screen at ~2.5× body; secondary currencies stay side by
+              // side at standard size (never merged — §10.1).
+              hero={index === 0}
               label={`Monthly · ${total.currency}`}
               value={money(total.monthly, total.currency)}
               hint={`${money(total.yearly, total.currency)} / year`}
@@ -344,9 +348,11 @@ function FullDashboard({
       {/* Stat row */}
       {totals.length > 0 && (
         <div className="mb-6 flex flex-wrap gap-4">
-          {totals.map((total) => (
+          {totals.map((total, index) => (
             <Stat
               key={total.currency}
+              // Money is the hero: one number leads the screen (D10 B2).
+              hero={index === 0}
               label={`Monthly · ${total.currency}`}
               value={money(total.monthly, total.currency)}
               hint={`${money(total.yearly, total.currency)} / year · ${total.activeCount} active`}

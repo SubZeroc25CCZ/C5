@@ -161,6 +161,20 @@ h2 {
 .lp-measure-title { max-width: 620px; }
 .lp-measure-copy { max-width: 680px; }
 
+/* Section differentiation (D10 B3): full-width bands that break the page's
+   run of same-background sections. A band is slightly deeper than the base
+   navy with hairline top/bottom rules; the glow variant lights the final
+   CTA from above with the brand cyan — subtle, never a spotlight. */
+.lp-band {
+  background: rgba(0, 0, 0, 0.25);
+  border-top: 1px solid var(--lp-hairline);
+  border-bottom: 1px solid var(--lp-hairline);
+}
+.lp-band-glow {
+  background: radial-gradient(ellipse 70% 60% at 50% 0%, rgba(34, 184, 212, 0.09), transparent 70%);
+  border-top: 1px solid var(--lp-hairline);
+}
+
 /* Motion. Every animation below is opt-out via prefers-reduced-motion,
    which the global rule at the top of this file already enforces. */
 @keyframes lp-rise {
