@@ -9,9 +9,24 @@ import type { Database } from "@/db/client";
 import { profiles, webhookEvents } from "@/db/schema";
 
 export function stripeClient(): Stripe {
-  return new Stripe(process.env.STRIPE_SECRET_KEY ?? "", {
+  // The guard belongs HERE, not in the functions that take a Stripe client:
+  // every caller constructs the client first, and the SDK constructor throws
+  // "Neither apiKey nor config.authenticator provided" on an empty key —
+  // which reaches the logs without naming the variable anyone needs to set.
+  requireStripeKey();
+  return new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: "2024-12-18.acacia" as Stripe.LatestApiVersion,
   });
+}
+
+/** Guard the key itself: an empty key fails deep inside Stripe's SDK. */
+function requireStripeKey(): void {
+  if (!process.env.STRIPE_SECRET_KEY) {
+    throw new Error(
+      "STRIPE_SECRET_KEY is not set — billing is not configured. " +
+        "Set it in the deployment environment (a live key also requires the four STRIPE_PRICE_* variables).",
+    );
+  }
 }
 
 export type PaidPlan = "basic" | "pro";
@@ -71,13 +86,6 @@ function appUrl(): string {
   return url.replace(/\/$/, "");
 }
 
-/** Guard the key itself: an empty key fails deep inside Stripe's SDK. */
-function requireStripeKey(): void {
-  if (!process.env.STRIPE_SECRET_KEY) {
-    throw new Error("STRIPE_SECRET_KEY is not set — billing is not configured.");
-  }
-}
-
 export async function createCheckoutSession(
   stripe: Stripe,
   input: {
@@ -88,7 +96,6 @@ export async function createCheckoutSession(
     interval: BillingInterval;
   },
 ): Promise<string> {
-  requireStripeKey();
   const origin = appUrl();
   const session = await stripe.checkout.sessions.create({
     mode: "subscription",
@@ -108,7 +115,6 @@ export async function createCheckoutSession(
 }
 
 export async function createPortalSession(stripe: Stripe, customerId: string): Promise<string> {
-  requireStripeKey();
   const session = await stripe.billingPortal.sessions.create({
     customer: customerId,
     return_url: `${appUrl()}/dashboard`,
