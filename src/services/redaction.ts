@@ -47,11 +47,18 @@ export function unlockedSubscriptionId(rows: SubscriptionLikeRow[]): number | nu
     const currency = row.subscription.currency;
     totalsByCurrency.set(currency, (totalsByCurrency.get(currency) ?? 0) + monthlyMajor(row));
   }
-  const dominantCurrency = [...totalsByCurrency.entries()].sort((a, b) => b[1] - a[1])[0]![0];
+  // Tie-breakers keep this deterministic regardless of input row order: two
+  // call sites (subscriptions.list, ordered by lastChargeAt; and
+  // assertPlanSeesSubscription, unordered) must agree on the same unlocked id.
+  const dominantCurrency = [...totalsByCurrency.entries()].sort(
+    (a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0),
+  )[0]![0];
 
   const top = active
     .filter((row) => row.subscription.currency === dominantCurrency)
-    .sort((a, b) => monthlyMajor(b) - monthlyMajor(a))[0]!;
+    .sort(
+      (a, b) => monthlyMajor(b) - monthlyMajor(a) || a.subscription.id - b.subscription.id,
+    )[0]!;
   return top.subscription.id;
 }
 

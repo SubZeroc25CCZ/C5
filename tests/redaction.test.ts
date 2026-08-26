@@ -49,6 +49,19 @@ describe("unlockedSubscriptionId", () => {
     ).toBe(2);
   });
 
+  it("is deterministic on exact ties, whatever the row order", () => {
+    // Same amount twice: the lower id wins, in any input order — the list
+    // response and the server access check must agree.
+    const a = [row(7, "TwinA", 999), row(3, "TwinB", 999)];
+    const b = [row(3, "TwinB", 999), row(7, "TwinA", 999)];
+    expect(unlockedSubscriptionId(a)).toBe(3);
+    expect(unlockedSubscriptionId(b)).toBe(3);
+    // Equal currency totals: lexicographic currency tie-break, either order.
+    const c = [row(1, "EuroSub", 1000, "EUR"), row(2, "DollarSub", 1000, "USD")];
+    expect(unlockedSubscriptionId(c)).toBe(1);
+    expect(unlockedSubscriptionId([...c].reverse())).toBe(1);
+  });
+
   it("ignores possible sightings and returns null with no confirmed subs", () => {
     expect(unlockedSubscriptionId([row(9, "OnlySeen", 5000, "EUR", "possible")])).toBeNull();
   });
