@@ -1,15 +1,27 @@
-import { NextResponse } from "next/server";
+import { timingSafeEqual } from "node:crypto";
+import { NextResponse, type NextRequest } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { db } from "@/db/client";
 import { emailAccounts } from "@/db/schema";
 import { encryptToken } from "@/lib/encryption";
+import { OAUTH_STATE_COOKIE } from "@/lib/oauth-state";
 
-export async function GET(req: Request) {
+function stateMatches(state: string | null, cookie: string | undefined): boolean {
+  if (!state || !cookie) return false;
+  const a = Buffer.from(state);
+  const b = Buffer.from(cookie);
+  return a.length === b.length && timingSafeEqual(a, b);
+}
+
+export async function GET(req: NextRequest) {
   const { userId } = await auth();
   const url = new URL(req.url);
   const code = url.searchParams.get("code");
   const state = url.searchParams.get("state");
-  if (!userId || !code || state !== userId) {
+  // The nonce set by /connect must round-trip: proves this browser started
+  // the flow, so a crafted or replayed callback link is rejected.
+  const stateCookie = req.cookies.get(OAUTH_STATE_COOKIE)?.value;
+  if (!userId || !code || !stateMatches(state, stateCookie)) {
     return NextResponse.redirect(new URL("/dashboard?error=oauth", req.url));
   }
 
@@ -62,5 +74,7 @@ export async function GET(req: Request) {
       },
     });
 
-  return NextResponse.redirect(new URL("/dashboard?connected=1", req.url));
+  const response = NextResponse.redirect(new URL("/dashboard?connected=1", req.url));
+  response.cookies.delete(OAUTH_STATE_COOKIE); // single-use
+  return response;
 }

@@ -9,8 +9,11 @@ import { runScan } from "@/services/scan";
 // Pro daily, free monthly (decision D2).
 
 export async function GET(req: Request) {
+  // Fail closed: with no CRON_SECRET configured, no header can authorize —
+  // otherwise a literal "Bearer undefined" would match the template string.
+  const secret = process.env.CRON_SECRET;
   const authHeader = req.headers.get("authorization");
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (!secret || authHeader !== `Bearer ${secret}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
