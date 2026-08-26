@@ -160,9 +160,11 @@ export function ActionsMock() {
   return (
     <div className="w-full p-6" style={{ borderRadius: "var(--lp-radius-card)", background: "var(--lp-surface)", border: "1px solid var(--lp-hairline)" }}>
       <div className="grid grid-cols-3 gap-2">
-        <span className="rounded-xl py-3 text-center text-sm font-semibold" style={{ background: "rgba(47,196,147,0.16)", color: "var(--lp-success)" }}>Keep</span>
-        <span className="rounded-xl py-3 text-center text-sm font-semibold" style={{ background: "var(--lp-danger)", color: "#2a0207" }}>Cancel</span>
-        <span className="rounded-xl py-3 text-center text-sm font-semibold" style={{ background: "rgba(255,255,255,0.07)", color: "var(--lp-text-muted)" }}>Ignore</span>
+        {/* Inks chosen to clear WCAG AA even under the scrollytelling's
+            0.78 inactive dim (D10 B9) — not the softer palette defaults. */}
+        <span className="rounded-xl py-3 text-center text-sm font-semibold" style={{ background: "rgba(47,196,147,0.14)", color: "#8beecb" }}>Keep</span>
+        <span className="rounded-xl py-3 text-center text-sm font-semibold" style={{ background: "rgba(230,91,104,0.16)", color: "#ffc2c8" }}>Cancel</span>
+        <span className="rounded-xl py-3 text-center text-sm font-semibold" style={{ background: "rgba(255,255,255,0.07)", color: "#cdd9e8" }}>Ignore</span>
       </div>
       <div className="mt-4 rounded-xl p-4" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--lp-hairline)" }}>
         <div className="text-xs font-semibold uppercase tracking-[0.1em]" style={{ color: "var(--lp-text-muted)" }}>Cancellation options</div>

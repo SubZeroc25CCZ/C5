@@ -28,3 +28,5 @@ design/**/*.html
 !design/**/*.dc.html
 __pycache__/
 *.pyc
+
+/.next-dev/

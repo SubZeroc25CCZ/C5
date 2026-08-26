@@ -51,7 +51,7 @@ export function TriageWizard({ rows, onClose }: { rows: Row[]; onClose: () => vo
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <Card className="w-full max-w-lg">
+      <Card className="w-full max-w-lg shadow-elev-3">
         {!done && row ? (
           <>
             <div className="mb-3 flex items-center justify-between text-xs text-muted">
