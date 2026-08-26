@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
+// `/admin` is deliberately absent: `auth.protect()` would bounce an
+// anonymous visitor to sign-in, which confirms the panel exists. The admin
+// layout instead renders a 404 for anyone who is not a Super administrator —
+// signed out or signed in — and every admin tRPC procedure re-checks. The
+// panel's own API calls travel over /api/trpc, which is protected here.
 const isProtectedRoute = createRouteMatcher(["/dashboard(.*)", "/api/trpc(.*)", "/api/google(.*)"]);
 
 // Without Clerk keys the middleware must not invoke Clerk at all — it would

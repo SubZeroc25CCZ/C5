@@ -31,6 +31,7 @@ export async function GET(req: Request) {
         userId: account.userId,
         emailAccountId: account.id,
         mode: "delta",
+        trigger: "cron",
       });
       results.push({ accountId: account.id, ok: true });
     } catch (error) {

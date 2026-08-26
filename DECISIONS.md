@@ -77,3 +77,39 @@ and a per-month label (§10 violation). Rules:
 Basic **$4.99/mo · $49/yr** — Pro **$9.99/mo · $99/yr**. Stripe test-mode
 prices replaced; code defaults, pricing page, landing cards, and paywall
 copy updated.
+
+## D8 — Admin panel gating and the verified-cancel-URL rule (Phase D)
+
+Two decisions the admin panel forced, both about who may be trusted with
+what.
+
+**Who is an administrator** is an environment variable (`ADMIN_USER_IDS`),
+not a database column. A role column would mean that write access to the
+database is write access to the admin list; an environment variable is
+outside the blast radius of an injection or a leaked D1 token. Unset or
+empty means nobody — a missing variable is never a skeleton key. `/admin`
+returns **404** rather than 403 for everyone else, signed in or out, so the
+panel does not confirm its own existence; the route is deliberately left out
+of the Clerk protected-route matcher, because a sign-in redirect would
+confirm it.
+
+**A cancel URL is invisible to customers until an admin verifies it.**
+Merchants gain `cancel_url_verified_at / _by / _source`; publishing a URL in
+the panel requires a source note (§4.7). One chokepoint —
+`customerMerchant()` in `src/server/merchant-view.ts` — strips both the
+unverified URL and the verification metadata from every customer payload,
+so the rule cannot be forgotten in a new router. The reasoning: a guessed
+cancellation link is worse than no link, because the user follows it,
+believes they have cancelled, and keeps being charged. Where no verified
+link exists the subscription detail screen says so plainly and points at the
+email path.
+
+Consequences: the 30 editorially verified seed URLs were backfilled with a
+`seed` verification record (without it they would have silently vanished
+from customers), and `pnpm db:seed` no longer clobbers a human admin's
+verification on re-run — the editorial file owns a merchant's cancel URL
+only while no admin has verified a better one.
+
+Also in Phase D: every scan writes a `scan_runs` row up front, so a run that
+dies mid-flight still appears in monitoring — a scan that vanished is the
+failure mode that table exists to catch.

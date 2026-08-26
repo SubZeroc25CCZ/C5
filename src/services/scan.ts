@@ -4,7 +4,7 @@
 
 import { eq } from "drizzle-orm";
 import type { Database } from "@/db/client";
-import { charges, emailAccounts, scannedMessages } from "@/db/schema";
+import { charges, emailAccounts, scanRuns, scannedMessages } from "@/db/schema";
 import { decryptToken } from "@/lib/encryption";
 import { buildBackfillQueries, buildDeltaQueries } from "@/ingestion/gmail-queries";
 import { fetchCandidate, listCandidateIds, refreshAccessToken } from "@/ingestion/gmail-client";
@@ -27,6 +27,60 @@ const structuredLogger: PipelineLogger = {
   warn: (message, fields) => console.warn(JSON.stringify({ level: "warn", message, ...fields })),
 };
 
+/** Pipeline stages, so a failed run says where it died (admin §4.2). */
+type ScanStage = "auth" | "list" | "fetch" | "extract" | "persist" | "sync";
+
+async function recordRunStart(
+  db: Database,
+  options: {
+    userId: string;
+    emailAccountId: number;
+    mode: "backfill" | "delta";
+    trigger?: "user" | "cron" | "admin";
+  },
+): Promise<number | undefined> {
+  try {
+    const inserted = await db
+      .insert(scanRuns)
+      .values({
+        userId: options.userId,
+        emailAccountId: options.emailAccountId,
+        mode: options.mode,
+        trigger: options.trigger ?? "user",
+        status: "running",
+      })
+      .returning({ id: scanRuns.id });
+    return inserted[0]?.id;
+  } catch {
+    return undefined; // Monitoring never blocks a scan.
+  }
+}
+
+async function finishRun(
+  db: Database,
+  runId: number | undefined,
+  fields: {
+    status: "succeeded" | "failed";
+    failedStage?: ScanStage;
+    error?: string;
+    messagesTouched?: number;
+    chargesFound?: number;
+    durationMs: number;
+  },
+): Promise<void> {
+  if (runId === undefined) return;
+  try {
+    await db
+      .update(scanRuns)
+      .set({ ...fields, finishedAt: new Date() })
+      .where(eq(scanRuns.id, runId));
+  } catch {
+    // Same reasoning as the insert: a lost row beats a lost scan. The run
+    // stays "running" in the table, which reads as an unfinished scan —
+    // honest, since we genuinely do not know how it ended.
+  }
+}
+
 export async function runScan(
   db: Database,
   options: {
@@ -38,7 +92,56 @@ export async function runScan(
     maxMessages?: number;
     model?: ExtractionModel;
     logger?: PipelineLogger;
+    /** Who started this run — recorded for admin scan monitoring. */
+    trigger?: "user" | "cron" | "admin";
   },
+): Promise<ScanOutcome> {
+  const startedAt = Date.now();
+  // One row per run, for admin 4.2. Written up front so a run that dies
+  // mid-flight still appears — a scan that vanished is the failure mode
+  // this table exists to catch. Metadata only; never message content.
+  //
+  // Monitoring is not load-bearing: like `track()`, every write here is
+  // swallowed. Losing a monitoring row costs an admin one line of a table;
+  // letting it throw would cost a user their scan.
+  const runId = await recordRunStart(db, options);
+  let stage: ScanStage = "auth";
+
+  try {
+    const outcome = await scanInner(db, options, (next) => {
+      stage = next;
+    });
+    await finishRun(db, runId, {
+      status: "succeeded",
+      messagesTouched: outcome.candidates.processed,
+      chargesFound: outcome.pipeline.stage1Hits + outcome.pipeline.stage2Hits,
+      durationMs: Date.now() - startedAt,
+    });
+    return outcome;
+  } catch (error) {
+    await finishRun(db, runId, {
+      status: "failed",
+      failedStage: stage,
+      // Message only — never a payload, never message content.
+      error: error instanceof Error ? `${error.name}: ${error.message}` : String(error),
+      durationMs: Date.now() - startedAt,
+    });
+    await track(db, options.userId, "scan_failed");
+    throw error;
+  }
+}
+
+async function scanInner(
+  db: Database,
+  options: {
+    userId: string;
+    emailAccountId: number;
+    mode: "backfill" | "delta";
+    maxMessages?: number;
+    model?: ExtractionModel;
+    logger?: PipelineLogger;
+  },
+  setStage: (stage: ScanStage) => void,
 ): Promise<ScanOutcome> {
   const account = (
     await db
@@ -69,6 +172,7 @@ export async function runScan(
 
   await track(db, options.userId, "scan_started");
 
+  setStage("list");
   const ids = await listCandidateIds(accessToken, queries);
 
   // Skip messages already processed — whatever their outcome. The
@@ -102,11 +206,13 @@ export async function runScan(
   const batchLimit = options.mode === "backfill" ? options.maxMessages : undefined;
   const batchIds = batchLimit ? newIds.slice(0, batchLimit) : newIds;
 
+  setStage("fetch");
   const candidates = [];
   for (const id of batchIds) {
     candidates.push(await fetchCandidate(accessToken, id));
   }
 
+  setStage("extract");
   const logger = options.logger ?? structuredLogger;
   // D6 aggregator watch (§3.2): a storefront receipt that split into
   // per-service charges carries a "#n" suffix on its message ref.
@@ -137,6 +243,7 @@ export async function runScan(
     },
   });
 
+  setStage("persist");
   // Record every processed message id, persisted or not, so the next
   // batch never re-touches them.
   if (batchIds.length > 0) {
@@ -150,6 +257,7 @@ export async function runScan(
     await track(db, options.userId, "aggregator_split", splitCharges);
   }
 
+  setStage("sync");
   const sync = await syncSubscriptionsForUser(db, options.userId);
 
   await db

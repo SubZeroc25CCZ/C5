@@ -145,6 +145,8 @@ States: each action has confirm + result states.
 
 Beta reality: at P0 the only admin is the founder (Super administrator). The panel below is designed complete but built in phase order.
 
+> **Built (D8):** 4.1 health, 4.2 scan monitoring, 4.4 extraction quality, 4.6 merchant directory, 4.12 audit-log viewer, plus a plan-distribution slice of 4.8. Membership is `ADMIN_USER_IDS` (an environment variable, not a database column); non-admins get a 404, not a 403. Every screen is gated twice — server-side in the layout and again on each `adminProcedure`.
+
 ### 4.1 Admin dashboard & system health — P0
 Live counts: users, connected inboxes, scans today, error rate, Stage 2 AI spend today, webhook health, queue depth. Red/amber/green per subsystem.
 
@@ -162,6 +164,8 @@ Groups the engine merged or split; manual merge/split tools; duplicate-merchant 
 
 ### 4.6 Merchant directory & matching rules — P0
 The 421+ merchants in an editable table: name, domains, category, logo, cancel_method, cancel_url (+ verified flag & date & by-whom), cancel_email, difficulty. Rule: unverified URLs never render to customers. Add-merchant from Stage 2 discoveries queue.
+
+> **D8:** the rule is enforced at one chokepoint, `customerMerchant()` in `src/server/merchant-view.ts`, which every customer-facing router passes merchant rows through — it strips an unverified URL *and* the verification metadata (who checked it, against what) from the payload. Publishing a URL in the panel requires a source note. `tests/merchant-view.test.ts` holds it.
 
 ### 4.7 Cancellation-playbook creation & verification — P1
 Workflow queue: unplayed merchants ranked by customer demand → research → draft playbook → verify → publish. Verification requires a source note.
