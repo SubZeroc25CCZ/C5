@@ -1,8 +1,15 @@
 import { z } from "zod";
-import { and, desc, eq, inArray } from "drizzle-orm";
+import { and, desc, eq, gte, inArray } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { protectedProcedure, router } from "../trpc";
-import { charges, merchants, subscriptionEvidence, subscriptions } from "@/db/schema";
+import {
+  cancellationRequests,
+  charges,
+  merchants,
+  priceChanges,
+  subscriptionEvidence,
+  subscriptions,
+} from "@/db/schema";
 import { portfolioTotalsByCurrency } from "@/engine/normalize";
 import { minorToMajor } from "@/lib/money";
 
@@ -35,7 +42,76 @@ export const subscriptionsRouter = router({
         })),
     );
 
-    return { subscriptions: rows, totals };
+    // Price increases observed in the last 60 days — the alert banner.
+    const subIds = rows.map((row) => row.subscription.id);
+    const recentPriceChanges =
+      subIds.length > 0
+        ? await ctx.db
+            .select()
+            .from(priceChanges)
+            .where(
+              and(
+                inArray(priceChanges.subscriptionId, subIds),
+                gte(priceChanges.observedAt, new Date(Date.now() - 60 * 86_400_000)),
+              ),
+            )
+            .orderBy(desc(priceChanges.observedAt))
+        : [];
+
+    return { subscriptions: rows, totals, recentPriceChanges };
+  }),
+
+  /** Full detail for one subscription: merchant, evidence, price history, cancellations. */
+  get: protectedProcedure.input(z.object({ id: z.number().int() })).query(async ({ ctx, input }) => {
+    const row = (
+      await ctx.db
+        .select({ subscription: subscriptions, merchant: merchants })
+        .from(subscriptions)
+        .leftJoin(merchants, eq(subscriptions.merchantId, merchants.id))
+        .where(and(eq(subscriptions.id, input.id), eq(subscriptions.userId, ctx.userId)))
+        .limit(1)
+    )[0];
+    if (!row) throw new TRPCError({ code: "NOT_FOUND" });
+
+    const links = await ctx.db
+      .select({ chargeId: subscriptionEvidence.chargeId })
+      .from(subscriptionEvidence)
+      .where(eq(subscriptionEvidence.subscriptionId, input.id));
+    const evidence =
+      links.length > 0
+        ? await ctx.db
+            .select()
+            .from(charges)
+            .where(
+              and(
+                eq(charges.userId, ctx.userId),
+                inArray(
+                  charges.id,
+                  links.map((link) => link.chargeId),
+                ),
+              ),
+            )
+            .orderBy(desc(charges.chargedAt))
+        : [];
+
+    const history = await ctx.db
+      .select()
+      .from(priceChanges)
+      .where(eq(priceChanges.subscriptionId, input.id))
+      .orderBy(desc(priceChanges.observedAt));
+
+    const requests = await ctx.db
+      .select()
+      .from(cancellationRequests)
+      .where(
+        and(
+          eq(cancellationRequests.subscriptionId, input.id),
+          eq(cancellationRequests.userId, ctx.userId),
+        ),
+      )
+      .orderBy(desc(cancellationRequests.createdAt));
+
+    return { ...row, evidence, priceChanges: history, cancellationRequests: requests };
   }),
 
   /** Every AI-extracted field is editable (§10.3). */

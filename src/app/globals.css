@@ -1,109 +1,74 @@
+@import "tailwindcss";
+
+/* SubZero "frost" design tokens. Light and dark follow the system theme. */
 :root {
-  --bg: #f7f8fa;
+  --bg: #f6f8fb;
   --surface: #ffffff;
-  --ink: #16181d;
-  --muted: #6b7280;
-  --line: #e5e7eb;
-  --accent: #0e7490;
-  --accent-ink: #ffffff;
-  --warn-bg: #fef3c7;
-  --warn-ink: #92400e;
+  --surface-2: #eef3f8;
+  --ink: #0e1420;
+  --muted: #5b6b7f;
+  --line: #dfe7ef;
+  --frost: #0e7490; /* primary */
+  --frost-strong: #155e75;
+  --frost-soft: #e0f2fe;
+  --frost-ink: #ffffff;
+  --ok: #047857;
   --ok-bg: #d1fae5;
-  --ok-ink: #065f46;
+  --warn: #92400e;
+  --warn-bg: #fef3c7;
+  --danger: #b91c1c;
+  --danger-bg: #fee2e2;
 }
 
-* {
-  box-sizing: border-box;
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0b1220;
+    --surface: #111a2b;
+    --surface-2: #16233a;
+    --ink: #e8eef6;
+    --muted: #8ba0b8;
+    --line: #23324a;
+    --frost: #22b8d4;
+    --frost-strong: #67dcf1;
+    --frost-soft: #10334a;
+    --frost-ink: #04222c;
+    --ok: #34d399;
+    --ok-bg: #0b3b2c;
+    --warn: #fbbf24;
+    --warn-bg: #3d2e08;
+    --danger: #f87171;
+    --danger-bg: #431418;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-frost: var(--frost);
+  --color-frost-strong: var(--frost-strong);
+  --color-frost-soft: var(--frost-soft);
+  --color-frost-ink: var(--frost-ink);
+  --color-ok: var(--ok);
+  --color-ok-bg: var(--ok-bg);
+  --color-warn: var(--warn);
+  --color-warn-bg: var(--warn-bg);
+  --color-danger: var(--danger);
+  --color-danger-bg: var(--danger-bg);
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
 body {
-  margin: 0;
   background: var(--bg);
   color: var(--ink);
-  font-family:
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    "Segoe UI",
-    Roboto,
-    sans-serif;
-  line-height: 1.5;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
 }
 
-main {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 2rem 1rem 4rem;
-}
-
-a {
-  color: var(--accent);
-}
-
-.card {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  padding: 1rem 1.25rem;
-  margin-bottom: 1rem;
-}
-
-.badge {
-  display: inline-block;
-  border-radius: 999px;
-  padding: 0.1rem 0.6rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
-.badge.possible {
-  background: var(--warn-bg);
-  color: var(--warn-ink);
-}
-
-.badge.active {
-  background: var(--ok-bg);
-  color: var(--ok-ink);
-}
-
-.badge.muted {
-  background: var(--line);
-  color: var(--muted);
-}
-
-button.primary {
-  background: var(--accent);
-  color: var(--accent-ink);
-  border: 0;
-  border-radius: 8px;
-  padding: 0.5rem 1rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-button.secondary {
-  background: transparent;
-  color: var(--accent);
-  border: 1px solid var(--accent);
-  border-radius: 8px;
-  padding: 0.45rem 0.9rem;
-  cursor: pointer;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.9rem;
-}
-
-th,
-td {
-  text-align: left;
-  padding: 0.5rem 0.6rem;
-  border-bottom: 1px solid var(--line);
-  vertical-align: top;
-}
-
-.muted {
-  color: var(--muted);
+/* Tabular numbers wherever money is shown */
+.tnum {
+  font-variant-numeric: tabular-nums;
 }

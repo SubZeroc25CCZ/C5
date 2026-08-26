@@ -3,6 +3,7 @@ import { ClerkProvider, SignedIn, SignedOut, SignInButton, UserButton } from "@c
 import Link from "next/link";
 import "./globals.css";
 import { Providers } from "./providers";
+import { Button } from "@/components/ui";
 
 // Every page is per-user and sits behind ClerkProvider, so nothing is
 // meaningfully static — and prerendering at build time would make the build
@@ -29,9 +30,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     return (
       <html lang="en">
         <body>
-          <main style={{ textAlign: "center", paddingTop: "4rem" }}>
-            <h1>❄️ SubZero is deployed</h1>
-            <p className="muted" style={{ maxWidth: 480, margin: "0 auto" }}>
+          <main className="mx-auto max-w-xl px-4 pt-24 text-center">
+            <h1 className="text-2xl font-bold">❄️ SubZero is deployed</h1>
+            <p className="mt-2 text-muted">
               The app is live but not configured yet: authentication keys are missing. Add the
               environment variables from <code>.env.example</code> in Vercel, then redeploy —
               environment changes only apply to new deployments.
@@ -44,33 +45,37 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <ClerkProvider>
       <html lang="en">
-        <body>
-          <header
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              padding: "0.75rem 1.25rem",
-              borderBottom: "1px solid var(--line)",
-              background: "var(--surface)",
-            }}
-          >
-            <Link href="/" style={{ fontWeight: 700, textDecoration: "none", color: "var(--ink)" }}>
-              ❄️ SubZero
-            </Link>
-            <nav style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
-              <SignedIn>
-                <Link href="/dashboard">Dashboard</Link>
-                <UserButton />
-              </SignedIn>
-              <SignedOut>
-                <SignInButton mode="modal">
-                  <button className="primary">Sign in with Google</button>
-                </SignInButton>
-              </SignedOut>
-            </nav>
+        <body className="flex min-h-screen flex-col">
+          <header className="sticky top-0 z-10 border-b border-line bg-surface/90 backdrop-blur">
+            <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+              <Link href="/" className="text-lg font-extrabold tracking-tight">
+                ❄️ SubZero
+              </Link>
+              <nav className="flex items-center gap-4">
+                <SignedIn>
+                  <Link
+                    href="/dashboard"
+                    className="text-sm font-medium text-muted transition-colors hover:text-ink"
+                  >
+                    Dashboard
+                  </Link>
+                  <UserButton />
+                </SignedIn>
+                <SignedOut>
+                  <SignInButton mode="modal">
+                    <Button>Sign in with Google</Button>
+                  </SignInButton>
+                </SignedOut>
+              </nav>
+            </div>
           </header>
-          <Providers>{children}</Providers>
+          <Providers>
+            <div className="flex-1">{children}</div>
+          </Providers>
+          <footer className="border-t border-line py-6 text-center text-xs text-muted">
+            ❄️ SubZero — your subscriptions, under your control. Read-only email access; bodies are
+            processed in memory and discarded.
+          </footer>
         </body>
       </html>
     </ClerkProvider>
