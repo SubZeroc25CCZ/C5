@@ -1,120 +1,304 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import Link from "next/link";
 import { trpc } from "@/lib/trpc";
-import { formatMinor } from "@/lib/money";
+import { formatMinor, minorToMajor } from "@/lib/money";
+import { normalizedMonthly } from "@/engine/normalize";
+import {
+  Badge,
+  Button,
+  Card,
+  EmptyState,
+  MerchantLogo,
+  Stat,
+  StatusBadge,
+  cx,
+} from "@/components/ui";
+
+import type { inferRouterOutputs } from "@trpc/server";
+import type { AppRouter } from "@/server/routers/_app";
+
+type ListPayload = inferRouterOutputs<AppRouter>["subscriptions"]["list"];
+type Row = ListPayload["subscriptions"][number];
+
+const FILTERS = [
+  { key: "all", label: "All" },
+  { key: "active", label: "Active" },
+  { key: "possible", label: "Seen once" },
+  { key: "cancellation_requested", label: "Request sent" },
+  { key: "cancelled", label: "Cancelled" },
+  { key: "ignored", label: "Ignored" },
+] as const;
+
+type FilterKey = (typeof FILTERS)[number]["key"];
 
 export function DashboardClient() {
   const utils = trpc.useUtils();
-  const subscriptionsQuery = trpc.subscriptions.list.useQuery();
+  const listQuery = trpc.subscriptions.list.useQuery();
   const reviewQuery = trpc.review.queue.useQuery();
   const accountsQuery = trpc.emailAccounts.list.useQuery();
   const planQuery = trpc.billing.plan.useQuery();
 
-  const scan = trpc.emailAccounts.scan.useMutation({
-    onSettled: () => utils.invalidate(),
-  });
+  const scan = trpc.emailAccounts.scan.useMutation({ onSettled: () => utils.invalidate() });
   const checkout = trpc.billing.checkout.useMutation({
     onSuccess: (data) => {
       window.location.href = data.url;
     },
   });
 
+  const [filter, setFilter] = useState<FilterKey>("all");
+
+  const rows = listQuery.data?.subscriptions ?? [];
+  const totals = listQuery.data?.totals ?? [];
+  const alerts = listQuery.data?.recentPriceChanges ?? [];
   const accounts = accountsQuery.data ?? [];
   const plan = planQuery.data?.plan ?? "free";
 
+  const activeRows = rows.filter((row) => row.subscription.status === "active");
+  const nextRenewal = activeRows
+    .map((row) => row.subscription.nextRenewalAt)
+    .filter((date): date is Date => !!date)
+    .sort((a, b) => new Date(a).getTime() - new Date(b).getTime())[0];
+
+  const filtered = useMemo(() => {
+    const subset = filter === "all" ? rows : rows.filter((row) => row.subscription.status === filter);
+    return [...subset].sort((a, b) => monthlyCost(b) - monthlyCost(a));
+  }, [rows, filter]);
+
+  const subNameById = new Map(rows.map((row) => [row.subscription.id, row.subscription.name]));
+
   return (
-    <main>
-      <h1>Your subscriptions</h1>
-
-      <section className="card">
-        <h3 style={{ marginTop: 0 }}>Connected inboxes</h3>
-        {accounts.length === 0 && (
-          <p className="muted">
-            No inbox connected yet. SubZero requests <strong>read-only</strong> Gmail access and
-            only searches for receipts — it never sees your whole mailbox, and email bodies are
-            discarded after processing.
-          </p>
+    <main className="mx-auto max-w-6xl px-4 py-8">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-2xl font-bold">Your subscriptions</h1>
+        {plan === "free" && (
+          <Button variant="secondary" onClick={() => checkout.mutate()} disabled={checkout.isPending}>
+            ⭐ Upgrade to Pro
+          </Button>
         )}
-        {accounts.map((account) => (
-          <div
-            key={account.id}
-            style={{ display: "flex", gap: "1rem", alignItems: "center", marginBottom: "0.5rem" }}
-          >
-            <span>{account.address}</span>
-            <span className={`badge ${account.status === "active" ? "active" : "muted"}`}>
-              {account.status}
-            </span>
-            <span className="muted">
-              {account.lastSyncedAt
-                ? `last synced ${new Date(account.lastSyncedAt).toLocaleDateString()}`
-                : "never scanned"}
-            </span>
-            {account.status === "active" && (
-              <button
-                className="secondary"
-                disabled={scan.isPending}
-                onClick={() => scan.mutate({ accountId: account.id, mode: "backfill" })}
-              >
-                {scan.isPending ? "Scanning…" : "Scan 24 months"}
-              </button>
-            )}
-          </div>
-        ))}
-        <div style={{ display: "flex", gap: "0.75rem", marginTop: "0.75rem" }}>
-          <a href="/api/google/connect">
-            <button className="primary">Connect Gmail (read-only)</button>
-          </a>
-          {plan === "free" && (
-            <button className="secondary" onClick={() => checkout.mutate()} disabled={checkout.isPending}>
-              Upgrade to Pro — unlimited inboxes + daily sync
-            </button>
-          )}
-        </div>
-        {scan.error && <p style={{ color: "#b91c1c" }}>{scan.error.message}</p>}
-      </section>
+      </div>
 
-      <Totals totals={subscriptionsQuery.data?.totals ?? []} />
-      <ReviewQueue items={reviewQuery.data ?? []} />
-      <SubscriptionList
-        rows={subscriptionsQuery.data?.subscriptions ?? []}
-        loaded={subscriptionsQuery.isSuccess}
+      {/* Price-increase alerts (§ P1) — only observed changes, never predictions */}
+      {alerts.length > 0 && (
+        <Card className="mb-6 border-warn bg-warn-bg/40">
+          <h3 className="font-semibold">💸 Price increases spotted</h3>
+          <ul className="mt-1 space-y-0.5 text-sm">
+            {alerts.slice(0, 4).map((change) => (
+              <li key={change.id}>
+                <Link href={`/dashboard/subscriptions/${change.subscriptionId}`} className="hover:underline">
+                  <strong>{subNameById.get(change.subscriptionId) ?? "A subscription"}</strong> was{" "}
+                  {formatMinor(change.oldAmountMinor, change.currency)}, now{" "}
+                  <strong>{formatMinor(change.newAmountMinor, change.currency)}</strong>{" "}
+                  <span className="text-muted">
+                    (observed {new Date(change.observedAt).toLocaleDateString()})
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      )}
+
+      {/* Stat row */}
+      {totals.length > 0 && (
+        <div className="mb-6 flex flex-wrap gap-4">
+          {totals.map((total) => (
+            <Stat
+              key={total.currency}
+              label={`Monthly · ${total.currency}`}
+              value={money(total.monthly, total.currency)}
+              hint={`${money(total.yearly, total.currency)} / year · ${total.activeCount} active`}
+            />
+          ))}
+          <Stat
+            label="Next renewal"
+            value={nextRenewal ? new Date(nextRenewal).toLocaleDateString() : "—"}
+            hint={nextRenewal ? "projected from observed cadence" : "no active subscriptions"}
+          />
+        </div>
+      )}
+
+      <InboxPanel
+        accounts={accounts}
+        plan={plan}
+        scanning={scan.isPending}
+        scanError={scan.error?.message}
+        onScan={(accountId) => scan.mutate({ accountId, mode: "backfill" })}
       />
+
+      <ReviewQueue items={reviewQuery.data ?? []} />
+
+      {/* Subscription list */}
+      {listQuery.isSuccess && rows.length === 0 ? (
+        <EmptyState icon="❄️" title="No subscriptions found">
+          We scanned your receipts and didn&rsquo;t find recurring charges — an empty result is a
+          real result. Connect another inbox or re-scan after new receipts arrive.
+        </EmptyState>
+      ) : rows.length > 0 ? (
+        <section>
+          <div className="mb-3 flex flex-wrap items-center gap-1">
+            {FILTERS.map((entry) => {
+              const count =
+                entry.key === "all"
+                  ? rows.length
+                  : rows.filter((row) => row.subscription.status === entry.key).length;
+              if (entry.key !== "all" && count === 0) return null;
+              return (
+                <button
+                  key={entry.key}
+                  onClick={() => setFilter(entry.key)}
+                  className={cx(
+                    "cursor-pointer rounded-full px-3 py-1 text-sm transition-colors",
+                    filter === entry.key
+                      ? "bg-frost text-frost-ink font-semibold"
+                      : "text-muted hover:bg-surface-2",
+                  )}
+                >
+                  {entry.label} <span className="opacity-70">{count}</span>
+                </button>
+              );
+            })}
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {filtered.map((row) => (
+              <SubscriptionCard key={row.subscription.id} row={row} />
+            ))}
+          </div>
+        </section>
+      ) : null}
     </main>
   );
 }
 
-function Totals({
-  totals,
-}: {
-  totals: Array<{ currency: string; monthly: number; yearly: number; activeCount: number }>;
-}) {
-  if (totals.length === 0) return null;
+function monthlyCost(row: Row): number {
+  if (row.subscription.status !== "active") return 0;
+  return normalizedMonthly(
+    minorToMajor(row.subscription.amountMinor, row.subscription.currency),
+    row.subscription.cycle,
+  );
+}
+
+function money(value: number, currency: string): string {
+  try {
+    return new Intl.NumberFormat("en", { style: "currency", currency }).format(value);
+  } catch {
+    return `${value.toFixed(2)} ${currency}`;
+  }
+}
+
+function SubscriptionCard({ row }: { row: Row }) {
+  const sub = row.subscription;
+  const domain = row.merchant?.domains?.[0] ?? null;
+  const isActive = sub.status === "active";
   return (
-    <section className="card">
-      <h3 style={{ marginTop: 0 }}>What you spend</h3>
-      <div style={{ display: "flex", gap: "2rem", flexWrap: "wrap" }}>
-        {totals.map((total) => (
-          <div key={total.currency}>
-            <div style={{ fontSize: "1.6rem", fontWeight: 700 }}>
-              {new Intl.NumberFormat("en", { style: "currency", currency: total.currency }).format(
-                total.monthly,
-              )}
-              <span className="muted" style={{ fontSize: "0.9rem" }}> / month</span>
-            </div>
-            <div className="muted">
-              {new Intl.NumberFormat("en", { style: "currency", currency: total.currency }).format(
-                total.yearly,
-              )}{" "}
-              per year · {total.activeCount} active
+    <Link href={`/dashboard/subscriptions/${sub.id}`} className="group">
+      <Card className="h-full transition-shadow group-hover:shadow-md">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex items-center gap-3">
+            <MerchantLogo name={sub.name} domain={domain} />
+            <div>
+              <div className="font-semibold leading-tight">{sub.name}</div>
+              <div className="text-xs text-muted">{row.merchant?.category ?? "uncategorized"}</div>
             </div>
           </div>
-        ))}
+          <StatusBadge status={sub.status} />
+        </div>
+        <div className="mt-4 flex items-end justify-between">
+          <div>
+            <div className="tnum text-xl font-bold">
+              {formatMinor(sub.amountMinor, sub.currency)}
+              <span className="text-sm font-normal text-muted">
+                {" "}
+                / {sub.status === "possible" ? "charge" : sub.cycle.replace("ly", "")}
+              </span>
+            </div>
+            {isActive && sub.cycle !== "monthly" && (
+              <div className="tnum text-xs text-muted">
+                ≈ {money(monthlyCost(row), sub.currency)} / month
+              </div>
+            )}
+          </div>
+          {sub.nextRenewalAt && isActive && (
+            <div className="text-right text-xs text-muted">
+              renews
+              <br />
+              {new Date(sub.nextRenewalAt).toLocaleDateString()}
+            </div>
+          )}
+        </div>
+      </Card>
+    </Link>
+  );
+}
+
+function InboxPanel({
+  accounts,
+  plan,
+  scanning,
+  scanError,
+  onScan,
+}: {
+  accounts: Array<{ id: number; address: string; status: string; lastSyncedAt: Date | null }>;
+  plan: string;
+  scanning: boolean;
+  scanError?: string;
+  onScan: (accountId: number) => void;
+}) {
+  return (
+    <Card className="mb-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h3 className="font-semibold">Connected inboxes</h3>
+          {accounts.length === 0 && (
+            <p className="mt-1 max-w-lg text-sm text-muted">
+              SubZero requests <strong>read-only</strong> Gmail access, only searches for receipts,
+              and discards email bodies after processing.
+            </p>
+          )}
+        </div>
+        <a href="/api/google/connect">
+          <Button variant={accounts.length === 0 ? "primary" : "secondary"}>
+            + Connect Gmail (read-only)
+          </Button>
+        </a>
       </div>
-      <p className="muted" style={{ marginBottom: 0 }}>
-        Totals are per currency — we never convert with exchange rates we didn&rsquo;t observe.
-      </p>
-    </section>
+      {accounts.map((account) => (
+        <div
+          key={account.id}
+          className="mt-3 flex flex-wrap items-center gap-3 rounded-lg bg-surface-2 px-3 py-2 text-sm"
+        >
+          <span className="font-medium">{account.address}</span>
+          <Badge variant={account.status === "active" ? "ok" : "muted"}>{account.status}</Badge>
+          <span className="text-muted">
+            {account.lastSyncedAt
+              ? `last synced ${new Date(account.lastSyncedAt).toLocaleString()}`
+              : "never scanned"}
+          </span>
+          {account.status === "active" && (
+            <Button
+              variant="secondary"
+              className="ml-auto"
+              disabled={scanning}
+              onClick={() => onScan(account.id)}
+            >
+              {scanning ? "Scanning…" : "Scan 24 months"}
+            </Button>
+          )}
+        </div>
+      ))}
+      {scanning && (
+        <p className="mt-2 text-sm text-muted">
+          Searching your receipts — this can take a couple of minutes for a full backfill…
+        </p>
+      )}
+      {scanError && <p className="mt-2 text-sm text-danger">{scanError}</p>}
+      {plan === "free" && accounts.length > 0 && (
+        <p className="mt-3 text-xs text-muted">
+          Free plan: 1 inbox, monthly re-scan. Pro: unlimited inboxes, daily sync.
+        </p>
+      )}
+    </Card>
   );
 }
 
@@ -126,7 +310,7 @@ function ReviewQueue({
     merchantName: string;
     amountMinor: number;
     currency: string;
-    chargedAt: string | Date;
+    chargedAt: Date;
     sourceSubject: string | null;
     extractionConfidence: number | null;
   }>;
@@ -137,250 +321,44 @@ function ReviewQueue({
 
   if (items.length === 0) return null;
   return (
-    <section className="card">
-      <h3 style={{ marginTop: 0 }}>Needs your review</h3>
-      <p className="muted">
-        The AI wasn&rsquo;t confident enough about these. Nothing here counts as a subscription
-        until you approve it.
+    <Card className="mb-6">
+      <h3 className="font-semibold">🔎 Needs your review ({items.length})</h3>
+      <p className="mt-1 text-sm text-muted">
+        The AI wasn&rsquo;t confident enough about these. Nothing counts as a subscription until you
+        approve it.
       </p>
-      <table>
-        <thead>
-          <tr>
-            <th>Merchant</th>
-            <th>Amount</th>
-            <th>Date</th>
-            <th>From email</th>
-            <th>Confidence</th>
-            <th />
-          </tr>
-        </thead>
-        <tbody>
-          {items.map((item) => (
-            <tr key={item.id}>
-              <td>{item.merchantName}</td>
-              <td>{formatMinor(item.amountMinor, item.currency)}</td>
-              <td>{new Date(item.chargedAt).toLocaleDateString()}</td>
-              <td className="muted">{item.sourceSubject}</td>
-              <td>{item.extractionConfidence}%</td>
-              <td style={{ whiteSpace: "nowrap" }}>
-                <button
-                  className="secondary"
-                  onClick={() => approve.mutate({ chargeId: item.id })}
-                  disabled={approve.isPending}
-                >
-                  Approve
-                </button>{" "}
-                <button
-                  className="secondary"
-                  onClick={() => reject.mutate({ chargeId: item.id })}
-                  disabled={reject.isPending}
-                >
-                  Not a subscription
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </section>
-  );
-}
-
-type SubscriptionRow = {
-  subscription: {
-    id: number;
-    name: string;
-    amountMinor: number;
-    currency: string;
-    cycle: "weekly" | "monthly" | "quarterly" | "yearly";
-    status: string;
-    nextRenewalAt: string | Date | null;
-  };
-  merchant: {
-    cancelUrl: string | null;
-    cancelMethod: "url" | "email" | "phone" | "unknown";
-    difficulty: number;
-  } | null;
-};
-
-function SubscriptionList({ rows, loaded }: { rows: SubscriptionRow[]; loaded: boolean }) {
-  if (loaded && rows.length === 0) {
-    // An empty state is a correct answer (§10.4).
-    return (
-      <section className="card">
-        <h3 style={{ marginTop: 0 }}>No subscriptions found</h3>
-        <p className="muted">
-          We scanned your receipts and didn&rsquo;t find recurring charges. If you connect another
-          inbox or new receipts arrive, they&rsquo;ll show up here.
-        </p>
-      </section>
-    );
-  }
-  if (rows.length === 0) return null;
-
-  const confirmed = rows.filter((row) => row.subscription.status !== "possible");
-  const possible = rows.filter((row) => row.subscription.status === "possible");
-
-  return (
-    <>
-      <section className="card">
-        <h3 style={{ marginTop: 0 }}>Subscriptions</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Service</th>
-              <th>Price</th>
-              <th>Cycle</th>
-              <th>Status</th>
-              <th>Next renewal</th>
-              <th />
-            </tr>
-          </thead>
-          <tbody>
-            {confirmed.map((row) => (
-              <SubscriptionRowView key={row.subscription.id} row={row} />
-            ))}
-          </tbody>
-        </table>
-      </section>
-      {possible.length > 0 && (
-        <section className="card">
-          <h3 style={{ marginTop: 0 }}>Possible subscriptions</h3>
-          <p className="muted">
-            Seen once — one charge is evidence, not a subscription. These are not counted in your
-            totals.
-          </p>
-          <table>
-            <tbody>
-              {possible.map((row) => (
-                <SubscriptionRowView key={row.subscription.id} row={row} />
-              ))}
-            </tbody>
-          </table>
-        </section>
-      )}
-    </>
-  );
-}
-
-function SubscriptionRowView({ row }: { row: SubscriptionRow }) {
-  const [showEvidence, setShowEvidence] = useState(false);
-  const utils = trpc.useUtils();
-  const prepare = trpc.cancellations.prepare.useMutation();
-  const markSent = trpc.cancellations.markSent.useMutation({ onSettled: () => utils.invalidate() });
-  const ignore = trpc.subscriptions.setStatus.useMutation({ onSettled: () => utils.invalidate() });
-
-  const sub = row.subscription;
-  return (
-    <>
-      <tr>
-        <td>{sub.name}</td>
-        <td>{formatMinor(sub.amountMinor, sub.currency)}</td>
-        <td>{sub.status === "possible" ? "—" : sub.cycle}</td>
-        <td>
-          <span className={`badge ${sub.status === "active" ? "active" : sub.status === "possible" ? "possible" : "muted"}`}>
-            {sub.status === "cancellation_requested" ? "request sent — not yet confirmed" : sub.status.replace("_", " ")}
-          </span>
-        </td>
-        <td>{sub.nextRenewalAt ? new Date(sub.nextRenewalAt).toLocaleDateString() : "—"}</td>
-        <td style={{ whiteSpace: "nowrap" }}>
-          <button className="secondary" onClick={() => setShowEvidence((value) => !value)}>
-            What we saw
-          </button>{" "}
-          {sub.status === "active" && (
-            <>
-              <button
-                className="secondary"
-                disabled={prepare.isPending}
-                onClick={() => prepare.mutate({ subscriptionId: sub.id })}
+      <div className="mt-3 space-y-2">
+        {items.map((item) => (
+          <div
+            key={item.id}
+            className="flex flex-wrap items-center gap-3 rounded-lg bg-surface-2 px-3 py-2 text-sm"
+          >
+            <span className="font-medium">{item.merchantName}</span>
+            <span className="tnum">{formatMinor(item.amountMinor, item.currency)}</span>
+            <span className="text-muted">{new Date(item.chargedAt).toLocaleDateString()}</span>
+            <span className="max-w-60 truncate text-muted" title={item.sourceSubject ?? undefined}>
+              “{item.sourceSubject}”
+            </span>
+            <Badge variant="warn">{item.extractionConfidence}% sure</Badge>
+            <span className="ml-auto flex gap-2">
+              <Button
+                variant="secondary"
+                disabled={approve.isPending}
+                onClick={() => approve.mutate({ chargeId: item.id })}
               >
-                Cancel…
-              </button>{" "}
-              <button
-                className="secondary"
-                onClick={() => ignore.mutate({ id: sub.id, status: "ignored" })}
+                Approve
+              </Button>
+              <Button
+                variant="ghost"
+                disabled={reject.isPending}
+                onClick={() => reject.mutate({ chargeId: item.id })}
               >
-                Ignore
-              </button>
-            </>
-          )}
-        </td>
-      </tr>
-      {prepare.data && (
-        <tr>
-          <td colSpan={6}>
-            <div style={{ background: "var(--bg)", padding: "1rem", borderRadius: 8 }}>
-              <strong>Escape path for {sub.name}</strong>
-              {prepare.data.cancelUrl && (
-                <p>
-                  Cancel online:{" "}
-                  <a href={prepare.data.cancelUrl} target="_blank" rel="noreferrer">
-                    {prepare.data.cancelUrl}
-                  </a>
-                </p>
-              )}
-              <p className="muted">
-                Or send this email from your own address ({prepare.data.method} playbook
-                {prepare.data.difficulty ? `, difficulty ${prepare.data.difficulty}/5` : ""}):
-              </p>
-              <pre
-                style={{
-                  whiteSpace: "pre-wrap",
-                  background: "var(--surface)",
-                  border: "1px solid var(--line)",
-                  padding: "0.75rem",
-                  borderRadius: 8,
-                }}
-              >
-                {`Subject: ${prepare.data.draft.subject}\n\n${prepare.data.draft.body}`}
-              </pre>
-              <button
-                className="primary"
-                disabled={markSent.isPending}
-                onClick={() => markSent.mutate({ requestId: prepare.data.requestId })}
-              >
-                I sent the request
-              </button>{" "}
-              <span className="muted">
-                We&rsquo;ll mark it &ldquo;request sent&rdquo; — it becomes &ldquo;cancelled&rdquo;
-                only when the provider confirms.
-              </span>
-            </div>
-          </td>
-        </tr>
-      )}
-      {showEvidence && <EvidenceRow subscriptionId={sub.id} />}
-    </>
-  );
-}
-
-function EvidenceRow({ subscriptionId }: { subscriptionId: number }) {
-  const evidence = trpc.subscriptions.whatWeSaw.useQuery({ id: subscriptionId });
-  return (
-    <tr>
-      <td colSpan={6}>
-        <div style={{ background: "var(--bg)", padding: "0.75rem 1rem", borderRadius: 8 }}>
-          <strong>What we saw</strong>
-          {evidence.isLoading && <p className="muted">Loading…</p>}
-          {evidence.data && evidence.data.length === 0 && (
-            <p className="muted">No source emails recorded for this entry.</p>
-          )}
-          {evidence.data && evidence.data.length > 0 && (
-            <ul style={{ margin: "0.5rem 0 0", paddingLeft: "1.2rem" }}>
-              {evidence.data.map((item, index) => (
-                <li key={index}>
-                  {new Date(item.chargedAt).toLocaleDateString()} — “{item.subject}” (
-                  {formatMinor(item.amountMinor, item.currency)}
-                  {item.extractionConfidence === null
-                    ? ", matched from merchant database"
-                    : `, AI-extracted at ${item.extractionConfidence}% confidence`}
-                  )
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      </td>
-    </tr>
+                Not a subscription
+              </Button>
+            </span>
+          </div>
+        ))}
+      </div>
+    </Card>
   );
 }

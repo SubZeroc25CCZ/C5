@@ -17,15 +17,13 @@ export default async function DashboardPage() {
   );
   if (!dbConfigured) {
     return (
-      <main>
-        <section className="card" style={{ textAlign: "center" }}>
-          <h2>Almost there — the database isn&rsquo;t connected yet</h2>
-          <p className="muted">
-            Add <code>CLOUDFLARE_ACCOUNT_ID</code>, <code>CLOUDFLARE_D1_DATABASE_ID</code> and{" "}
-            <code>CLOUDFLARE_API_TOKEN</code> in Vercel (see <code>.env.example</code>), then
-            redeploy — environment changes only apply to new deployments.
-          </p>
-        </section>
+      <main className="mx-auto max-w-xl px-4 pt-20 text-center">
+        <h2 className="text-xl font-bold">Almost there — the database isn&rsquo;t connected yet</h2>
+        <p className="mt-2 text-sm text-muted">
+          Add <code>CLOUDFLARE_ACCOUNT_ID</code>, <code>CLOUDFLARE_D1_DATABASE_ID</code> and{" "}
+          <code>CLOUDFLARE_API_TOKEN</code> in Vercel (see <code>.env.example</code>), then redeploy
+          — environment changes only apply to new deployments.
+        </p>
       </main>
     );
   }
