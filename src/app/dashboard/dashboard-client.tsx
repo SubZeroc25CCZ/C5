@@ -188,7 +188,7 @@ function TeaserDashboard({
               </h3>
               <p className="mx-auto mt-1 max-w-md text-sm text-muted">
                 Basic shows every subscription with evidence and price history, and prepares
-                cancellations for the ones you don&rsquo;t want — from $2.99/month.
+                cancellations for the ones you don&rsquo;t want — from $4.99/month.
               </p>
               <div className="mt-4">
                 <LinkButton href="/pricing" className="px-6 py-2.5">
@@ -407,6 +407,41 @@ function SubscriptionCard({ row }: { row: Row }) {
   const sub = row.subscription;
   const domain = row.merchant?.domains?.[0] ?? null;
   const isActive = sub.status === "active";
+  const unconfirmed = sub.status === "possible";
+
+  // D6: storefront aggregators (Apple, Google, PayPal, …) show observed
+  // spend, never a per-month claim — the basket varies by receipt.
+  if (row.aggregator) {
+    return (
+      <Link href={`/dashboard/subscriptions/${sub.id}`} className="group">
+        <Card className="h-full border-dashed transition-shadow group-hover:shadow-md">
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex items-center gap-3">
+              <MerchantLogo name={sub.name} domain={domain} />
+              <div>
+                <div className="font-semibold leading-tight">{sub.name}</div>
+                <div className="text-xs text-muted">storefront charges</div>
+              </div>
+            </div>
+            <Badge variant="muted">
+              {row.evidenceCount} receipt{row.evidenceCount === 1 ? "" : "s"}
+            </Badge>
+          </div>
+          <div className="mt-4">
+            <div className="tnum text-xl font-bold">
+              {formatMinor(row.observedTotalMinor, sub.currency)}
+              <span className="text-sm font-normal text-muted"> observed</span>
+            </div>
+            <p className="mt-1 text-xs leading-relaxed text-muted">
+              Bills many services together — amounts vary, so this is observed spend, not a
+              monthly price.
+            </p>
+          </div>
+        </Card>
+      </Link>
+    );
+  }
+
   return (
     <Link href={`/dashboard/subscriptions/${sub.id}`} className="group">
       <Card className="h-full transition-shadow group-hover:shadow-md">
@@ -418,21 +453,47 @@ function SubscriptionCard({ row }: { row: Row }) {
               <div className="text-xs text-muted">{row.merchant?.category ?? "uncategorized"}</div>
             </div>
           </div>
-          <StatusBadge status={sub.status} />
+          {/* D6: the badge equals the evidence count — never "seen once" with
+              a pile of receipts behind it. */}
+          {unconfirmed ? (
+            <Badge variant="warn">
+              {row.evidenceCount === 1 ? "seen once" : `seen ${row.evidenceCount}×`}
+            </Badge>
+          ) : (
+            <StatusBadge status={sub.status} />
+          )}
         </div>
         <div className="mt-4 flex items-end justify-between">
           <div>
-            <div className="tnum text-xl font-bold">
-              {formatMinor(sub.amountMinor, sub.currency)}
-              <span className="text-sm font-normal text-muted">
-                {" "}
-                / {sub.status === "possible" ? "charge" : sub.cycle.replace("ly", "")}
-              </span>
-            </div>
-            {isActive && sub.cycle !== "monthly" && (
-              <div className="tnum text-xs text-muted">
-                ≈ {money(monthlyCost(row), sub.currency)} / month
-              </div>
+            {unconfirmed ? (
+              // D6: no "/month" (or any cycle) for unconfirmed recurrence —
+              // observed spend only, and it never joins the monthly total.
+              <>
+                <div className="tnum text-xl font-bold">
+                  {formatMinor(row.observedTotalMinor, sub.currency)}
+                  <span className="text-sm font-normal text-muted"> observed</span>
+                </div>
+                <div className="tnum text-xs text-muted">
+                  {row.evidenceCount === 1
+                    ? `${formatMinor(sub.amountMinor, sub.currency)} per charge`
+                    : `${row.evidenceCount} charges · no regular cycle yet`}
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="tnum text-xl font-bold">
+                  {formatMinor(sub.amountMinor, sub.currency)}
+                  <span className="text-sm font-normal text-muted">
+                    {" "}
+                    / {sub.cycle.replace("ly", "")}
+                  </span>
+                </div>
+                {isActive && sub.cycle !== "monthly" && (
+                  <div className="tnum text-xs text-muted">
+                    ≈ {money(monthlyCost(row), sub.currency)} / month
+                  </div>
+                )}
+              </>
             )}
           </div>
           {sub.nextRenewalAt && isActive && (

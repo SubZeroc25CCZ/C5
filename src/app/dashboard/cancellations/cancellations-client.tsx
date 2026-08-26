@@ -91,7 +91,7 @@ export function CancellationsClient({ accountEmail }: { accountEmail: string }) 
         </h1>
         <p className="mx-auto mt-2 max-w-md text-sm text-muted">
           Prepared cancellation emails, verified cancel links, and honest tracking from draft to
-          provider-confirmed — from $2.99/month.
+          provider-confirmed — from $4.99/month.
         </p>
         <div className="mt-6">
           <Link

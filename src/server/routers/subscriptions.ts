@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { and, desc, eq, gte, inArray } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { protectedProcedure, router } from "../trpc";
 import {
@@ -12,6 +12,7 @@ import {
 } from "@/db/schema";
 import { portfolioTotalsByCurrency } from "@/engine/normalize";
 import { minorToMajor } from "@/lib/money";
+import { isAggregatorMerchant } from "@/lib/aggregators";
 import { PLAN_LIMITS } from "@/lib/quota";
 import { userPlan } from "../plan";
 import { redactListForTeaser, unlockedSubscriptionId } from "@/services/redaction";
@@ -31,11 +32,48 @@ export const subscriptionsRouter = router({
       .where(eq(subscriptions.userId, ctx.userId))
       .orderBy(desc(subscriptions.lastChargeAt));
 
-    // Only confirmed, active subscriptions feed the totals (§10.1): a
-    // "possible" sighting is evidence, not a number we display as spend.
+    // D6: evidence counts + observed spend per subscription — the badge must
+    // equal the evidence count, and unconfirmed/aggregator rows show observed
+    // totals instead of a per-month claim.
+    const subIds = rows.map((row) => row.subscription.id);
+    const evidenceAgg =
+      subIds.length > 0
+        ? await ctx.db
+            .select({
+              subscriptionId: subscriptionEvidence.subscriptionId,
+              evidenceCount: sql<number>`count(*)`,
+              observedTotalMinor: sql<number>`coalesce(sum(${charges.amountMinor}), 0)`,
+            })
+            .from(subscriptionEvidence)
+            .innerJoin(charges, eq(subscriptionEvidence.chargeId, charges.id))
+            .where(
+              and(
+                inArray(subscriptionEvidence.subscriptionId, subIds),
+                eq(charges.userId, ctx.userId),
+              ),
+            )
+            .groupBy(subscriptionEvidence.subscriptionId)
+        : [];
+    const evidenceBySub = new Map(evidenceAgg.map((entry) => [entry.subscriptionId, entry]));
+
+    const enriched = rows.map((row) => ({
+      ...row,
+      evidenceCount: evidenceBySub.get(row.subscription.id)?.evidenceCount ?? 1,
+      observedTotalMinor:
+        evidenceBySub.get(row.subscription.id)?.observedTotalMinor ??
+        row.subscription.amountMinor,
+      // Storefront aggregators (D6): observed spend group, never a monthly claim.
+      aggregator:
+        isAggregatorMerchant(row.subscription.name) ||
+        (row.merchant ? isAggregatorMerchant(row.merchant.name) : false),
+    }));
+
+    // Only confirmed, active, non-aggregator subscriptions feed the totals
+    // (§10.1 + D6): a "possible" sighting is evidence, not spend; a
+    // storefront total has no stable cycle to normalize.
     const totals = portfolioTotalsByCurrency(
-      rows
-        .filter((row) => row.subscription.status === "active")
+      enriched
+        .filter((row) => row.subscription.status === "active" && !row.aggregator)
         .map((row) => ({
           amount: minorToMajor(row.subscription.amountMinor, row.subscription.currency),
           cycle: row.subscription.cycle,
@@ -46,7 +84,6 @@ export const subscriptionsRouter = router({
     );
 
     // Price increases observed in the last 60 days — the alert banner.
-    const subIds = rows.map((row) => row.subscription.id);
     const recentPriceChanges =
       subIds.length > 0
         ? await ctx.db
@@ -66,18 +103,18 @@ export const subscriptionsRouter = router({
     // server; every other row becomes a locked placeholder.
     const plan = await userPlan(ctx.db, ctx.userId);
     if (!PLAN_LIMITS[plan].fullResults) {
-      return redactListForTeaser({ subscriptions: rows, totals, recentPriceChanges });
+      return redactListForTeaser({ subscriptions: enriched, totals, recentPriceChanges });
     }
 
     return {
       teaser: false as const,
-      subscriptions: rows,
+      subscriptions: enriched,
       totals,
       recentPriceChanges,
       counts: {
-        total: rows.length,
-        confirmed: rows.filter((row) => row.subscription.status === "active").length,
-        possible: rows.filter((row) => row.subscription.status === "possible").length,
+        total: enriched.length,
+        confirmed: enriched.filter((row) => row.subscription.status === "active").length,
+        possible: enriched.filter((row) => row.subscription.status === "possible").length,
       },
     };
   }),
