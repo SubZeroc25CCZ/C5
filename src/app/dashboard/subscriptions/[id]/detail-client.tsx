@@ -67,8 +67,9 @@ export function SubscriptionDetailClient({ id }: { id: number }) {
   const { subscription: sub, merchant, evidence, priceChanges, cancellationRequests } = detail.data;
   const domain = merchant?.domains?.[0] ?? null;
   const latestRequest = cancellationRequests[0];
-  const aggregator =
-    isAggregatorMerchant(sub.name) || (merchant ? isAggregatorMerchant(merchant.name) : false);
+  // Judged by the subscription's own name only — split per-service subs keep
+  // the storefront's merchant link for logo/playbook and are not storefronts.
+  const aggregator = isAggregatorMerchant(sub.name);
   const observedTotalMinor =
     evidence.length > 0
       ? evidence.reduce((sum, charge) => sum + charge.amountMinor, 0)

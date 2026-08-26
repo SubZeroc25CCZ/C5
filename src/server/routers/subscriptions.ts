@@ -62,10 +62,11 @@ export const subscriptionsRouter = router({
       observedTotalMinor:
         evidenceBySub.get(row.subscription.id)?.observedTotalMinor ??
         row.subscription.amountMinor,
-      // Storefront aggregators (D6): observed spend group, never a monthly claim.
-      aggregator:
-        isAggregatorMerchant(row.subscription.name) ||
-        (row.merchant ? isAggregatorMerchant(row.merchant.name) : false),
+      // Storefront aggregators (D6): observed spend group, never a monthly
+      // claim. Judged by the SUBSCRIPTION's own name only: split per-service
+      // subs (iCloud+, Apple Music) deliberately keep the storefront's
+      // merchantId for logo/playbook, and must not be re-flagged by it.
+      aggregator: isAggregatorMerchant(row.subscription.name),
     }));
 
     // Only confirmed, active, non-aggregator subscriptions feed the totals
