@@ -107,6 +107,10 @@ export async function createCheckoutSession(
     // later webhook (updated/deleted) knows which tier it concerns.
     metadata: { plan: input.plan },
     subscription_data: { metadata: { plan: input.plan } },
+    // Promotion codes (e.g. launch coupons) are created in the Stripe
+    // dashboard; this only reveals the "Add promotion code" field at
+    // checkout. No code, no change.
+    allow_promotion_codes: true,
     success_url: `${origin}/checkout/success`,
     cancel_url: `${origin}/pricing`,
   });
