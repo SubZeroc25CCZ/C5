@@ -5,7 +5,20 @@ import { db } from "@/db/client";
 import { emailAccounts } from "@/db/schema";
 import { encryptToken } from "@/lib/encryption";
 import { OAUTH_STATE_COOKIE } from "@/lib/oauth-state";
-import { track } from "@/services/analytics";
+import { ANON_ACTOR, track } from "@/services/analytics";
+
+/**
+ * Why a consent flow died, as a small integer on `oauth_failed`. The event
+ * value is the only payload analytics carries, so the cause has to be a
+ * code — and knowing WHICH step loses people is the difference between
+ * "Google's permission text scares them" and "our token exchange is broken".
+ */
+const OAUTH_FAILURE = {
+  deniedOrForged: 1, // no code, or the CSRF nonce did not round-trip
+  tokenExchange: 2,
+  noRefreshToken: 3,
+  gmailProfile: 4,
+} as const;
 
 function stateMatches(state: string | null, cookie: string | undefined): boolean {
   if (!state || !cookie) return false;
@@ -23,6 +36,7 @@ export async function GET(req: NextRequest) {
   // the flow, so a crafted or replayed callback link is rejected.
   const stateCookie = req.cookies.get(OAUTH_STATE_COOKIE)?.value;
   if (!userId || !code || !stateMatches(state, stateCookie)) {
+    await track(db, userId ?? ANON_ACTOR, "oauth_failed", OAUTH_FAILURE.deniedOrForged);
     return NextResponse.redirect(new URL("/dashboard?error=oauth", req.url));
   }
 
@@ -38,6 +52,7 @@ export async function GET(req: NextRequest) {
     }),
   });
   if (!tokenResponse.ok) {
+    await track(db, userId, "oauth_failed", OAUTH_FAILURE.tokenExchange);
     return NextResponse.redirect(new URL("/dashboard?error=oauth_exchange", req.url));
   }
   const tokens = (await tokenResponse.json()) as {
@@ -45,6 +60,7 @@ export async function GET(req: NextRequest) {
     refresh_token?: string;
   };
   if (!tokens.refresh_token) {
+    await track(db, userId, "oauth_failed", OAUTH_FAILURE.noRefreshToken);
     return NextResponse.redirect(new URL("/dashboard?error=no_refresh_token", req.url));
   }
 
@@ -52,6 +68,7 @@ export async function GET(req: NextRequest) {
     headers: { Authorization: `Bearer ${tokens.access_token}` },
   });
   if (!profileResponse.ok) {
+    await track(db, userId, "oauth_failed", OAUTH_FAILURE.gmailProfile);
     return NextResponse.redirect(new URL("/dashboard?error=gmail_profile", req.url));
   }
   const gmailProfile = (await profileResponse.json()) as { emailAddress: string };
@@ -75,6 +92,7 @@ export async function GET(req: NextRequest) {
       },
     });
 
+  await track(db, userId, "oauth_completed");
   await track(db, userId, "inbox_connected");
 
   const response = NextResponse.redirect(new URL("/dashboard?connected=1", req.url));

@@ -6,6 +6,7 @@ import { db } from "@/db/client";
 import { emailAccounts, profiles } from "@/db/schema";
 import { asPlan, canConnectInbox } from "@/lib/quota";
 import { OAUTH_STATE_COOKIE } from "@/lib/oauth-state";
+import { track } from "@/services/analytics";
 
 // Incremental consent (§8 P0): Gmail read-only is requested here, separately
 // from sign-in, and ONLY gmail.readonly — never write/send (§6).
@@ -26,6 +27,11 @@ export async function GET(req: Request) {
   if (!canConnectInbox(asPlan(profile?.plan), connected.length)) {
     return NextResponse.redirect(new URL("/dashboard?error=inbox_quota", req.url));
   }
+
+  // The consent screen is about to be shown: this is where OAuth genuinely
+  // starts, and the pair (oauth_started, oauth_completed) measures how many
+  // people Google's permission text turns away.
+  await track(db, userId, "oauth_started");
 
   // CSRF protection: state is an unguessable nonce bound to this browser via
   // an httpOnly cookie, so a crafted callback link (someone else's code, or a

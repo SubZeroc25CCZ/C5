@@ -3,9 +3,13 @@ import superjson from "superjson";
 import { auth } from "@clerk/nextjs/server";
 import { db } from "@/db/client";
 
-export async function createContext() {
+export async function createContext(opts?: { req?: Request }) {
   const { userId } = await auth();
-  return { db, userId };
+  // Only used to rate-limit the public landing-event endpoint. Not stored,
+  // not logged, not written to any table — it never leaves this request.
+  const forwarded = opts?.req?.headers.get("x-forwarded-for");
+  const ip = forwarded?.split(",")[0]?.trim() || null;
+  return { db, userId, ip };
 }
 
 export type Context = Awaited<ReturnType<typeof createContext>>;
