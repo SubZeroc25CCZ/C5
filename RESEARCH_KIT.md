@@ -35,7 +35,7 @@ Everything below serves those two. Anything that doesn't, cut.
 
 **Q3b — if "No" (free text, optional):** "What would make it worth paying for?"
 
-**Rules:** never gate the product behind the survey; never ask again if dismissed; store answers against the pseudonymized user id; the survey is not a paywall and must not look like one.
+**Rules:** never gate the product behind the survey; never ask again if dismissed; store answers against the pseudonymized user id; the survey is not a paywall and must not look like one. **Q3/Q3b are asked only on the teaser plan** — they're about the teaser boundary, so putting them to someone who already pays is both nonsensical and would contaminate the willingness signal; paid users get Q1 (+Q2) only, and their `willingness` stays `unanswered`.
 
 **Implementation:** `src/app/dashboard/post-scan-survey.tsx`, served by `research.surveyStatus` / `research.submitSurvey`; responses in the `survey_responses` table (unique per user + survey, so dismissal is final).
 

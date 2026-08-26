@@ -52,6 +52,7 @@ function Choice({
 
 export function PostScanSurvey() {
   const status = trpc.research.surveyStatus.useQuery();
+  const planQuery = trpc.billing.plan.useQuery();
   const utils = trpc.useUtils();
   const submit = trpc.research.submitSurvey.useMutation({
     onSettled: () => utils.research.surveyStatus.invalidate(),
@@ -66,6 +67,13 @@ export function PostScanSurvey() {
   // Never render for someone who already answered or dismissed.
   if (!status.data || status.data.answered) return null;
 
+  // Q3 (§1) asks about the teaser boundary: "To see the full list, SubZero
+  // is $4.99/month. Would you?" — a nonsense question for someone who
+  // already pays and already sees the full list, and it would contaminate
+  // the willingness signal. Accuracy and the gap question still matter for
+  // every user, so paid plans get a two-question survey instead.
+  const askPricing = planQuery.data?.plan === "teaser";
+
   if (done) {
     return (
       <Card className="mb-6 border-frost bg-frost-soft/40">
@@ -75,7 +83,7 @@ export function PostScanSurvey() {
   }
 
   const showGap = accuracy === "mostly" || accuracy === "missed_a_lot";
-  const showWhyNot = willingness === "too_expensive" || willingness === "diy";
+  const showWhyNot = askPricing && (willingness === "too_expensive" || willingness === "diy");
 
   function dismiss() {
     // Records the decline so we never ask again.
@@ -88,7 +96,9 @@ export function PostScanSurvey() {
     <Card className="mb-6">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h3 className="font-semibold">Two quick questions</h3>
+          <h3 className="font-semibold">
+            {askPricing ? "Two quick questions" : "One quick question"}
+          </h3>
           <p className="mt-0.5 text-sm text-muted">
             You’re in the beta — your answers decide what we fix first.
           </p>
@@ -135,7 +145,7 @@ export function PostScanSurvey() {
         </div>
       )}
 
-      {accuracy && (
+      {accuracy && askPricing && (
         <div className="mt-4">
           <p className="text-sm font-medium">
             To see the full list, SubZero is $4.99/month. Would you?
@@ -176,7 +186,9 @@ export function PostScanSurvey() {
               submit.mutate({
                 accuracy,
                 missingText: showGap ? missingText : undefined,
-                willingness: willingness ?? "unanswered",
+                // Paid plans are never asked Q3, so their willingness stays
+                // "unanswered" rather than a value we didn't collect.
+                willingness: askPricing ? willingness ?? "unanswered" : "unanswered",
                 willingnessText: showWhyNot ? willingnessText : undefined,
               });
               setDone(true);
