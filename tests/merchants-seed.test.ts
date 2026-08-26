@@ -21,9 +21,28 @@ describe("merchant seed", () => {
     }
   });
 
-  it("ships no unverified cancel URLs (editorial rule from the seed file)", () => {
+  it("ships only verified cancel URLs: https, on the merchant's own domain", () => {
+    // The editorial rule: cancel_url stays null until verified during build.
+    // Verified entries must be official pages — https and hosted on one of
+    // the merchant's OWN seed domains, so a bad edit can't point users at a
+    // third-party site.
     for (const merchant of merchants) {
-      expect(merchant.cancel_url).toBeNull();
+      if (merchant.cancel_url === null) continue;
+      const url = new URL(merchant.cancel_url);
+      expect(url.protocol, merchant.name).toBe("https:");
+      const onOwnDomain = merchant.domains.some(
+        (domain) => url.hostname === domain || url.hostname.endsWith(`.${domain}`),
+      );
+      expect(onOwnDomain, `${merchant.name}: ${url.hostname}`).toBe(true);
+      // A verified URL implies the URL cancellation method.
+      expect(merchant.cancel_method, merchant.name).toBe("url");
+    }
+  });
+
+  it("has verified escape paths for the biggest consumer merchants", () => {
+    const byName = new Map(merchants.map((merchant) => [merchant.name, merchant]));
+    for (const name of ["Netflix", "Spotify", "Disney+", "Amazon Prime", "YouTube Premium"]) {
+      expect(byName.get(name)?.cancel_url, name).toBeTruthy();
     }
   });
 

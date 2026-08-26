@@ -59,6 +59,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   >
                     Dashboard
                   </Link>
+                  <Link
+                    href="/dashboard/cancellations"
+                    className="text-sm font-medium text-muted transition-colors hover:text-ink"
+                  >
+                    Cancellations
+                  </Link>
                   <UserButton />
                 </SignedIn>
                 <SignedOut>

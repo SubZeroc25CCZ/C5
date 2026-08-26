@@ -53,6 +53,25 @@ export function draftCancellationEmail(input: CancellationDraftInput): Cancellat
   return { subject, body };
 }
 
+/** Polite nudge for a request that has gone unanswered (§2.9 stale state). */
+export function draftFollowUpEmail(input: {
+  merchantName: string;
+  accountEmail: string;
+  sentDate: string;
+}): CancellationDraft {
+  const subject = `Follow-up: cancellation request — account ${input.accountEmail}`;
+  const body = [
+    `Hello ${input.merchantName} team,`,
+    ``,
+    `On ${input.sentDate} I requested cancellation of my ${input.merchantName} subscription (account: ${input.accountEmail}) and asked for written confirmation. I have not received a reply.`,
+    ``,
+    `Please confirm that the subscription is cancelled and that no further charges will be made. If it has not been cancelled, treat this email as that request, effective immediately.`,
+    ``,
+    `Thank you,`,
+  ].join("\n");
+  return { subject, body };
+}
+
 export type CancellationStatus = "draft" | "request_sent" | "provider_confirmed";
 
 const TRANSITIONS: Record<CancellationStatus, CancellationStatus[]> = {
