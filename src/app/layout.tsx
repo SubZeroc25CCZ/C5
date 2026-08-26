@@ -4,6 +4,12 @@ import Link from "next/link";
 import "./globals.css";
 import { Providers } from "./providers";
 
+// Every page is per-user and sits behind ClerkProvider, so nothing is
+// meaningfully static — and prerendering at build time would make the build
+// require runtime secrets (the missing-publishableKey failure on Vercel).
+// Render everything on demand; env vars are needed only at request time.
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "SubZero — find and cancel forgotten subscriptions",
   description:
