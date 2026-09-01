@@ -90,18 +90,18 @@ describe("landing copy — required disclosures", () => {
   });
 });
 
-describe("landing pricing matches the shipped plans (D5/D7)", () => {
+describe("landing pricing matches the shipped plans (D11)", () => {
   // These used to assert the literal "$4.99" appeared in the landing source.
   // Since D10 A1 the prices live in src/lib/plans.ts and the page renders
   // them from there, so a literal in this file would now be the BUG — the
   // drift the shared module exists to prevent. The check moved up a level:
   // the module carries the real prices, and the page reads the module
   // (enforced by tests/plan-consistency.test.ts).
-  it("carries the real D7 prices in the shared module", () => {
-    expect(planById("basic").monthly).toBe("$4.99");
-    expect(planById("basic").annual).toBe("$49");
-    expect(planById("pro").monthly).toBe("$9.99");
-    expect(planById("pro").annual).toBe("$99");
+  it("carries the real D11 prices in the shared module", () => {
+    expect(planById("pass").price).toBe("$14.99");
+    expect(planById("pass").cadence).toBe("one-time");
+    expect(planById("guardian").price).toBe("$19");
+    expect(planById("guardian").cadence).toBe("per year");
   });
 
   it("renders its pricing strip from the module rather than its own copy", () => {

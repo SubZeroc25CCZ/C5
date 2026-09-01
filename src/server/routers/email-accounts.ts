@@ -7,7 +7,7 @@ import { canConnectInbox, nextScanAt, scanDue } from "@/lib/quota";
 import { scanContinuationLimiter, scanLimiter } from "@/lib/rate-limit";
 import { runScan } from "@/services/scan";
 import { deleteDerivedDataForUser } from "@/services/subscription-sync";
-import { userPlan } from "../plan";
+import { userAccess } from "../plan";
 
 export const emailAccountsRouter = router({
   list: protectedProcedure.query(async ({ ctx }) => {
@@ -24,14 +24,14 @@ export const emailAccountsRouter = router({
     return rows; // note: encrypted token column is never selected here
   }),
 
-  /** Plan gate consulted by the connect flow before starting Google OAuth. */
+  /** Access gate consulted by the connect flow before starting Google OAuth. */
   canConnect: protectedProcedure.query(async ({ ctx }) => {
-    const plan = await userPlan(ctx.db, ctx.userId);
+    const access = await userAccess(ctx.db, ctx.userId);
     const existing = await ctx.db
       .select({ id: emailAccounts.id })
       .from(emailAccounts)
       .where(and(eq(emailAccounts.userId, ctx.userId), eq(emailAccounts.status, "active")));
-    return { allowed: canConnectInbox(plan, existing.length), plan, connected: existing.length };
+    return { allowed: canConnectInbox(access, existing.length), access, connected: existing.length };
   }),
 
   /**
@@ -85,17 +85,17 @@ export const emailAccountsRouter = router({
         }
       }
 
-      const plan = await userPlan(ctx.db, ctx.userId);
+      const access = await userAccess(ctx.db, ctx.userId);
       if (input.mode === "delta" && !genuineContinuation) {
-        // Manual re-scans obey the plan cadence: free monthly, Pro daily (D2).
-        if (!scanDue(plan, account.lastSyncedAt)) {
-          const next = nextScanAt(plan, account.lastSyncedAt);
+        // Manual re-scans obey the tier cadence: Pass daily, Guardian monthly.
+        if (!scanDue(access, account.lastSyncedAt)) {
+          const next = nextScanAt(access, account.lastSyncedAt);
           throw new TRPCError({
             code: "FORBIDDEN",
             message:
-              plan === "teaser"
-                ? "Re-scans are part of Basic — upgrade to keep your results fresh."
-                : `Next re-scan unlocks ${next?.toLocaleDateString() ?? "soon"} on Basic — Pro re-scans daily.`,
+              access === "free"
+                ? "Re-scans are part of the Cleanup Pass — one payment unlocks 30 days of them."
+                : `Next re-scan unlocks ${next?.toLocaleDateString() ?? "soon"}.`,
           });
         }
       }

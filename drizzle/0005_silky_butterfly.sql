@@ -1,0 +1,1 @@
+ALTER TABLE `profiles` ADD `pass_expires_at` integer;

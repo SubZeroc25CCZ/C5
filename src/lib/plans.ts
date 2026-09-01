@@ -1,26 +1,26 @@
-// The single source of truth for plan names, prices, and what each tier
-// actually gives you (D5 structure, D7 prices, D10 A1).
+// The single source of truth for tier names, prices, and what each gives you
+// (D11 pricing pivot — supersedes D5/D7's monthly tiers).
 //
-// This module exists because the landing page and /pricing drifted into
-// describing two different businesses: the landing still carried pre-D5 copy
-// promising free users the whole product, including cancellation drafts the
-// teaser never had. Copy that lives in two files diverges; copy that lives in
-// one cannot. Every surface that names a plan — landing, /pricing, the
-// paywall band, the Stripe mapping — reads from here, and
+// The model, in one breath: the scan is free, the cleanup is a ONE-TIME
+// purchase, and ongoing watch is a cheap ANNUAL plan. A product that exists
+// to kill forgotten subscriptions does not fund itself by becoming one.
+//
+// Every surface that names a tier — landing, /pricing, the paywall band, the
+// Stripe mapping, the survey — reads from here, and
 // tests/plan-consistency.test.ts fails the build if one starts inventing
-// its own.
-//
-// Marketing surfaces are USD-only (D8.1). In-app money stays real
+// its own. Marketing surfaces are USD-only (D8.1). In-app money stays real
 // per-currency and is never converted — that is `formatMinor`, not this.
 
-export type PlanId = "teaser" | "basic" | "pro";
+export type PlanId = "free" | "pass" | "guardian";
 
 export interface Plan {
   id: PlanId;
   /** The name a customer sees. Never abbreviate it on one surface only. */
   name: string;
-  monthly: string;
-  annual: string | null;
+  /** The price as shown ("$0", "$14.99", "$19"). */
+  price: string;
+  /** What the price means ("one-time", "per year"); null for free. */
+  cadence: string | null;
   /** One line under the price. */
   tagline: string;
   /** The full bullet list, in order. */
@@ -32,10 +32,10 @@ export interface Plan {
 
 export const PLANS: readonly Plan[] = [
   {
-    id: "teaser",
+    id: "free",
     name: "Free scan",
-    monthly: "$0",
-    annual: null,
+    price: "$0",
+    cadence: null,
     tagline: "see what you’re dealing with",
     features: [
       "Full 24-month inbox scan",
@@ -47,40 +47,40 @@ export const PLANS: readonly Plan[] = [
     featured: false,
   },
   {
-    id: "basic",
-    name: "Basic",
-    monthly: "$4.99",
-    annual: "$49",
-    tagline: "cancel anytime — of course",
+    id: "pass",
+    name: "Cleanup Pass",
+    price: "$14.99",
+    cadence: "one-time",
+    tagline: "one payment · 30 days of full access",
     features: [
-      "Every subscription, unlocked",
-      "Evidence log + price history for each",
-      "Cancellation drafts, links, and tracking",
-      "Monthly re-scan · 1 inbox",
+      "Every subscription unlocked, with evidence and price history",
+      "All cancellation tools — drafts, links, tracking. Unlimited.",
+      "Re-scan daily for 30 days to confirm the charges stopped",
+      "No recurring charge — when it ends, it just ends",
     ],
-    summary: "Every subscription unlocked, evidence and price history, cancellation tools.",
+    summary: "Everything unlocked and every cancellation tool, for one payment — no subscription.",
     featured: true,
   },
   {
-    id: "pro",
-    name: "Pro",
-    monthly: "$9.99",
-    annual: "$99",
-    tagline: "for people with many inboxes",
+    id: "guardian",
+    name: "Guardian",
+    price: "$19",
+    cadence: "per year",
+    tagline: "we keep watch after the cleanup",
     features: [
-      "Everything in Basic",
-      "Unlimited connected inboxes",
-      "Daily sync — catch new charges fast",
-      "Renewal and price-increase alerts",
+      "Monthly automatic re-scan",
+      "Price-increase alerts — the quiet ones",
+      "New-subscription detection",
+      "Up to 3 connected inboxes",
     ],
-    summary: "Unlimited inboxes, daily sync, renewal and price-increase alerts.",
+    summary: "Ongoing watch: monthly re-scans, price-increase alerts, new-subscription detection.",
     featured: false,
   },
 ] as const;
 
 /** True for the tiers that cost money. Never compare a price string. */
 export function isPaid(plan: Plan): boolean {
-  return plan.annual !== null;
+  return plan.cadence !== null;
 }
 
 export function planById(id: PlanId): Plan {
@@ -89,15 +89,16 @@ export function planById(id: PlanId): Plan {
   return plan;
 }
 
-/** The cheapest paid tier — what "unlock the full list from …" refers to. */
-export const CHEAPEST_PAID = planById("basic");
+/** The unlock purchase — what every paywall points at. */
+export const PASS = planById("pass");
+export const GUARDIAN = planById("guardian");
 
 /**
- * The teaser boundary, stated in one sentence.
+ * The free-tier boundary, stated in one sentence.
  *
  * D10 A3: this has to appear BEFORE the Google consent screen, not only on
  * /pricing. Someone who grants inbox access and only then discovers most
  * rows are locked has been misled, however technically accurate the pricing
  * page was — that is a refund and a one-star review, earned.
  */
-export const TEASER_BOUNDARY = `The free scan shows your totals and your biggest subscription. Unlock the full list from ${CHEAPEST_PAID.monthly}.`;
+export const TEASER_BOUNDARY = `The free scan shows your totals and your biggest subscription. Unlock the full list for ${PASS.price} — one payment, no subscription.`;

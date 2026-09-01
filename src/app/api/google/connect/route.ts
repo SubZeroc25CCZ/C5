@@ -4,7 +4,7 @@ import { auth } from "@clerk/nextjs/server";
 import { eq, and } from "drizzle-orm";
 import { db } from "@/db/client";
 import { emailAccounts, profiles } from "@/db/schema";
-import { asPlan, canConnectInbox } from "@/lib/quota";
+import { canConnectInbox, resolveAccess } from "@/lib/quota";
 import { OAUTH_STATE_COOKIE } from "@/lib/oauth-state";
 import { track } from "@/services/analytics";
 
@@ -18,13 +18,17 @@ export async function GET(req: Request) {
   if (!userId) return NextResponse.redirect(new URL("/", req.url));
 
   const profile = (
-    await db.select({ plan: profiles.plan }).from(profiles).where(eq(profiles.userId, userId)).limit(1)
+    await db
+      .select({ plan: profiles.plan, passExpiresAt: profiles.passExpiresAt })
+      .from(profiles)
+      .where(eq(profiles.userId, userId))
+      .limit(1)
   )[0];
   const connected = await db
     .select({ id: emailAccounts.id })
     .from(emailAccounts)
     .where(and(eq(emailAccounts.userId, userId), eq(emailAccounts.status, "active")));
-  if (!canConnectInbox(asPlan(profile?.plan), connected.length)) {
+  if (!canConnectInbox(resolveAccess(profile?.plan, profile?.passExpiresAt ?? null), connected.length)) {
     return NextResponse.redirect(new URL("/dashboard?error=inbox_quota", req.url));
   }
 

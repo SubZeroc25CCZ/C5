@@ -13,8 +13,8 @@ import {
 import { portfolioTotalsByCurrency } from "@/engine/normalize";
 import { minorToMajor } from "@/lib/money";
 import { isAggregatorMerchant } from "@/lib/aggregators";
-import { PLAN_LIMITS } from "@/lib/quota";
-import { userPlan } from "../plan";
+import { ACCESS_LIMITS } from "@/lib/quota";
+import { userAccess } from "../plan";
 import { customerMerchant } from "../merchant-view";
 import { track } from "@/services/analytics";
 import { redactListForTeaser, unlockedSubscriptionId } from "@/services/redaction";
@@ -106,8 +106,8 @@ export const subscriptionsRouter = router({
     // Teaser plan (D5): redact at the API layer — totals, counts, and the
     // single most expensive confirmed subscription are all that leave the
     // server; every other row becomes a locked placeholder.
-    const plan = await userPlan(ctx.db, ctx.userId);
-    if (!PLAN_LIMITS[plan].fullResults) {
+    const access = await userAccess(ctx.db, ctx.userId);
+    if (!ACCESS_LIMITS[access].fullResults) {
       return redactListForTeaser({ subscriptions: enriched, totals, recentPriceChanges });
     }
 
@@ -267,8 +267,8 @@ async function assertPlanSeesSubscription(
   ctx: { db: typeof import("@/db/client").db; userId: string },
   subscriptionId: number,
 ) {
-  const plan = await userPlan(ctx.db, ctx.userId);
-  if (PLAN_LIMITS[plan].fullResults) return;
+  const access = await userAccess(ctx.db, ctx.userId);
+  if (ACCESS_LIMITS[access].fullResults) return;
   const rows = await ctx.db
     .select({
       id: subscriptions.id,
@@ -283,7 +283,7 @@ async function assertPlanSeesSubscription(
   if (subscriptionId !== unlockedId) {
     throw new TRPCError({
       code: "FORBIDDEN",
-      message: "This subscription is locked on the free scan — upgrade to Basic to see everything.",
+      message: "This subscription is locked on the free scan — the Cleanup Pass unlocks everything.",
     });
   }
 }

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useAuth, useClerk } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { useLandingEvents, type LandingEvent } from "./landing-analytics";
-import { isPaid, PLANS, TEASER_BOUNDARY } from "@/lib/plans";
+import { PLANS, TEASER_BOUNDARY } from "@/lib/plans";
 import { ActionsMock, ConnectMock, GroupingMock, HeroMockup, TimelineMock } from "./landing-mockups";
 
 // Interactive parts of the landing page (conversion brief §B, §D, §G–I).
@@ -345,7 +345,7 @@ export function PricingStrip() {
     <section id="pricing" ref={ref} className="mx-auto max-w-[1200px] px-4 py-20 lg:py-[120px]">
       <h2 className="lp-h2">Simple enough to start today.</h2>
       <p className="lp-body-lg lp-measure-copy mt-4" style={{ color: "var(--lp-text-muted)" }}>
-        The scan is free. You only pay when you want the full list and the tools to act on it.
+        The scan is free. One payment unlocks the cleanup — and it&rsquo;s not a subscription.
       </p>
 
       <div className="mt-10 grid gap-4 md:grid-cols-3">
@@ -364,14 +364,16 @@ export function PricingStrip() {
                 className="absolute -top-3 left-5 rounded-full px-3 py-0.5 text-xs font-bold"
                 style={{ background: "var(--lp-primary)", color: "#04111f" }}
               >
-                Most control
+                The unlock
               </span>
             )}
             <div className="lp-h3">{tier.name}</div>
             <div className="mt-2 text-3xl font-extrabold" style={{ fontVariantNumeric: "tabular-nums" }}>
-              {tier.monthly}
-              {isPaid(tier) && (
-                <span className="text-base font-medium" style={{ color: "var(--lp-text-muted)" }}>/month</span>
+              {tier.price}
+              {tier.cadence && (
+                <span className="text-base font-medium" style={{ color: "var(--lp-text-muted)" }}>
+                  {" "}{tier.cadence}
+                </span>
               )}
             </div>
             <p className="lp-small mt-3" style={{ color: "var(--lp-text-muted)" }}>{tier.summary}</p>

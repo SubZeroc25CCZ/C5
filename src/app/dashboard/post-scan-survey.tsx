@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
+import { PASS } from "@/lib/plans";
 import { Button, Card, cx } from "@/components/ui";
 
 // Beta research kit §1 — the post-scan micro-survey. Shown on the results
@@ -67,12 +68,12 @@ export function PostScanSurvey() {
   // Never render for someone who already answered or dismissed.
   if (!status.data || status.data.answered) return null;
 
-  // Q3 (§1) asks about the teaser boundary: "To see the full list, SubZero
-  // is $4.99/month. Would you?" — a nonsense question for someone who
-  // already pays and already sees the full list, and it would contaminate
-  // the willingness signal. Accuracy and the gap question still matter for
-  // every user, so paid plans get a two-question survey instead.
-  const askPricing = planQuery.data?.plan === "teaser";
+  // Q3 (§1) asks about the free-tier boundary: "To see the full list, the
+  // Cleanup Pass is $14.99, one time. Would you?" — a nonsense question for
+  // someone who already paid and already sees the full list, and it would
+  // contaminate the willingness signal. Accuracy and the gap question still
+  // matter for every user, so paying users get a two-question survey.
+  const askPricing = planQuery.data?.access === "free";
 
   if (done) {
     return (
@@ -148,7 +149,7 @@ export function PostScanSurvey() {
       {accuracy && askPricing && (
         <div className="mt-4">
           <p className="text-sm font-medium">
-            To see the full list, SubZero is $4.99/month. Would you?
+            To see the full list, the Cleanup Pass is {PASS.price} — one payment, no subscription. Would you?
           </p>
           <div className="mt-2 grid gap-2 sm:grid-cols-2">
             {WILLINGNESS_OPTIONS.map((option) => (

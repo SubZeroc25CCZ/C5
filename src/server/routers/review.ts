@@ -3,8 +3,8 @@ import { and, desc, eq, isNull, lt, isNotNull } from "drizzle-orm";
 import { protectedProcedure, router } from "../trpc";
 import { charges } from "@/db/schema";
 import { syncSubscriptionsForUser } from "@/services/subscription-sync";
-import { userPlan } from "../plan";
-import { PLAN_LIMITS } from "@/lib/quota";
+import { userAccess } from "../plan";
+import { ACCESS_LIMITS } from "@/lib/quota";
 import { track } from "@/services/analytics";
 
 // The needs-review queue (§5.2): Stage 2 extractions below the auto-accept
@@ -23,8 +23,8 @@ export const reviewRouter = router({
   queue: protectedProcedure.query(async ({ ctx }) => {
     // Teaser (D5): review rows carry merchant guesses and amounts, which are
     // paid-tier data — serve an empty queue until the user upgrades.
-    const plan = await userPlan(ctx.db, ctx.userId);
-    if (!PLAN_LIMITS[plan].fullResults) return [];
+    const access = await userAccess(ctx.db, ctx.userId);
+    if (!ACCESS_LIMITS[access].fullResults) return [];
     return ctx.db
       .select()
       .from(charges)

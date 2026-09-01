@@ -8,7 +8,7 @@
 
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
-import { CHEAPEST_PAID, PLANS, planById, TEASER_BOUNDARY } from "../src/lib/plans";
+import { PASS, PLANS, planById, TEASER_BOUNDARY } from "../src/lib/plans";
 
 const SURFACES = {
   landing: "src/app/landing-sections.tsx",
@@ -22,7 +22,7 @@ function source(path: string): string {
 
 /** Prices that are plan prices, not sample subscription amounts in mockups. */
 const PLAN_PRICES = new Set(
-  PLANS.flatMap((plan) => [plan.monthly, plan.annual].filter(Boolean) as string[]),
+  PLANS.map((plan) => plan.price).filter((price) => price !== "$0"),
 );
 
 describe("plan copy has exactly one home", () => {
@@ -62,12 +62,22 @@ describe("plan copy has exactly one home", () => {
 
 describe("the plan data itself is coherent", () => {
   it("names the three shipped tiers, in order, with the paid two priced", () => {
-    expect(PLANS.map((p) => p.id)).toEqual(["teaser", "basic", "pro"]);
-    expect(planById("teaser").monthly).toBe("$0");
-    expect(planById("teaser").annual).toBeNull();
-    for (const id of ["basic", "pro"] as const) {
-      expect(planById(id).monthly).toMatch(/^\$\d/);
-      expect(planById(id).annual).toMatch(/^\$\d/);
+    expect(PLANS.map((p) => p.id)).toEqual(["free", "pass", "guardian"]);
+    expect(planById("free").price).toBe("$0");
+    expect(planById("free").cadence).toBeNull();
+    for (const id of ["pass", "guardian"] as const) {
+      expect(planById(id).price).toMatch(/^\$\d/);
+      expect(planById(id).cadence).toBeTruthy();
+    }
+  });
+
+  it("the Pass is one-time and Guardian is annual — the pivot's whole point (D11)", () => {
+    expect(planById("pass").cadence).toBe("one-time");
+    expect(planById("guardian").cadence).toBe("per year");
+    // A monthly cadence reappearing anywhere is the irony coming back.
+    for (const plan of PLANS) {
+      expect(plan.cadence ?? "", `${plan.name} is priced monthly`).not.toMatch(/month/i);
+      expect(plan.tagline, `${plan.name} tagline mentions monthly`).not.toMatch(/\/month/i);
     }
   });
 
@@ -77,22 +87,21 @@ describe("the plan data itself is coherent", () => {
 
   it("prices marketing surfaces in USD only (D8.1)", () => {
     for (const plan of PLANS) {
-      for (const price of [plan.monthly, plan.annual].filter(Boolean) as string[]) {
-        expect(price, `${plan.name} is not priced in USD`).toMatch(/^\$/);
-      }
+      expect(plan.price, `${plan.name} is not priced in USD`).toMatch(/^\$/);
     }
   });
 
-  it("keeps the teaser's promise narrower than Basic's", () => {
-    const teaser = planById("teaser").features.join(" ").toLowerCase();
-    // The exact claim that drifted: free users were promised cancellation.
-    expect(teaser).not.toMatch(/cancel/);
-    expect(planById("basic").features.join(" ").toLowerCase()).toMatch(/cancel/);
+  it("keeps the free tier's promise narrower than the Pass's", () => {
+    const free = planById("free").features.join(" ").toLowerCase();
+    // The exact claim that drifted once: free users promised cancellation.
+    expect(free).not.toMatch(/cancel/);
+    expect(planById("pass").features.join(" ").toLowerCase()).toMatch(/cancel/);
   });
 
-  it("quotes the cheapest paid plan in the teaser boundary line", () => {
-    expect(TEASER_BOUNDARY).toContain(CHEAPEST_PAID.monthly);
-    expect(CHEAPEST_PAID.id).toBe("basic");
+  it("quotes the Pass in the free-tier boundary line, as a one-time price", () => {
+    expect(TEASER_BOUNDARY).toContain(PASS.price);
+    expect(TEASER_BOUNDARY.toLowerCase()).toMatch(/one payment|one-time/);
+    expect(PASS.id).toBe("pass");
   });
 });
 

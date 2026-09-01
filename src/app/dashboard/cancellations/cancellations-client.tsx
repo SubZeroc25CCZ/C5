@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { trpc } from "@/lib/trpc";
+import { PASS } from "@/lib/plans";
 import { formatMinor, majorToMinor, minorToMajor } from "@/lib/money";
 import { normalizedMonthly, round2, type BillingCycle } from "@/engine/normalize";
 import { gmailComposeHref, mailtoHref } from "@/lib/mail-links";
@@ -82,17 +83,17 @@ export function CancellationsClient({ accountEmail }: { accountEmail: string }) 
       </main>
     );
   }
-  if (planQuery.data?.plan === "teaser") {
-    // Cancellation tools are Basic+ (D5) — the server returns nothing here.
+  if (planQuery.data?.access === "free") {
+    // Cancellation tools come with the Pass (D11) — the server returns nothing here.
     return (
       <main className="mx-auto max-w-xl px-4 py-24 text-center">
         <div className="flex justify-center text-frost"><LockIcon width={40} height={40} /></div>
         <h1 className="mt-3 text-2xl font-extrabold tracking-tight">
-          Cancellation tools come with Basic
+          Cancellation tools come with the {PASS.name}
         </h1>
         <p className="mx-auto mt-2 max-w-md text-sm text-muted">
           Prepared cancellation emails, verified cancel links, and honest tracking from draft to
-          provider-confirmed — from $4.99/month.
+          provider-confirmed — {PASS.price}, one payment, 30 days of full access.
         </p>
         <div className="mt-6">
           <Link
