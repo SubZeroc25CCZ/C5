@@ -4,7 +4,7 @@ import { PricingPlans } from "./pricing-client";
 export const metadata: Metadata = {
   title: "Pricing — SubZero",
   description:
-    "The scan is free and shows your totals plus your most expensive subscription. Basic unlocks everything from $4.99/month; Pro adds unlimited inboxes, daily sync, and alerts.",
+    "The scan is free and shows your totals plus your most expensive subscription. One $14.99 payment unlocks everything for 30 days; Guardian keeps watch for $19/year.",
 };
 
 export default function PricingPage() {
@@ -23,8 +23,8 @@ export default function PricingPage() {
       </div>
 
       <p className="mt-10 text-center text-sm text-muted">
-        Payments are handled by Stripe. We never see your card details — fitting, for a
-        subscription-cancellation service, to make our own easy to cancel.
+        Payments are handled by Stripe — we never see your card details. And no, the Pass is not
+        a subscription: a service that cancels subscriptions shouldn&rsquo;t make you buy one.
       </p>
     </main>
   );

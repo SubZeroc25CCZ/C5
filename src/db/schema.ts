@@ -44,7 +44,19 @@ export const users = sqliteTable(
 export const profiles = sqliteTable("profiles", {
   userId: text("user_id").primaryKey(),
   displayName: text("display_name"),
-  plan: text("plan", { enum: ["free", "teaser", "basic", "pro"] }).default("free").notNull(), // "free" = legacy teaser
+  // Subscription-shaped entitlement only: "guardian" is the annual watch
+  // plan, managed by Stripe subscription webhooks. "free"/"teaser" mean no
+  // subscription; "basic"/"pro" are legacy values from the pre-pivot model
+  // and resolve to guardian-level access (grandfathered, never sold again).
+  plan: text("plan", { enum: ["free", "teaser", "basic", "pro", "guardian"] })
+    .default("free")
+    .notNull(),
+  // One-time Cleanup Pass entitlement: full access until this moment (set by
+  // the checkout.session.completed webhook to purchase time + 30 days).
+  // Null or past = no pass. Deliberately a timestamp, not a boolean — the
+  // product's honesty rules extend to its own billing: access ends exactly
+  // when we said it would.
+  passExpiresAt: integer("pass_expires_at", { mode: "timestamp_ms" }),
   stripeCustomerId: text("stripe_customer_id"),
   stripeSubscriptionId: text("stripe_subscription_id"),
   createdAt: createdAt(),

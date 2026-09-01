@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { and, count, desc, eq, gte, inArray, isNotNull, isNull, lt, sql } from "drizzle-orm";
+import { and, count, desc, eq, gt, gte, inArray, isNotNull, isNull, lt, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { router } from "../trpc";
 import { adminProcedure, audit } from "../admin";
@@ -369,17 +369,24 @@ export const adminRouter = router({
     ),
 
   /**
-   * 4.8 (P0 slice) — plan distribution, so the founder can see the teaser →
-   * Basic/Pro split without opening Stripe. Counts only; no customer rows.
+   * 4.8 (P0 slice) — billing distribution, so the founder can see the
+   * free → Pass → Guardian split without opening Stripe. Pass holders keep
+   * plan="free" (the Pass is a timestamp, not a plan), so they are counted
+   * separately by expiry. Counts only; no customer rows.
    */
   plans: adminProcedure.query(async ({ ctx }) => {
     const rows = await ctx.db
       .select({ plan: profiles.plan, value: count() })
       .from(profiles)
       .groupBy(profiles.plan);
+    const passActive = await ctx.db
+      .select({ value: count() })
+      .from(profiles)
+      .where(gt(profiles.passExpiresAt, new Date()));
     const subs = await ctx.db.select({ value: count() }).from(subscriptions);
     return {
       plans: Object.fromEntries(rows.map((row) => [row.plan, row.value])),
+      passActive: passActive[0]?.value ?? 0,
       subscriptionsTracked: subs[0]?.value ?? 0,
     };
   }),

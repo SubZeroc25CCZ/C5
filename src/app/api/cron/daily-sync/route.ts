@@ -2,11 +2,11 @@ import { NextResponse } from "next/server";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { emailAccounts, profiles } from "@/db/schema";
-import { asPlan, scanDue } from "@/lib/quota";
+import { resolveAccess, scanDue } from "@/lib/quota";
 import { runScan } from "@/services/scan";
 
-// Daily cron (§5.4): re-scans every account due under its plan's cadence —
-// Pro daily, free monthly (decision D2).
+// Daily cron (§5.4): re-scans every account due under its tier's cadence —
+// Cleanup Pass daily while active, Guardian monthly (D11).
 
 export async function GET(req: Request) {
   // Fail closed: with no CRON_SECRET configured, no header can authorize —
@@ -18,14 +18,14 @@ export async function GET(req: Request) {
   }
 
   const accounts = await db
-    .select({ account: emailAccounts, plan: profiles.plan })
+    .select({ account: emailAccounts, plan: profiles.plan, passExpiresAt: profiles.passExpiresAt })
     .from(emailAccounts)
     .innerJoin(profiles, eq(profiles.userId, emailAccounts.userId))
     .where(and(eq(emailAccounts.status, "active"), eq(emailAccounts.provider, "gmail")));
 
   const results: Array<{ accountId: number; ok: boolean; error?: string }> = [];
-  for (const { account, plan } of accounts) {
-    if (!scanDue(asPlan(plan), account.lastSyncedAt)) continue;
+  for (const { account, plan, passExpiresAt } of accounts) {
+    if (!scanDue(resolveAccess(plan, passExpiresAt), account.lastSyncedAt)) continue;
     try {
       await runScan(db, {
         userId: account.userId,

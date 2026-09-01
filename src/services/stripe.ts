@@ -1,7 +1,9 @@
-// Stripe Pro billing (ported v1 pattern): checkout, portal, and a signed +
-// idempotent webhook processor (§8 P0). Idempotency = event-id ledger in
+// Stripe billing (D11 pricing pivot): a one-time Cleanup Pass, an annual
+// Guardian subscription, checkout + portal, and a signed + idempotent
+// webhook processor (§8 P0). Idempotency = event-id ledger in
 // `webhook_events`; a replayed event id is a no-op. The processor works
-// against a small BillingStore port so the logic is testable without MySQL.
+// against a small BillingStore port so the logic is testable without a
+// database.
 
 import Stripe from "stripe";
 import { eq } from "drizzle-orm";
@@ -24,56 +26,50 @@ function requireStripeKey(): void {
   if (!process.env.STRIPE_SECRET_KEY) {
     throw new Error(
       "STRIPE_SECRET_KEY is not set — billing is not configured. " +
-        "Set it in the deployment environment (a live key also requires the four STRIPE_PRICE_* variables).",
+        "Set it in the deployment environment.",
     );
   }
 }
 
-export type PaidPlan = "basic" | "pro";
-export type BillingInterval = "monthly" | "annual";
-
-/** Test-mode price ids (decision D7). Fallbacks for local/test work only. */
-const TEST_MODE_PRICES: Record<PaidPlan, Record<BillingInterval, string>> = {
-  basic: {
-    monthly: "price_1U8aR2G8giGg4s7R5Dgx1OdI",
-    annual: "price_1U8aR4G8giGg4s7RIN4oDe7l",
-  },
-  pro: {
-    monthly: "price_1U8aR6G8giGg4s7RXiAnWbXJ",
-    annual: "price_1U8aR7G8giGg4s7RWeeNlkh3",
-  },
-};
-
-const PRICE_ENV: Record<PaidPlan, Record<BillingInterval, string>> = {
-  basic: { monthly: "STRIPE_PRICE_BASIC_MONTHLY", annual: "STRIPE_PRICE_BASIC_ANNUAL" },
-  pro: { monthly: "STRIPE_PRICE_PRO_MONTHLY", annual: "STRIPE_PRICE_PRO_ANNUAL" },
-};
+/** The two things money buys (D11). */
+export type Purchase = "pass" | "guardian";
 
 /**
- * Price id for a (plan, interval).
- *
- * The built-in fallbacks are TEST-mode prices and do not exist on the live
- * account, so a live key must name its own prices. Letting the fallback
- * through under a live key produced exactly one symptom in production — a
- * bare 500 and "please try again" — for a condition no amount of retrying
- * can fix. Fail here instead, naming the variable to set.
+ * LIVE price ids, created on the production Stripe account — the defaults,
+ * so a fresh deployment needs no price env vars at all. The env overrides
+ * exist for a future price test, and are REQUIRED under a test-mode key
+ * (these ids do not exist there, and the failure would otherwise be a bare
+ * 500 at checkout — the exact incident the old fallback design caused).
  */
-export function priceId(plan: PaidPlan, interval: BillingInterval): string {
-  const configured = process.env[PRICE_ENV[plan][interval]];
+const LIVE_PRICES: Record<Purchase, string> = {
+  pass: "price_1UAnF0G8giGg4s7RCHCAQgO3", // SubZero Cleanup Pass — $14.99 one-time
+  guardian: "price_1UAnF6G8giGg4s7RnhQhGXLy", // SubZero Guardian — $19/year
+};
+
+const PRICE_ENV: Record<Purchase, string> = {
+  pass: "STRIPE_PRICE_PASS",
+  guardian: "STRIPE_PRICE_GUARDIAN",
+};
+
+export function priceId(purchase: Purchase): string {
+  const configured = process.env[PRICE_ENV[purchase]];
   if (configured) return configured;
-  if (isLiveKey()) {
+  if (!isLiveKey()) {
     throw new Error(
-      `Stripe is in live mode but ${PRICE_ENV[plan][interval]} is not set. ` +
-        "The built-in price ids are test-mode and do not exist on the live account: " +
-        "either set the four STRIPE_PRICE_* variables to live prices, or use a test-mode secret key.",
+      `Stripe is in test mode but ${PRICE_ENV[purchase]} is not set. ` +
+        "The built-in price ids are live-mode and do not exist on a test account: " +
+        "set STRIPE_PRICE_PASS and STRIPE_PRICE_GUARDIAN to test prices, or use the live key.",
     );
   }
-  return TEST_MODE_PRICES[plan][interval];
+  return LIVE_PRICES[purchase];
 }
 
 function isLiveKey(): boolean {
   return (process.env.STRIPE_SECRET_KEY ?? "").startsWith("sk_live_");
 }
+
+/** How long a Cleanup Pass lasts, from the moment payment completes. */
+export const PASS_DURATION_MS = 30 * 86_400_000;
 
 /** The app's public origin, which Stripe requires for its return URLs. */
 function appUrl(): string {
@@ -92,21 +88,26 @@ export async function createCheckoutSession(
     userId: string;
     email: string;
     customerId?: string | null;
-    plan: PaidPlan;
-    interval: BillingInterval;
+    purchase: Purchase;
   },
 ): Promise<string> {
   const origin = appUrl();
+  const subscription = input.purchase === "guardian";
   const session = await stripe.checkout.sessions.create({
-    mode: "subscription",
-    line_items: [{ price: priceId(input.plan, input.interval), quantity: 1 }],
+    mode: subscription ? "subscription" : "payment",
+    line_items: [{ price: priceId(input.purchase), quantity: 1 }],
     customer: input.customerId ?? undefined,
     customer_email: input.customerId ? undefined : input.email,
+    // Payment mode doesn't create a customer by default; we want one so the
+    // billing portal and receipts work for Pass buyers too. Stripe rejects
+    // customer_creation when an existing customer is passed, so it is only
+    // set for first-time buyers.
+    ...(subscription || input.customerId ? {} : { customer_creation: "always" as const }),
     client_reference_id: input.userId,
-    // The plan rides on both the session and the subscription, so every
-    // later webhook (updated/deleted) knows which tier it concerns.
-    metadata: { plan: input.plan },
-    subscription_data: { metadata: { plan: input.plan } },
+    // The purchase rides on the session (and the subscription, when there is
+    // one), so every later webhook knows what was bought.
+    metadata: { product: input.purchase },
+    ...(subscription ? { subscription_data: { metadata: { product: input.purchase } } } : {}),
     // Promotion codes (e.g. launch coupons) are created in the Stripe
     // dashboard; this only reveals the "Add promotion code" field at
     // checkout. No code, no change.
@@ -126,22 +127,19 @@ export async function createPortalSession(stripe: Stripe, customerId: string): P
   return session.url;
 }
 
-export interface PlanUpdate {
-  plan: "teaser" | "basic" | "pro";
+/** What a webhook may change about a profile's billing state. */
+export interface BillingUpdate {
+  plan?: "free" | "guardian";
+  passExpiresAt?: Date;
   stripeCustomerId?: string | null;
   stripeSubscriptionId?: string | null;
-}
-
-/** The paid plan named in webhook metadata; legacy events default to pro. */
-function paidPlanFromMetadata(metadata: Stripe.Metadata | null | undefined): PaidPlan {
-  return metadata?.plan === "basic" ? "basic" : "pro";
 }
 
 export interface BillingStore {
   /** Record the event id; returns false if it was already recorded (duplicate). */
   recordEvent(id: string, type: string): Promise<boolean>;
-  setPlanByUser(userId: string, update: PlanUpdate): Promise<void>;
-  setPlanByCustomer(customerId: string, update: PlanUpdate): Promise<void>;
+  updateByUser(userId: string, update: BillingUpdate): Promise<void>;
+  updateByCustomer(customerId: string, update: BillingUpdate): Promise<void>;
 }
 
 export function drizzleBillingStore(db: Database): BillingStore {
@@ -156,10 +154,10 @@ export function drizzleBillingStore(db: Database): BillingStore {
       await db.insert(webhookEvents).values({ id, type });
       return true;
     },
-    async setPlanByUser(userId, update) {
+    async updateByUser(userId, update) {
       await db.update(profiles).set(update).where(eq(profiles.userId, userId));
     },
-    async setPlanByCustomer(customerId, update) {
+    async updateByCustomer(customerId, update) {
       await db.update(profiles).set(update).where(eq(profiles.stripeCustomerId, customerId));
     },
   };
@@ -183,15 +181,43 @@ export async function processStripeEvent(
   if (!fresh) return { handled: false, duplicate: true };
 
   switch (event.type) {
+    // async_payment_succeeded is the completion signal for delayed payment
+    // methods (ACH and friends). None are enabled today, but handling it now
+    // means turning one on in the Stripe dashboard cannot silently create
+    // paid-but-locked-out customers.
+    case "checkout.session.async_payment_succeeded":
     case "checkout.session.completed": {
       const session = event.data.object as Stripe.Checkout.Session;
       const userId = session.client_reference_id;
       if (!userId) return { handled: false, duplicate: false };
-      await store.setPlanByUser(userId, {
-        plan: paidPlanFromMetadata(session.metadata),
-        stripeCustomerId: typeof session.customer === "string" ? session.customer : null,
-        stripeSubscriptionId:
-          typeof session.subscription === "string" ? session.subscription : null,
+      const customerId = typeof session.customer === "string" ? session.customer : null;
+
+      if (session.metadata?.product === "guardian" || session.mode === "subscription") {
+        // Guardian (or a legacy pre-pivot subscription link): guardian-level
+        // access, managed by the subscription events below from here on.
+        await store.updateByUser(userId, {
+          plan: "guardian",
+          stripeCustomerId: customerId,
+          stripeSubscriptionId:
+            typeof session.subscription === "string" ? session.subscription : null,
+        });
+        return { handled: true, duplicate: false };
+      }
+
+      // Access is granted for MONEY RECEIVED, not checkout completed: with a
+      // delayed payment method, "completed" fires while payment_status is
+      // still "unpaid", and the payment can later fail. The unpaid session's
+      // Pass is granted by async_payment_succeeded instead.
+      if (session.payment_status !== "paid") {
+        return { handled: false, duplicate: false };
+      }
+
+      // Cleanup Pass: 30 days of full access from the moment Stripe says the
+      // payment completed — the event's own clock, not ours, so a delayed
+      // webhook delivery never shortens what was paid for.
+      await store.updateByUser(userId, {
+        passExpiresAt: new Date(event.created * 1000 + PASS_DURATION_MS),
+        stripeCustomerId: customerId,
       });
       return { handled: true, duplicate: false };
     }
@@ -200,7 +226,9 @@ export async function processStripeEvent(
       const customerId =
         typeof subscription.customer === "string" ? subscription.customer : null;
       if (!customerId) return { handled: false, duplicate: false };
-      await store.setPlanByCustomer(customerId, { plan: "teaser", stripeSubscriptionId: null });
+      // Only the subscription ends — an unexpired Pass on the same profile
+      // keeps working, because passExpiresAt is untouched.
+      await store.updateByCustomer(customerId, { plan: "free", stripeSubscriptionId: null });
       return { handled: true, duplicate: false };
     }
     case "customer.subscription.updated": {
@@ -209,9 +237,7 @@ export async function processStripeEvent(
         typeof subscription.customer === "string" ? subscription.customer : null;
       if (!customerId) return { handled: false, duplicate: false };
       const active = subscription.status === "active" || subscription.status === "trialing";
-      await store.setPlanByCustomer(customerId, {
-        plan: active ? paidPlanFromMetadata(subscription.metadata) : "teaser",
-      });
+      await store.updateByCustomer(customerId, { plan: active ? "guardian" : "free" });
       return { handled: true, duplicate: false };
     }
     default:

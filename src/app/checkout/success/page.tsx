@@ -4,11 +4,12 @@ import { Button } from "@/components/ui";
 import { SnowflakeIcon } from "@/components/icons";
 
 export const metadata: Metadata = {
-  title: "Welcome to Pro — SubZero",
+  title: "Payment complete — SubZero",
 };
 
-// The plan flips to "pro" when Stripe's checkout.session.completed webhook
-// lands — usually before this page renders, occasionally a few seconds after.
+// Access unlocks when Stripe's checkout.session.completed webhook lands —
+// usually before this page renders, occasionally a few seconds after. The
+// same page serves both purchases: the Pass and Guardian.
 export default function CheckoutSuccessPage() {
   return (
     <main className="mx-auto max-w-xl px-4 py-24 text-center">
@@ -17,7 +18,7 @@ export default function CheckoutSuccessPage() {
       </div>
       <h1 className="text-3xl font-extrabold tracking-tight">Everything is unlocked</h1>
       <p className="mt-3 text-muted">
-        Thanks for upgrading. Your full subscription list, evidence, and cancellation tools are
+        Payment received. Your full subscription list, evidence, and cancellation tools are
         unlocked — if the dashboard still shows locked rows, give it a few seconds while the
         payment confirmation arrives.
       </p>
@@ -27,7 +28,8 @@ export default function CheckoutSuccessPage() {
         </Link>
       </div>
       <p className="mt-6 text-xs text-muted">
-        A receipt is on its way to your email. Manage or cancel anytime from the pricing page.
+        A receipt is on its way to your email. Bought the Pass? Nothing renews — it simply ends
+        after 30 days. Guardian can be cancelled anytime from the pricing page.
       </p>
     </main>
   );

@@ -165,7 +165,7 @@ export function HealthClient() {
 
       {plans.data && (
         <Card>
-          <h2 className="font-semibold">Plans</h2>
+          <h2 className="font-semibold">Billing</h2>
           <div className="mt-3 flex flex-wrap gap-6 text-sm">
             {Object.entries(plans.data.plans).map(([plan, value]) => (
               <div key={plan}>
@@ -173,6 +173,10 @@ export function HealthClient() {
                 <div className="tnum text-lg font-bold">{value}</div>
               </div>
             ))}
+            <div>
+              <div className="text-xs uppercase tracking-wide text-muted">pass active</div>
+              <div className="tnum text-lg font-bold">{plans.data.passActive}</div>
+            </div>
             <div>
               <div className="text-xs uppercase tracking-wide text-muted">subscriptions tracked</div>
               <div className="tnum text-lg font-bold">{plans.data.subscriptionsTracked}</div>

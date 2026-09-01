@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { trpc } from "@/lib/trpc";
+import { PASS } from "@/lib/plans";
 import { formatMinor, majorToMinor, minorToMajor } from "@/lib/money";
 import { gmailComposeHref, mailtoHref } from "@/lib/mail-links";
 import { AGGREGATOR_EXPLAINER, isAggregatorMerchant } from "@/lib/aggregators";
@@ -57,8 +58,9 @@ export function SubscriptionDetailClient({ id }: { id: number }) {
           This subscription is locked
         </h1>
         <p className="mx-auto mt-2 max-w-md text-sm text-muted">
-          The free scan shows your most expensive subscription in full. Basic unlocks every
-          subscription with evidence, price history, and cancellation tools — from $4.99/month.
+          The free scan shows your most expensive subscription in full. The {PASS.name} unlocks
+          every subscription with evidence, price history, and cancellation tools —{" "}
+          {PASS.price}, one payment, 30 days. Not a subscription.
         </p>
         <div className="mt-6">
           <LinkButton href="/pricing" className="px-6 py-3">

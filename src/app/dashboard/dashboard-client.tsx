@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { trpc } from "@/lib/trpc";
 import { formatMinor, minorToMajor } from "@/lib/money";
-import { CHEAPEST_PAID, TEASER_BOUNDARY } from "@/lib/plans";
+import { GUARDIAN, PASS, TEASER_BOUNDARY } from "@/lib/plans";
 import { normalizedMonthly } from "@/engine/normalize";
 import {
   Badge,
@@ -107,7 +107,8 @@ export function DashboardClient() {
 
   const data = listQuery.data;
   const accounts = accountsQuery.data ?? [];
-  const plan = planQuery.data?.plan ?? "teaser";
+  const access = planQuery.data?.access ?? "free";
+  const passExpiresAt = planQuery.data?.passExpiresAt ?? null;
 
   const listFailed = listQuery.isError;
   const listLoading = listQuery.isLoading;
@@ -158,7 +159,8 @@ export function DashboardClient() {
     <FullDashboard
       data={data}
       accounts={accounts}
-      plan={plan}
+      access={access}
+      passExpiresAt={passExpiresAt}
       scanState={scanState}
       onScan={runFullScan}
       reviewItems={reviewQuery.data ?? []}
@@ -223,7 +225,7 @@ function TeaserDashboard({
 
       {hasResults && <PostScanSurvey />}
 
-      <InboxPanel accounts={accounts} plan="teaser" scanState={scanState} onScan={onScan} />
+      <InboxPanel accounts={accounts} access="free" scanState={scanState} onScan={onScan} />
 
       {hasResults ? (
         <section>
@@ -245,9 +247,9 @@ function TeaserDashboard({
                 {data.lockedRows.length === 1 ? "" : "s"}
               </h3>
               <p className="mx-auto mt-1 max-w-md text-sm text-muted">
-                {CHEAPEST_PAID.name} shows every subscription with evidence and price history,
-                and prepares cancellations for the ones you don&rsquo;t want — from{" "}
-                {CHEAPEST_PAID.monthly}/month.
+                The {PASS.name} shows every subscription with evidence and price history, and
+                prepares cancellations for the ones you don&rsquo;t want — {PASS.price}, one
+                payment, 30 days of full access. Not a subscription.
               </p>
               <div className="mt-4">
                 <LinkButton href="/pricing" className="px-6 py-2.5">
@@ -307,7 +309,8 @@ function LockedCard({ status }: { status: string }) {
 function FullDashboard({
   data,
   accounts,
-  plan,
+  access,
+  passExpiresAt,
   scanState,
   onScan,
   reviewItems,
@@ -317,7 +320,8 @@ function FullDashboard({
 }: {
   data: FullListPayload | undefined;
   accounts: Account[];
-  plan: string;
+  access: string;
+  passExpiresAt: Date | null;
   scanState: ScanState;
   onScan: (accountId: number) => void;
   reviewItems: ReviewItem[];
@@ -355,12 +359,21 @@ function FullDashboard({
             <CardsIcon width={16} height={16} /> Review one by one
           </Button>
         )}
-        {plan !== "pro" && (
+        {access === "pass" && (
           <LinkButton variant="secondary" href="/pricing">
-            <SparkleIcon width={16} height={16} /> Upgrade to Pro
+            <SparkleIcon width={16} height={16} /> Keep watch with {GUARDIAN.name}
           </LinkButton>
         )}
       </div>
+
+      {/* The Pass is finite by design — say when it ends, plainly. */}
+      {access === "pass" && passExpiresAt && (
+        <p className="mb-4 text-xs text-muted">
+          Your {PASS.name} is active until {new Date(passExpiresAt).toLocaleDateString()}. After
+          that, results return to the free view — nothing is deleted. {GUARDIAN.name} (
+          {GUARDIAN.price} {GUARDIAN.cadence}) keeps the re-scans and alerts going.
+        </p>
+      )}
 
       {/* Price-increase alerts — only observed changes, never predictions */}
       {alerts.length > 0 && (
@@ -414,7 +427,7 @@ function FullDashboard({
 
       {rows.length > 0 && <PostScanSurvey />}
 
-      <InboxPanel accounts={accounts} plan={plan} scanState={scanState} onScan={onScan} />
+      <InboxPanel accounts={accounts} access={access} scanState={scanState} onScan={onScan} />
 
       <ReviewQueue items={reviewItems} />
 
@@ -662,12 +675,12 @@ type Account = { id: number; address: string; status: string; lastSyncedAt: Date
 
 function InboxPanel({
   accounts,
-  plan,
+  access,
   scanState,
   onScan,
 }: {
   accounts: Account[];
-  plan: string;
+  access: string;
   scanState: ScanState;
   onScan: (accountId: number) => void;
 }) {
@@ -685,7 +698,7 @@ function InboxPanel({
           )}
           {/* D10 A3: say what the free scan does and does not show BEFORE
               the consent screen, never after it. */}
-          {accounts.length === 0 && plan === "teaser" && (
+          {accounts.length === 0 && access === "free" && (
             <p className="mt-1.5 max-w-lg text-sm text-muted">{TEASER_BOUNDARY}</p>
           )}
         </div>
@@ -707,7 +720,7 @@ function InboxPanel({
               ? `last synced ${new Date(account.lastSyncedAt).toLocaleString()}`
               : "never scanned"}
           </span>
-          {account.status === "active" && (plan !== "teaser" || !account.lastSyncedAt) && (
+          {account.status === "active" && (access !== "free" || !account.lastSyncedAt) && (
             <Button
               variant="secondary"
               className="ml-auto"
@@ -736,15 +749,10 @@ function InboxPanel({
         </div>
       )}
       {scanState.error && <p className="mt-2 text-sm text-danger">{scanState.error}</p>}
-      {plan === "teaser" && accounts.length > 0 && (
+      {access === "free" && accounts.length > 0 && (
         <p className="mt-3 text-xs text-muted">
-          Free scan: one inbox, one scan. Basic re-scans monthly; Pro syncs daily across unlimited
-          inboxes.
-        </p>
-      )}
-      {plan === "basic" && accounts.length > 0 && (
-        <p className="mt-3 text-xs text-muted">
-          Basic: 1 inbox, monthly re-scan. Pro: unlimited inboxes, daily sync + alerts.
+          Free scan: one inbox, one scan. The {PASS.name} re-scans daily for 30 days;{" "}
+          {GUARDIAN.name} keeps a monthly watch, year-round.
         </p>
       )}
     </Card>

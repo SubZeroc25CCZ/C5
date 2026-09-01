@@ -1,25 +1,13 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { SignInButton, useAuth } from "@clerk/nextjs";
 import { trpc } from "@/lib/trpc";
 import { Button, cx } from "@/components/ui";
-import { planById, PLANS } from "@/lib/plans";
-
-type PaidPlan = "basic" | "pro";
+import { GUARDIAN, PASS, planById, type PlanId } from "@/lib/plans";
 
 // Names, prices and bullets come from src/lib/plans.ts — the one place they
-// are allowed to live (D10 A1). These aliases keep the JSX below readable.
-const PRICING: Record<PaidPlan, Record<Interval, string>> = {
-  basic: { monthly: planById("basic").monthly, annual: planById("basic").annual! },
-  pro: { monthly: planById("pro").monthly, annual: planById("pro").annual! },
-};
-const TEASER_FEATURES = planById("teaser").features;
-const BASIC_FEATURES = planById("basic").features;
-const PRO_FEATURES = planById("pro").features;
-type Interval = "monthly" | "annual";
-
+// are allowed to live (D10 A1). This file only lays them out.
 
 function Check() {
   return (
@@ -40,115 +28,85 @@ function Check() {
   );
 }
 
-
-
-
-export function PricingPlans() {
-  const [interval, setInterval] = useState<Interval>("monthly");
+function TierCard({
+  id,
+  flag,
+  footnote,
+  children,
+}: {
+  id: PlanId;
+  flag?: string;
+  footnote?: string;
+  children: React.ReactNode;
+}) {
+  const plan = planById(id);
   return (
-    <div>
-      <div className="mb-8 flex justify-center">
-        <div className="inline-flex rounded-full border border-line bg-surface p-1 text-sm">
-          {(["monthly", "annual"] as const).map((option) => (
-            <button
-              key={option}
-              onClick={() => setInterval(option)}
-              className={cx(
-                "cursor-pointer rounded-full px-4 py-1.5 transition-colors",
-                interval === option ? "bg-frost font-semibold text-frost-ink" : "text-muted",
-              )}
-            >
-              {option === "monthly" ? "Monthly" : "Annual · 2 months free"}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Teaser */}
-        <div className="rounded-2xl border border-line bg-surface p-7">
-          <h2 className="text-lg font-semibold">Free scan</h2>
-          <p className="tnum mt-2 text-4xl font-extrabold">{planById("teaser").monthly}</p>
-          <p className="mt-1 text-sm text-muted">see what you&rsquo;re dealing with</p>
-          <ul className="mt-6 space-y-2.5 text-sm">
-            {TEASER_FEATURES.map((feature) => (
-              <li key={feature} className="flex gap-2.5">
-                <Check />
-                <span>{feature}</span>
-              </li>
-            ))}
-          </ul>
-          <p className="mt-4 text-xs text-muted">
-            The rest of your subscriptions stay locked until you upgrade — no re-scans, no
-            cancellation tools.
-          </p>
-          <div className="mt-6">
-            <Link
-              href="/dashboard"
-              className="inline-flex w-full items-center justify-center rounded-lg border border-line px-4 py-3 text-sm font-medium text-muted transition-colors hover:text-ink"
-            >
-              Start the free scan
-            </Link>
-          </div>
-        </div>
-
-        {/* Basic */}
-        <div className="relative rounded-2xl border-2 border-frost bg-surface p-7">
-          <span className="absolute -top-3 left-6 rounded-full bg-frost px-3 py-0.5 text-xs font-bold text-frost-ink">
-            MOST POPULAR
-          </span>
-          <h2 className="text-lg font-semibold text-frost">Basic</h2>
-          <p className="tnum mt-2 text-4xl font-extrabold">
-            {PRICING.basic[interval]}
-            <span className="text-lg font-medium text-muted">
-              /{interval === "monthly" ? "month" : "year"}
-            </span>
-          </p>
-          <p className="mt-1 text-sm text-muted">cancel anytime — of course</p>
-          <ul className="mt-6 space-y-2.5 text-sm">
-            {BASIC_FEATURES.map((feature) => (
-              <li key={feature} className="flex gap-2.5">
-                <Check />
-                <span>{feature}</span>
-              </li>
-            ))}
-          </ul>
-          <div className="mt-7">
-            <PlanAction plan="basic" interval={interval} />
-          </div>
-        </div>
-
-        {/* Pro */}
-        <div className="rounded-2xl border border-line bg-surface p-7">
-          <h2 className="text-lg font-semibold">Pro</h2>
-          <p className="tnum mt-2 text-4xl font-extrabold">
-            {PRICING.pro[interval]}
-            <span className="text-lg font-medium text-muted">
-              /{interval === "monthly" ? "month" : "year"}
-            </span>
-          </p>
-          <p className="mt-1 text-sm text-muted">for people with many inboxes</p>
-          <ul className="mt-6 space-y-2.5 text-sm">
-            {PRO_FEATURES.map((feature) => (
-              <li key={feature} className="flex gap-2.5">
-                <Check />
-                <span>{feature}</span>
-              </li>
-            ))}
-          </ul>
-          <div className="mt-7">
-            <PlanAction plan="pro" interval={interval} />
-          </div>
-        </div>
-      </div>
+    <div
+      className={cx(
+        "relative rounded-2xl bg-surface p-7",
+        plan.featured ? "border-2 border-frost" : "border border-line",
+      )}
+    >
+      {flag && (
+        <span className="absolute -top-3 left-6 rounded-full bg-frost px-3 py-0.5 text-xs font-bold text-frost-ink">
+          {flag}
+        </span>
+      )}
+      <h2 className={cx("text-lg font-semibold", plan.featured && "text-frost")}>{plan.name}</h2>
+      <p className="tnum mt-2 text-4xl font-extrabold">
+        {plan.price}
+        {plan.cadence && (
+          <span className="text-lg font-medium text-muted"> {plan.cadence}</span>
+        )}
+      </p>
+      <p className="mt-1 text-sm text-muted">{plan.tagline}</p>
+      <ul className="mt-6 space-y-2.5 text-sm">
+        {plan.features.map((feature) => (
+          <li key={feature} className="flex gap-2.5">
+            <Check />
+            <span>{feature}</span>
+          </li>
+        ))}
+      </ul>
+      {footnote && <p className="mt-4 text-xs text-muted">{footnote}</p>}
+      <div className="mt-7">{children}</div>
     </div>
   );
 }
 
-/** The plan card's action button: sign in → upgrade → manage, by state. */
-function PlanAction({ plan, interval }: { plan: PaidPlan; interval: Interval }) {
+export function PricingPlans() {
+  return (
+    <div className="grid gap-6 lg:grid-cols-3">
+      <TierCard
+        id="free"
+        footnote="The rest of your subscriptions stay locked until you buy the Pass — no re-scans, no cancellation tools."
+      >
+        <Link
+          href="/dashboard"
+          className="inline-flex w-full items-center justify-center rounded-lg border border-line px-4 py-3 text-sm font-medium text-muted transition-colors hover:text-ink"
+        >
+          Start the free scan
+        </Link>
+      </TierCard>
+
+      <TierCard id="pass" flag="THE UNLOCK">
+        <PurchaseAction purchase="pass" />
+      </TierCard>
+
+      <TierCard
+        id="guardian"
+        footnote="Best bought after the cleanup — it exists so the mess never rebuilds."
+      >
+        <PurchaseAction purchase="guardian" />
+      </TierCard>
+    </div>
+  );
+}
+
+/** The tier card's action button: sign in → buy → manage, by state. */
+function PurchaseAction({ purchase }: { purchase: "pass" | "guardian" }) {
   const { isSignedIn } = useAuth();
-  const planQuery = trpc.billing.plan.useQuery(undefined, { enabled: !!isSignedIn });
+  const accessQuery = trpc.billing.plan.useQuery(undefined, { enabled: !!isSignedIn });
   const checkout = trpc.billing.checkout.useMutation({
     onSuccess: ({ url }) => {
       window.location.href = url;
@@ -163,12 +121,15 @@ function PlanAction({ plan, interval }: { plan: PaidPlan; interval: Interval }) 
   if (!isSignedIn) {
     return (
       <SignInButton mode="modal">
-        <Button className="w-full py-3">Sign in to upgrade</Button>
+        <Button className="w-full py-3">Sign in to buy</Button>
       </SignInButton>
     );
   }
-  const current = planQuery.data?.plan;
-  if (current === plan) {
+
+  const access = accessQuery.data?.access;
+  const passExpiresAt = accessQuery.data?.passExpiresAt;
+
+  if (purchase === "guardian" && access === "guardian") {
     return (
       <Button
         variant="secondary"
@@ -176,21 +137,38 @@ function PlanAction({ plan, interval }: { plan: PaidPlan; interval: Interval }) 
         disabled={portal.isPending}
         onClick={() => portal.mutate()}
       >
-        {portal.isPending ? "Opening billing…" : "Current plan — manage billing"}
+        {portal.isPending ? "Opening billing…" : "Active — manage billing"}
       </Button>
     );
   }
+
+  // A live Pass: say so, and when it ends, plainly. Buying again anyway is
+  // allowed — a second Pass is a real use case a month from now.
+  const passActive =
+    purchase === "pass" &&
+    access === "pass" &&
+    passExpiresAt &&
+    new Date(passExpiresAt).getTime() > Date.now();
+
   return (
     <div>
       <Button
         className="w-full py-3"
-        disabled={checkout.isPending || planQuery.isLoading}
-        onClick={() => checkout.mutate({ plan, interval })}
+        disabled={checkout.isPending || accessQuery.isLoading}
+        onClick={() => checkout.mutate({ purchase })}
       >
         {checkout.isPending
           ? "Opening checkout…"
-          : `Get ${plan === "basic" ? "Basic" : "Pro"}`}
+          : purchase === "pass"
+            ? `Get the ${PASS.name} — ${PASS.price}`
+            : `Start ${GUARDIAN.name} — ${GUARDIAN.price}/year`}
       </Button>
+      {passActive && (
+        <p className="mt-2 text-center text-xs text-muted">
+          Your Pass is active until {new Date(passExpiresAt!).toLocaleDateString()} — no need to
+          buy again yet.
+        </p>
+      )}
       {checkout.isError ? (
         // Honesty rule: don't tell someone to retry a thing that cannot
         // succeed. A failed checkout is almost always our configuration,

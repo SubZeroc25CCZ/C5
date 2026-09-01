@@ -38,7 +38,7 @@ function resolve(path: string, state: PreviewState): unknown {
     case "emailAccounts.list":
       return state === "noinbox" ? [] : demoAccounts;
     case "billing.plan":
-      return { plan: "pro" };
+      return { access: "pass", passExpiresAt: new Date(Date.now() + 21 * 86_400_000) };
     case "research.surveyStatus":
       return { answered: true };
     case "research.event":
