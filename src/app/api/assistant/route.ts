@@ -79,6 +79,27 @@ async function workersAi(
   }
 }
 
+/**
+ * Health probe: is the AI tier actually answering in this deployment, or is
+ * the widget running on the KB fallback? Answers { ai: boolean }. The real
+ * ping is cached for 10 minutes and the route is rate-limited, so the probe
+ * cannot be used to burn Workers AI quota.
+ */
+const healthLimiter = createRateLimiter({ limit: 5, windowMs: 60_000 });
+let aiHealth: { checkedAt: number; ok: boolean } | null = null;
+
+export async function GET(request: Request) {
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  const { allowed } = await healthLimiter(`assistant-health:${ip}`);
+  if (!allowed) return NextResponse.json({ error: "rate limited" }, { status: 429 });
+
+  if (!aiHealth || Date.now() - aiHealth.checkedAt > 10 * 60_000) {
+    const reply = await workersAi([{ role: "user", content: "Reply with the single word: ok" }]);
+    aiHealth = { checkedAt: Date.now(), ok: reply !== null };
+  }
+  return NextResponse.json({ ok: true, ai: aiHealth.ok });
+}
+
 export async function POST(request: Request) {
   const ip =
     request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
