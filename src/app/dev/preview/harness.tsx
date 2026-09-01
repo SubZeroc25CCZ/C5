@@ -23,11 +23,12 @@ import { SubscriptionDetailClient } from "@/app/dashboard/subscriptions/[id]/det
 import { demoAccounts, demoDetail, demoList, emptyList } from "./fixtures";
 
 export type PreviewState = "default" | "empty" | "noinbox" | "loading" | "error";
+export type PreviewAccess = "free" | "pass" | "guardian";
 
 // Queries answer from fixtures; mutations are swallowed (the harness has no
 // backend to write to). Anything unlisted fails loudly so a new dashboard
 // query can't silently render its error state in a screenshot.
-function resolve(path: string, state: PreviewState): unknown {
+function resolve(path: string, state: PreviewState, access: PreviewAccess): unknown {
   switch (path) {
     case "subscriptions.list":
       return state === "default" ? demoList : emptyList;
@@ -38,7 +39,9 @@ function resolve(path: string, state: PreviewState): unknown {
     case "emailAccounts.list":
       return state === "noinbox" ? [] : demoAccounts;
     case "billing.plan":
-      return { access: "pass", passExpiresAt: new Date(Date.now() + 21 * 86_400_000) };
+      return access === "pass"
+        ? { access, passExpiresAt: new Date(Date.now() + 21 * 86_400_000) }
+        : { access, passExpiresAt: null };
     case "research.surveyStatus":
       return { answered: true };
     case "research.event":
@@ -49,7 +52,7 @@ function resolve(path: string, state: PreviewState): unknown {
   }
 }
 
-function fixtureLink(state: PreviewState): TRPCLink<AppRouter> {
+function fixtureLink(state: PreviewState, access: PreviewAccess = "pass"): TRPCLink<AppRouter> {
   return () =>
     ({ op }) =>
       observable((observer) => {
@@ -63,7 +66,7 @@ function fixtureLink(state: PreviewState): TRPCLink<AppRouter> {
           }
         }
         try {
-          observer.next({ result: { type: "data", data: resolve(op.path, state) } });
+          observer.next({ result: { type: "data", data: resolve(op.path, state, access) } });
           observer.complete();
         } catch (error) {
           observer.error(TRPCClientError.from(error as Error));
@@ -87,7 +90,13 @@ export function PreviewDetailHarness() {
   );
 }
 
-export function PreviewHarness({ state }: { state: PreviewState }) {
+export function PreviewHarness({
+  state,
+  access = "pass",
+}: {
+  state: PreviewState;
+  access?: PreviewAccess;
+}) {
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -95,7 +104,7 @@ export function PreviewHarness({ state }: { state: PreviewState }) {
         defaultOptions: { queries: { retry: false } },
       }),
   );
-  const [client] = useState(() => trpc.createClient({ links: [fixtureLink(state)] }));
+  const [client] = useState(() => trpc.createClient({ links: [fixtureLink(state, access)] }));
 
   return (
     <trpc.Provider client={client} queryClient={queryClient}>

@@ -15,7 +15,9 @@ export type LandingEvent =
   | "demo_step_viewed"
   | "pricing_viewed"
   | "faq_opened"
-  | "final_cta_clicked";
+  | "final_cta_clicked"
+  | "assistant_opened"
+  | "assistant_message";
 
 /** Events that should fire once per page view, however often they retrigger. */
 const seen = new Set<string>();
