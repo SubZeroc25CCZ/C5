@@ -1,52 +1,26 @@
-// Landing-page mockups. Every figure here is FICTIONAL sample data — the
+// Landing-page visuals. Every figure here is FICTIONAL sample data — the
 // merchants are invented ("Stream Plus", not Netflix) and the amounts are
 // illustrative. Nothing in this file is read from, or represents, a real
 // account. The brief is explicit: no real company names, no savings claims.
 //
-// The hero is different from the step mockups: it is a SCREENSHOT of the
-// real dashboard (src/app/dev/preview renders <DashboardClient> against a
-// demo scan run through the real Stage 1 matcher and recurrence engine),
-// captured dark, with merchant names pseudonymized to honor the no-real-
-// company-names rule. Regenerate: run the dev server, screenshot
-// /dev/preview, replace public/dashboard-demo.png — never hand-edit it.
+// Two rules learned the hard way govern this file:
+//   1. Nothing may LOOK like a button unless it actually does something.
+//      Earlier drafts drew "Connect" / "View evidence" pills inside the
+//      mockups; visitors clicked them and nothing happened, which reads as
+//      a broken site. Illustrations are illustrations — text and shapes.
+//   2. The hero is a SCREENSHOT of the real dashboard (src/app/dev/preview
+//      renders <DashboardClient> against a demo scan run through the real
+//      matcher), captured at 2x density and CROPPED so the text is legible
+//      at display size. Regenerate: dev server → screenshot
+//      /dev/preview?access=guardian at 880px/2x, clip from the H1 to the
+//      first row of cards, replace public/dashboard-demo.png. Never
+//      hand-edit it, never widen the viewport (a full 1440px dashboard
+//      shrunk into a 660px slot is unreadable — that was the old bug).
 
 import Image from "next/image";
 import dashboardDemo from "../../public/dashboard-demo.png";
 
-function Row({
-  name,
-  meta,
-  amount,
-  cadence,
-}: {
-  name: string;
-  meta: string;
-  amount: string;
-  cadence: string;
-}) {
-  return (
-    <div className="flex items-center justify-between gap-3 rounded-xl px-3 py-2.5" style={{ background: "rgba(255,255,255,0.04)" }}>
-      <div className="min-w-0">
-        <div className="truncate text-sm font-semibold" style={{ color: "var(--lp-text)" }}>
-          {name}
-        </div>
-        <div className="truncate text-xs" style={{ color: "var(--lp-text-muted)" }}>
-          {meta}
-        </div>
-      </div>
-      <div className="shrink-0 text-right">
-        <div className="text-sm font-bold" style={{ color: "var(--lp-text)", fontVariantNumeric: "tabular-nums" }}>
-          {amount}
-        </div>
-        <div className="text-xs" style={{ color: "var(--lp-text-muted)" }}>
-          {cadence}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/** Hero: a real dashboard screenshot (sample data), not a drawn imitation. */
+/** Hero: a real dashboard screenshot (sample data) in a window frame. */
 export function HeroMockup() {
   return (
     <figure className="lp-rise w-full">
@@ -59,12 +33,28 @@ export function HeroMockup() {
           background: "var(--lp-surface)",
         }}
       >
+        {/* Window chrome: frames the image as "the app", not a poster. */}
+        <div
+          className="flex items-center gap-1.5 px-4 py-2.5"
+          style={{ borderBottom: "1px solid var(--lp-hairline)" }}
+          aria-hidden
+        >
+          <span className="size-2.5 rounded-full" style={{ background: "rgba(255,255,255,0.14)" }} />
+          <span className="size-2.5 rounded-full" style={{ background: "rgba(255,255,255,0.14)" }} />
+          <span className="size-2.5 rounded-full" style={{ background: "rgba(255,255,255,0.14)" }} />
+          <span
+            className="ml-3 rounded-md px-2.5 py-0.5 text-[11px]"
+            style={{ background: "rgba(255,255,255,0.05)", color: "var(--lp-text-muted)" }}
+          >
+            subzero.o2c.one/dashboard
+          </span>
+        </div>
         <Image
           src={dashboardDemo}
-          alt="SubZero dashboard with sample data: $41.97 per month across 3 active subscriptions ($503.64 per year), next renewal September 11, a price increase from $10.99 to $11.99 on one of them, two more at $17.99 and $11.99 per month, a storefront group with $28.96 of observed charges across 4 receipts, and one subscription seen once."
+          alt="SubZero dashboard with sample data: a price-increase alert (Tune Box was $10.99, now $11.99), $41.97 per month across 3 active subscriptions ($503.64 per year), next renewal September 17, a connected inbox with re-scan, and subscription cards for Stream Plus at $17.99 and Tune Box at $11.99 per month."
           priority
           placeholder="blur"
-          sizes="(min-width: 1024px) 660px, 100vw"
+          sizes="(min-width: 1024px) 620px, 100vw"
           className="h-auto w-full"
         />
       </div>
@@ -78,129 +68,33 @@ export function HeroMockup() {
   );
 }
 
-/** Step 1 — the consent screen, drawn generically (no Google branding). */
-export function ConnectMock() {
-  return (
-    <div className="w-full p-6" style={{ borderRadius: "var(--lp-radius-card)", background: "var(--lp-surface)", border: "1px solid var(--lp-hairline)" }}>
-      <div className="flex items-center gap-3">
-        <div className="flex size-10 items-center justify-center rounded-xl" style={{ background: "rgba(46,158,255,0.14)" }}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--lp-primary)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-            <path d="M4 6h16v12H4zM4 7l8 6 8-6" />
-          </svg>
-        </div>
-        <div>
-          <div className="text-sm font-semibold">Connect your inbox</div>
-          <div className="text-xs" style={{ color: "var(--lp-text-muted)" }}>SubZero is asking for access</div>
-        </div>
-      </div>
-      <div className="mt-4 flex items-center gap-2 rounded-xl px-3 py-2.5" style={{ background: "rgba(47,196,147,0.10)", border: "1px solid rgba(47,196,147,0.25)" }}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--lp-success)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-          <path d="M20 6L9 17l-5-5" />
-        </svg>
-        <span className="text-xs font-semibold" style={{ color: "var(--lp-success)" }}>Read-only — SubZero can never send, delete or edit</span>
-      </div>
-      <div className="mt-4 flex gap-2">
-        <span className="flex-1 rounded-lg py-2.5 text-center text-sm font-semibold" style={{ background: "var(--lp-primary)", color: "#04111f" }}>Connect</span>
-        <span className="rounded-lg px-4 py-2.5 text-center text-sm" style={{ border: "1px solid var(--lp-hairline)", color: "var(--lp-text-muted)" }}>Cancel</span>
-      </div>
-    </div>
-  );
-}
-
-/** Step 2 — receipts grouping into subscriptions. */
-export function GroupingMock() {
-  return (
-    <div className="w-full p-6" style={{ borderRadius: "var(--lp-radius-card)", background: "var(--lp-surface)", border: "1px solid var(--lp-hairline)" }}>
-      <div className="flex flex-wrap gap-1.5">
-        {Array.from({ length: 9 }).map((_, i) => (
-          <span key={i} className="h-6 rounded" style={{ width: `${34 + ((i * 13) % 40)}px`, background: "rgba(255,255,255,0.07)" }} aria-hidden />
-        ))}
-      </div>
-      <div className="my-4 flex items-center justify-center gap-2 text-xs font-semibold" style={{ color: "var(--lp-primary-bright)" }}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-          <path d="M12 5v14M5 12l7 7 7-7" />
-        </svg>
-        grouped by merchant, amount and date
-      </div>
-      <div className="flex flex-col gap-2">
-        <Row name="Stream Plus" meta="6 receipts · every 30 days" amount="$17.99" cadence="per month" />
-        <Row name="Cloud Box" meta="9 receipts · every 30 days" amount="$11.99" cadence="per month" />
-        <Row name="Design Pro" meta="4 receipts · every 30 days" amount="$14.99" cadence="per month" />
-      </div>
-    </div>
-  );
-}
-
-/** Step 3 — the evidence timeline behind one subscription. */
-export function TimelineMock() {
-  return (
-    <div className="w-full p-6" style={{ borderRadius: "var(--lp-radius-card)", background: "var(--lp-surface)", border: "1px solid var(--lp-hairline)" }}>
-      <div className="text-sm font-semibold">Cloud Box</div>
-      <div className="text-xs" style={{ color: "var(--lp-text-muted)" }}>9 receipts found · charged every 30 days</div>
-      <ol className="mt-4 flex flex-col gap-3">
-        {[
-          { d: "03 Aug 2026", a: "$11.99", rise: true },
-          { d: "03 Jul 2026", a: "$9.99", rise: false },
-          { d: "03 Jun 2026", a: "$9.99", rise: false },
-        ].map((c) => (
-          <li key={c.d} className="flex items-center gap-3">
-            <span className="size-2 shrink-0 rounded-full" style={{ background: c.rise ? "var(--lp-accent)" : "var(--lp-primary)" }} aria-hidden />
-            <span className="flex-1 text-xs" style={{ color: "var(--lp-text-muted)" }}>{c.d}</span>
-            <span className="text-sm font-semibold" style={{ fontVariantNumeric: "tabular-nums", color: c.rise ? "var(--lp-accent)" : "var(--lp-text)" }}>{c.a}</span>
-          </li>
-        ))}
-      </ol>
-      <div className="mt-4 text-xs font-semibold" style={{ color: "var(--lp-primary-bright)" }}>View the receipt behind each charge →</div>
-    </div>
-  );
-}
-
-/** Step 4 — the three actions and the cancellation drawer. */
-export function ActionsMock() {
-  return (
-    <div className="w-full p-6" style={{ borderRadius: "var(--lp-radius-card)", background: "var(--lp-surface)", border: "1px solid var(--lp-hairline)" }}>
-      <div className="grid grid-cols-3 gap-2">
-        {/* Inks chosen to clear WCAG AA even under the scrollytelling's
-            0.78 inactive dim (D10 B9) — not the softer palette defaults. */}
-        <span className="rounded-xl py-3 text-center text-sm font-semibold" style={{ background: "rgba(47,196,147,0.14)", color: "#8beecb" }}>Keep</span>
-        <span className="rounded-xl py-3 text-center text-sm font-semibold" style={{ background: "rgba(230,91,104,0.16)", color: "#ffc2c8" }}>Cancel</span>
-        <span className="rounded-xl py-3 text-center text-sm font-semibold" style={{ background: "rgba(255,255,255,0.07)", color: "#cdd9e8" }}>Ignore</span>
-      </div>
-      <div className="mt-4 rounded-xl p-4" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--lp-hairline)" }}>
-        <div className="text-xs font-semibold uppercase tracking-[0.1em]" style={{ color: "var(--lp-text-muted)" }}>Cancellation options</div>
-        <div className="mt-3 flex flex-col gap-2">
-          {["Direct cancellation link", "Phone number", "Prepared cancellation email"].map((o) => (
-            <div key={o} className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm" style={{ background: "rgba(255,255,255,0.04)" }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--lp-primary)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                <path d="M9 18l6-6-6-6" />
-              </svg>
-              {o}
-            </div>
-          ))}
-        </div>
-      </div>
-      <p className="mt-3 text-xs" style={{ color: "var(--lp-text-muted)" }}>
-        Cancellation is complete only after provider confirmation.
-      </p>
-    </div>
-  );
-}
-
-/** Section E — one subscription card, expanded, showing its evidence. */
+/** Section E — one subscription, expanded, showing its evidence. Pure illustration. */
 export function EvidenceCard() {
   return (
     <div
       className="w-full p-6 sm:p-7"
-      style={{ borderRadius: "var(--lp-radius-panel)", background: "var(--lp-surface)", border: "1px solid var(--lp-hairline)", boxShadow: "var(--lp-shadow-card)" }}
+      style={{
+        borderRadius: "var(--lp-radius-panel)",
+        background: "var(--lp-surface)",
+        border: "1px solid var(--lp-hairline)",
+        boxShadow: "var(--lp-shadow-card)",
+      }}
     >
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <div className="lp-h3">Cloud Box</div>
-          <div className="mt-1 text-sm" style={{ color: "var(--lp-text-muted)" }}>Charged every 30 days · next expected 03 Sep 2026</div>
+          <div className="mt-1 text-sm" style={{ color: "var(--lp-text-muted)" }}>
+            Charged every 30 days · next expected 03 Sep 2026
+          </div>
         </div>
         <div className="text-right">
-          <div className="text-2xl font-extrabold" style={{ fontVariantNumeric: "tabular-nums" }}>$11.99</div>
-          <span className="mt-1 inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold" style={{ background: "rgba(243,168,59,0.16)", color: "var(--lp-accent)" }}>
+          <div className="text-2xl font-extrabold" style={{ fontVariantNumeric: "tabular-nums" }}>
+            $11.99
+          </div>
+          <span
+            className="mt-1 inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold"
+            style={{ background: "rgba(243,168,59,0.16)", color: "var(--lp-accent)" }}
+          >
             up from $9.99
           </span>
         </div>
@@ -208,24 +102,26 @@ export function EvidenceCard() {
 
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
         <div>
-          <div className="text-xs font-semibold uppercase tracking-[0.1em]" style={{ color: "var(--lp-text-muted)" }}>Last three receipts</div>
+          <div className="text-xs font-semibold uppercase tracking-[0.1em]" style={{ color: "var(--lp-text-muted)" }}>
+            Last three receipts
+          </div>
           <ul className="mt-2 flex flex-col gap-1.5 text-sm">
             {["03 Aug 2026 — $11.99", "03 Jul 2026 — $9.99", "03 Jun 2026 — $9.99"].map((r) => (
-              <li key={r} style={{ fontVariantNumeric: "tabular-nums", color: "var(--lp-text)" }}>{r}</li>
+              <li key={r} style={{ fontVariantNumeric: "tabular-nums", color: "var(--lp-text)" }}>
+                {r}
+              </li>
             ))}
           </ul>
         </div>
         <div>
-          <div className="text-xs font-semibold uppercase tracking-[0.1em]" style={{ color: "var(--lp-text-muted)" }}>Why we think it recurs</div>
+          <div className="text-xs font-semibold uppercase tracking-[0.1em]" style={{ color: "var(--lp-text-muted)" }}>
+            Why we think it recurs
+          </div>
           <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--lp-text-muted)" }}>
-            Nine receipts from the same sender, each 30 days apart, each naming the same amount until August.
+            Nine receipts from the same sender, each 30 days apart, each naming the same amount
+            until August.
           </p>
         </div>
-      </div>
-
-      <div className="mt-5 flex flex-wrap gap-2">
-        <span className="rounded-xl px-4 py-2.5 text-sm font-semibold" style={{ background: "rgba(46,158,255,0.14)", color: "var(--lp-primary-bright)" }}>View evidence</span>
-        <span className="rounded-xl px-4 py-2.5 text-sm font-semibold" style={{ border: "1px solid var(--lp-hairline)", color: "var(--lp-text)" }}>Cancellation options</span>
       </div>
     </div>
   );

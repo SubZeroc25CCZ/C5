@@ -43,7 +43,11 @@ export type AnalyticsEvent =
   | "demo_step_viewed"
   | "pricing_viewed"
   | "faq_opened"
-  | "final_cta_clicked";
+  | "final_cta_clicked"
+  // The landing assistant (a visitor-facing bot): opened once per view, and
+  // one event per visitor message — enough to see whether it earns its spot.
+  | "assistant_opened"
+  | "assistant_message";
 
 /**
  * The actor id for events from signed-out visitors.

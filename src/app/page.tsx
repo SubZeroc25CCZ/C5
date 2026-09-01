@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { EvidenceCard } from "./landing-mockups";
+import { EvidenceCard, HeroMockup } from "./landing-mockups";
 import { Faq, FinalCta, Hero, HowItWorks, PricingStrip, StickyCta } from "./landing-sections";
+import { AssistantWidget } from "./assistant-widget";
 
 // Landing page — "From inbox chaos to total clarity".
 //
@@ -11,7 +12,12 @@ import { Faq, FinalCta, Hero, HowItWorks, PricingStrip, StickyCta } from "./land
 //     path; only provider confirmation counts as cancelled.
 //   • No savings figures, success rates, or detection-accuracy claims: we
 //     have no verified numbers, so we make no numeric promise at all.
-// Every amount and merchant shown in the mockups is invented sample data.
+// Every amount and merchant shown in the visuals is invented sample data.
+//
+// Facelift rules (post-audit):
+//   • Nothing looks pressable unless it is pressable and does something.
+//   • One idea per section; no section repeats another's content.
+//   • The hero screenshot is cropped for legibility, not shrunk to fit.
 
 const PAINS = [
   {
@@ -67,11 +73,9 @@ function Icon({ path }: { path: string }) {
 export default function LandingPage() {
   return (
     <main className="lp">
-      <Hero />
+      <Hero mockup={<HeroMockup />} />
 
-      {/* §C — problem strip. Minor tier of the vertical rhythm (D10 B3):
-          connective sections breathe at 96px on desktop, the big set pieces
-          (hero, how-it-works, pricing) keep 120px. */}
+      {/* §C — problem strip. */}
       <section className="mx-auto max-w-[1200px] px-4 py-16 lg:py-24">
         <h2 className="lp-h2 lp-measure-title">
           Subscriptions are easy to start — and strangely hard to escape.
@@ -141,6 +145,7 @@ export default function LandingPage() {
       {/* Sentinel: the sticky mobile CTA hides once this is on screen. */}
       <div id="lp-end" aria-hidden />
       <StickyCta />
+      <AssistantWidget />
     </main>
   );
 }

@@ -5,19 +5,21 @@ import Link from "next/link";
 import { useAuth, useClerk } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { useLandingEvents, type LandingEvent } from "./landing-analytics";
-import { PLANS, TEASER_BOUNDARY } from "@/lib/plans";
-import { ActionsMock, ConnectMock, GroupingMock, HeroMockup, TimelineMock } from "./landing-mockups";
+import { GUARDIAN, PASS, PLANS, TEASER_BOUNDARY } from "@/lib/plans";
 
-// Interactive parts of the landing page (conversion brief §B, §D, §G–I).
-// Everything here is a client component only because it needs an event, an
-// observer, or open/closed state — the static sections stay on the server.
+// Interactive parts of the landing page. Everything here is a client
+// component only because it needs an event, an observer, or open/closed
+// state — the static sections stay on the server.
+//
+// One hard rule, post-facelift: every element that looks pressable IS
+// pressable and does something real. No decorative buttons.
 
 const CTA_BASE =
   "lp-cta inline-flex items-center justify-center gap-2 px-6 font-semibold focus-visible:outline-2 focus-visible:outline-offset-2";
 // 44px minimum hit target (brief §10) — py-3.5 on 16px text clears it.
 const CTA_SIZE = "min-h-[52px] py-3.5 text-base";
 
-function PrimaryCta({
+export function PrimaryCta({
   children,
   event,
   className,
@@ -59,8 +61,8 @@ function PrimaryCta({
   );
 }
 
-/** §B — hero. Copy left, live dashboard right. */
-export function Hero() {
+/** §B — hero. Copy left, real dashboard screenshot right. */
+export function Hero({ mockup }: { mockup: React.ReactNode }) {
   const { trackOnce } = useLandingEvents();
 
   // One per page load, from the section that is always on screen at load.
@@ -69,22 +71,25 @@ export function Hero() {
   }, [trackOnce]);
 
   return (
-    <section className="mx-auto grid max-w-[1200px] items-center gap-12 px-4 py-20 lg:grid-cols-[5fr_7fr] lg:py-[120px]">
+    <section className="mx-auto grid max-w-[1200px] items-center gap-12 px-4 py-16 lg:grid-cols-[10fr_11fr] lg:py-24">
       <div>
-        <p className="text-xs font-semibold uppercase tracking-[0.14em]" style={{ color: "var(--lp-primary-bright)" }}>
-          AI-powered subscription control
+        <p
+          className="text-xs font-semibold uppercase tracking-[0.14em]"
+          style={{ color: "var(--lp-primary-bright)" }}
+        >
+          Find · Understand · Cancel
         </p>
         <h1 className="lp-hero-title lp-measure-title mt-4">
-          Still paying for subscriptions you forgot about?
+          Still paying for things you forgot?
         </h1>
         <p className="lp-body-lg lp-measure-copy mt-5" style={{ color: "var(--lp-text-muted)" }}>
-          SubZero finds recurring charges in your email receipts, flags price changes, and helps you
-          cancel — without connecting your bank.
+          SubZero reads your email receipts — read-only, no bank connection — and shows every
+          recurring charge, every quiet price increase, and the clearest way out of each one.
         </p>
 
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+        <div id="hero-cta" className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           <PrimaryCta event="hero_cta_clicked" className="w-full sm:w-auto">
-            Scan my inbox securely
+            Scan my inbox — free
           </PrimaryCta>
           <a
             href="#how-it-works"
@@ -100,19 +105,12 @@ export function Hero() {
           </a>
         </div>
 
-        {/* D10 A3: the teaser boundary has to be visible BEFORE anyone
-            grants inbox access, not only on /pricing. */}
         <p className="lp-small mt-5" style={{ color: "var(--lp-text-muted)" }}>
-          {TEASER_BOUNDARY}
-        </p>
-        <p className="lp-small mt-2" style={{ color: "var(--lp-text-muted)" }}>
-          Read-only access &middot; No bank connection &middot; Revoke anytime
+          Read-only access · No bank connection · Revoke anytime
         </p>
       </div>
 
-      <div id="hero-mockup">
-        <HeroMockup />
-      </div>
+      <div id="hero-mockup">{mockup}</div>
     </section>
   );
 }
@@ -121,126 +119,87 @@ const STEPS = [
   {
     n: 1,
     title: "Connect securely",
-    copy: "Connect Gmail with secure, read-only access. Never share your email or bank password.",
-    Visual: ConnectMock,
+    copy: "Gmail, with a read-only grant. SubZero cannot send, delete, or edit anything — the permission itself forbids it.",
+    icon: "M4 6h16v12H4zM4 7l8 6 8-6",
   },
   {
     n: 2,
-    title: "AI finds the recurring charges",
-    copy: "SubZero analyzes receipt patterns and groups recurring charges by merchant, amount, and date.",
-    Visual: GroupingMock,
+    title: "We find the recurring charges",
+    copy: "Receipts are grouped by merchant, amount, and cadence — up to 24 months back, in about two minutes.",
+    icon: "M21 21l-4.35-4.35M17 10.5a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z",
   },
   {
     n: 3,
     title: "See the full story",
-    copy: "Review evidence, renewal dates, and price changes in one clear dashboard.",
-    Visual: TimelineMock,
+    copy: "Every subscription with its receipts, renewal dates, and price history — evidence, not guesses.",
+    icon: "M3 3v18h18M7 15l4-6 3 3 5-8",
   },
   {
     n: 4,
     title: "Keep, cancel, or ignore",
-    copy: "Choose what stays. For anything you want to stop, get the clearest available cancellation path.",
-    Visual: ActionsMock,
+    copy: "For anything you want to stop: a direct link, a phone number, or a prepared email. Done only after provider confirmation.",
+    icon: "M20 6L9 17l-5-5",
   },
 ] as const;
 
 /**
- * §D — how it works. Sticky scrollytelling on desktop, stacked cards on
- * mobile. The steps are readable as four plain cards with no scripting at
- * all, so the section survives reduced motion and a failed hydrate.
+ * §D — how it works. A plain numbered grid: no scroll scripting, no sticky
+ * panels, nothing that can look broken mid-scroll. The old scrollytelling
+ * left steps 2–4 floating beside an empty column on tall screens — the
+ * facelift trades the trick for legibility.
  */
 export function HowItWorks() {
-  const [active, setActive] = useState(0);
-  const stepRefs = useRef<Array<HTMLDivElement | null>>([]);
-  const { trackOnce } = useLandingEvents();
-
-  useEffect(() => {
-    const nodes = stepRefs.current.filter(Boolean) as HTMLDivElement[];
-    if (nodes.length === 0 || typeof IntersectionObserver === "undefined") return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (!entry.isIntersecting) continue;
-          const index = Number((entry.target as HTMLElement).dataset.step);
-          setActive(index);
-          trackOnce("demo_step_viewed", index + 1);
-        }
-      },
-      { rootMargin: "-45% 0px -45% 0px", threshold: 0 },
-    );
-    nodes.forEach((node) => observer.observe(node));
-    return () => observer.disconnect();
-  }, [trackOnce]);
-
-  const ActiveVisual = STEPS[active]!.Visual;
-
   return (
     <section id="how-it-works" className="lp-band">
-      <div className="mx-auto max-w-[1200px] px-4 py-20 lg:py-[120px]">
-      <h2 className="lp-h2 lp-measure-title">From inbox chaos to total clarity.</h2>
-      <p className="lp-body-lg lp-measure-copy mt-4" style={{ color: "var(--lp-text-muted)" }}>
-        Four steps, about two minutes.
-      </p>
+      <div className="mx-auto max-w-[1200px] px-4 py-16 lg:py-24">
+        <h2 className="lp-h2 lp-measure-title">From inbox chaos to total clarity.</h2>
+        <p className="lp-body-lg lp-measure-copy mt-4" style={{ color: "var(--lp-text-muted)" }}>
+          Four steps, about two minutes.
+        </p>
 
-      <div className="mt-12 grid gap-10 lg:grid-cols-2 lg:gap-16">
-        {/* Steps */}
-        <ol className="flex flex-col gap-6 lg:gap-[120px]">
-          {STEPS.map((step, index) => {
-            const Visual = step.Visual;
-            return (
-              <li key={step.n}>
-                <div
-                  ref={(node) => {
-                    stepRefs.current[index] = node;
-                  }}
-                  data-step={index}
-                  // 0.78, not lower: the dim state must still clear WCAG AA
-                  // for the muted copy it contains (D10 B9).
-                  className="transition-opacity duration-[350ms]"
-                  style={{ opacity: active === index ? 1 : 0.78 }}
+        <ol className="mt-12 grid gap-5 md:grid-cols-2">
+          {STEPS.map((step) => (
+            <li
+              key={step.n}
+              className="p-6 lg:p-7"
+              style={{
+                borderRadius: "var(--lp-radius-card)",
+                background: "var(--lp-surface)",
+                border: "1px solid var(--lp-hairline)",
+              }}
+            >
+              <div className="flex items-center gap-3">
+                <span
+                  className="flex size-9 shrink-0 items-center justify-center rounded-full text-sm font-bold"
+                  style={{ background: "var(--lp-primary)", color: "#04111f" }}
                 >
-                  <div className="flex items-center gap-3">
-                    <span
-                      className="flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-bold"
-                      style={{
-                        background: active === index ? "var(--lp-primary)" : "rgba(255,255,255,0.08)",
-                        color: active === index ? "#04111f" : "var(--lp-text-muted)",
-                      }}
-                    >
-                      {step.n}
-                    </span>
-                    <h3 className="lp-h3">{step.title}</h3>
-                  </div>
-                  <p className="lp-body lp-measure-copy mt-3" style={{ color: "var(--lp-text-muted)" }}>
-                    {step.copy}
-                  </p>
-                  {/* Mobile: each step carries its own visual inline. */}
-                  <div className="mt-5 lg:hidden">
-                    <Visual />
-                  </div>
-                </div>
-              </li>
-            );
-          })}
+                  {step.n}
+                </span>
+                <svg
+                  width="22"
+                  height="22"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="var(--lp-primary-bright)"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden
+                >
+                  <path d={step.icon} />
+                </svg>
+                <h3 className="lp-h3">{step.title}</h3>
+              </div>
+              <p className="lp-body mt-3" style={{ color: "var(--lp-text-muted)" }}>
+                {step.copy}
+              </p>
+            </li>
+          ))}
         </ol>
 
-        {/* Desktop: one sticky visual that swaps. */}
-        <div className="hidden lg:block">
-          <div className="sticky top-24">
-            <div
-              key={active}
-              className="transition-opacity duration-[350ms]"
-              style={{ transitionTimingFunction: "cubic-bezier(0.22, 1, 0.36, 1)" }}
-            >
-              <ActiveVisual />
-            </div>
-          </div>
+        <div className="mt-12 flex justify-center">
+          <PrimaryCta event="hero_cta_clicked">Find my subscriptions</PrimaryCta>
         </div>
-      </div>
-
-      <div className="mt-14 flex justify-center">
-        <PrimaryCta event="hero_cta_clicked">Find my subscriptions</PrimaryCta>
-      </div>
       </div>
     </section>
   );
@@ -260,12 +219,12 @@ const FAQ = [
     a: "Never. SubZero works entirely from your email receipts. We ask for no card details and no banking credentials.",
   },
   {
-    q: "Can SubZero cancel subscriptions automatically?",
-    a: "No. SubZero gives you the clearest available path — a direct cancellation link, a phone number, or a prepared email you send yourself. A subscription counts as cancelled only when the provider confirms it, and that is what the status will say.",
+    q: "What does it cost?",
+    a: `The scan is free and shows your totals plus your most expensive subscription. One ${PASS.price} payment — not a subscription — unlocks everything for 30 days. Guardian (${GUARDIAN.price}/year) is optional and keeps re-scanning after the cleanup.`,
   },
   {
-    q: "What happens when a merchant changes its name?",
-    a: "Charges are grouped by sender domain and amount pattern as well as name, so a rename usually stays one subscription. When it doesn't, you can correct the merchant on the subscription and the correction sticks.",
+    q: "Can SubZero cancel subscriptions automatically?",
+    a: "No. SubZero gives you the clearest available path — a direct cancellation link, a phone number, or a prepared email you send yourself. A subscription counts as cancelled only when the provider confirms it, and that is what the status will say.",
   },
   {
     q: "How do I revoke access or delete my account?",
@@ -295,7 +254,10 @@ export function Faq() {
               }
             }}
           >
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-left font-semibold focus-visible:outline-2 focus-visible:outline-offset-2" style={{ outlineColor: "var(--lp-primary-bright)" }}>
+            <summary
+              className="flex cursor-pointer list-none items-center justify-between gap-4 text-left font-semibold focus-visible:outline-2 focus-visible:outline-offset-2"
+              style={{ outlineColor: "var(--lp-primary-bright)" }}
+            >
               {item.q}
               <svg
                 width="18"
@@ -322,7 +284,7 @@ export function Faq() {
   );
 }
 
-/** §G — pricing strip. Real tiers and real prices; the table lives on /pricing. */
+/** §G — pricing strip. Real tiers, real prices, and a real button on each card. */
 export function PricingStrip() {
   const { trackOnce, track } = useLandingEvents();
   const ref = useRef<HTMLElement | null>(null);
@@ -340,19 +302,18 @@ export function PricingStrip() {
     return () => observer.disconnect();
   }, [trackOnce]);
 
-
   return (
-    <section id="pricing" ref={ref} className="mx-auto max-w-[1200px] px-4 py-20 lg:py-[120px]">
+    <section id="pricing" ref={ref} className="mx-auto max-w-[1200px] px-4 py-16 lg:py-24">
       <h2 className="lp-h2">Simple enough to start today.</h2>
       <p className="lp-body-lg lp-measure-copy mt-4" style={{ color: "var(--lp-text-muted)" }}>
-        The scan is free. One payment unlocks the cleanup — and it&rsquo;s not a subscription.
+        {TEASER_BOUNDARY}
       </p>
 
       <div className="mt-10 grid gap-4 md:grid-cols-3">
         {PLANS.map((tier) => (
           <div
             key={tier.id}
-            className="relative p-6"
+            className="relative flex flex-col p-6"
             style={{
               borderRadius: "var(--lp-radius-card)",
               background: "var(--lp-surface)",
@@ -372,24 +333,36 @@ export function PricingStrip() {
               {tier.price}
               {tier.cadence && (
                 <span className="text-base font-medium" style={{ color: "var(--lp-text-muted)" }}>
-                  {" "}{tier.cadence}
+                  {" "}
+                  {tier.cadence}
                 </span>
               )}
             </div>
-            <p className="lp-small mt-3" style={{ color: "var(--lp-text-muted)" }}>{tier.summary}</p>
+            <p className="lp-small mt-3 flex-1" style={{ color: "var(--lp-text-muted)" }}>
+              {tier.summary}
+            </p>
+            <div className="mt-5">
+              {tier.id === "free" ? (
+                <PrimaryCta event="pricing_viewed" className="w-full !min-h-[44px] !py-2.5 !text-sm">
+                  Start the free scan
+                </PrimaryCta>
+              ) : (
+                <Link
+                  href="/pricing"
+                  onClick={() => track("pricing_viewed")}
+                  className="inline-flex w-full items-center justify-center rounded-lg px-4 py-2.5 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2"
+                  style={{
+                    border: "1px solid rgba(255,255,255,0.18)",
+                    color: "var(--lp-text)",
+                    outlineColor: "var(--lp-primary-bright)",
+                  }}
+                >
+                  {tier.id === "pass" ? "Get the Cleanup Pass" : "See Guardian"}
+                </Link>
+              )}
+            </div>
           </div>
         ))}
-      </div>
-
-      <div className="mt-8">
-        <Link
-          href="/pricing"
-          onClick={() => track("pricing_viewed")}
-          className="lp-small font-semibold underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2"
-          style={{ color: "var(--lp-primary-bright)", outlineColor: "var(--lp-primary-bright)" }}
-        >
-          Compare the plans in full
-        </Link>
       </div>
     </section>
   );
@@ -400,30 +373,33 @@ export function FinalCta() {
   return (
     <section className="lp-band-glow">
       <div className="mx-auto max-w-3xl px-4 py-20 text-center lg:py-[120px]">
-      <h2 className="lp-h2">Stop wondering where your money is going.</h2>
-      <p className="lp-body-lg mt-4" style={{ color: "var(--lp-text-muted)" }}>
-        See the recurring charges already hiding in your inbox.
-      </p>
-      <div className="mt-8 flex justify-center">
-        <PrimaryCta event="final_cta_clicked">Scan my inbox securely</PrimaryCta>
-      </div>
-      <p className="lp-small mt-5" style={{ color: "var(--lp-text-muted)" }}>
-        No bank connection. Revoke access anytime.
-      </p>
+        <h2 className="lp-h2">Stop wondering where your money is going.</h2>
+        <p className="lp-body-lg mt-4" style={{ color: "var(--lp-text-muted)" }}>
+          See the recurring charges already hiding in your inbox.
+        </p>
+        <div className="mt-8 flex justify-center">
+          <PrimaryCta event="final_cta_clicked">Scan my inbox — free</PrimaryCta>
+        </div>
+        <p className="lp-small mt-5" style={{ color: "var(--lp-text-muted)" }}>
+          No bank connection. Revoke access anytime.
+        </p>
       </div>
     </section>
   );
 }
 
 /**
- * Mobile sticky CTA (brief §9): appears once the hero CTA has scrolled out
- * of view, hides again near the footer so it never covers the final CTA.
+ * Mobile sticky CTA (brief §9): appears only after the hero's own CTA has
+ * scrolled fully out of view (observing the CTA itself, not the mockup —
+ * observing the mockup made the bar show while the hero button was still on
+ * screen, stacking two identical buttons), and hides near the footer so it
+ * never covers the final CTA.
  */
 export function StickyCta() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    const hero = document.getElementById("hero-mockup");
+    const heroCta = document.getElementById("hero-cta");
     const footerSentinel = document.getElementById("lp-end");
     if (typeof IntersectionObserver === "undefined") return;
 
@@ -432,15 +408,15 @@ export function StickyCta() {
     const sync = () => setVisible(heroGone && !atEnd);
 
     const observers: IntersectionObserver[] = [];
-    if (hero) {
+    if (heroCta) {
       const o = new IntersectionObserver(
         ([entry]) => {
-          heroGone = !entry!.isIntersecting && entry!.boundingClientRect.top < 0;
+          heroGone = !entry!.isIntersecting && entry!.boundingClientRect.bottom < 0;
           sync();
         },
         { threshold: 0 },
       );
-      o.observe(hero);
+      o.observe(heroCta);
       observers.push(o);
     }
     if (footerSentinel) {
@@ -472,7 +448,7 @@ export function StickyCta() {
     >
       <div className={visible ? "" : "pointer-events-none"}>
         <PrimaryCta event="hero_cta_clicked" className="w-full">
-          Scan my inbox securely
+          Scan my inbox — free
         </PrimaryCta>
       </div>
     </div>

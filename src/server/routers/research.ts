@@ -39,6 +39,8 @@ const LANDING_EVENT_NAMES = [
   "pricing_viewed",
   "faq_opened",
   "final_cta_clicked",
+  "assistant_opened",
+  "assistant_message",
 ] as const satisfies readonly AnalyticsEvent[];
 
 /** Generous for a real visitor, tight enough that the endpoint isn't a firehose. */

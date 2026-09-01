@@ -27,6 +27,10 @@ const SOURCES = [
   "src/app/page.tsx",
   "src/app/landing-sections.tsx",
   "src/app/landing-mockups.tsx",
+  // The assistant speaks to the same visitors — its copy is held to the
+  // same lines. (The KB feeds both the AI grounding and the fallback.)
+  "src/app/assistant-widget.tsx",
+  "src/lib/assistant-kb.ts",
 ].map((path) => ({ path, text: copyOnly(readFileSync(path, "utf8")) }));
 
 const all = SOURCES.map((s) => s.text).join("\n");
